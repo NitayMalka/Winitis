@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a0b1c"/>
+      <stop offset="100%" stop-color="#0a040b"/>
+    </linearGradient>
+    <linearGradient id="wineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#b81d40"/>
+      <stop offset="50%" stop-color="#721427"/>
+      <stop offset="100%" stop-color="#3d030f"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f7e4a1"/>
+      <stop offset="100%" stop-color="#b8860b"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)"/>
+  <!-- Outer glowing rim -->
+  <rect width="504" height="504" x="4" y="4" rx="124" fill="none" stroke="url(#goldGrad)" stroke-width="4" opacity="0.4"/>
+  <!-- Wine Glass Silhouette -->
+  <path d="M 176 120 C 176 260, 336 260, 336 120 Z" fill="url(#wineGrad)"/>
+  <path d="M 176 120 C 176 260, 336 260, 336 120 Z" fill="none" stroke="url(#goldGrad)" stroke-width="6"/>
+  <!-- Glass Stem -->
+  <line x1="256" y1="250" x2="256" y2="390" stroke="url(#goldGrad)" stroke-width="8" stroke-linecap="round"/>
+  <!-- Glass Base -->
+  <ellipse cx="256" cy="390" rx="70" ry="14" fill="none" stroke="url(#goldGrad)" stroke-width="8"/>
+  <!-- Liquid Surface Curve -->
+  <path d="M 186 150 Q 256 165 326 150" fill="none" stroke="#f7e4a1" stroke-width="3" opacity="0.6"/>
+</svg>
