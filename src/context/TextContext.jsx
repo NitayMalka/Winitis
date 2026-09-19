@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import defaultTexts from '../content/appTexts.json';
 
 const TextContext = createContext(null);
@@ -22,9 +22,37 @@ export function TextProvider({ children }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
 
+  // Automatically sync custom texts from localStorage to server JSON file if present
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        fetch('/api/save-texts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: saved
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            console.log('[TextContext] Synced custom texts to src/content/appTexts.json');
+          }
+        })
+        .catch(err => console.warn('[TextContext] Auto-sync to disk skipped:', err));
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
   const saveToStorage = (updated) => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      fetch('/api/save-texts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      }).catch(() => {});
     } catch (e) {
       console.error('Failed to save custom texts to localStorage:', e);
     }

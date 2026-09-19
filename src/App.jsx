@@ -12,8 +12,6 @@ import QuickReferenceModal from './components/QuickReferenceModal';
 import { getSavedNotes, saveNote, deleteNote } from './utils/storage';
 import { Wine, Check, Sparkles, Eye, Wind, Activity, Award, FileText } from 'lucide-react';
 import { useTexts } from './context/TextContext';
-import TextEditorDrawer from './components/TextEditor/TextEditorDrawer';
-import TextEditorFloatingBar from './components/TextEditor/TextEditorFloatingBar';
 import EditableText from './components/TextEditor/EditableText';
 
 const INITIAL_NOTE_STATE = {
@@ -244,10 +242,6 @@ export default function App() {
           <EditableText textKey="footer.line2" defaultText="Designed for Red Wines • Split-Screen Color Inspection • Offline Local Storage" />
         </div>
       </footer>
-
-      {/* Persistent Text Customizer Mode (Temporary Edit Version) */}
-      <TextEditorFloatingBar />
-      <TextEditorDrawer />
     </div>
   );
 }

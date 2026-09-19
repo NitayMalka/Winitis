@@ -1,7 +1,7 @@
 {
   "header": {
     "brandTitle": "WINITIS",
-    "brandSubtitle": "Red Wine Tasting PWA",
+    "brandSubtitle": "Red Wine Tasting",
     "newTasting": "New Tasting",
     "cellarLog": "Cellar Log ({count})",
     "guideTooltip": "Sommelier Guide",
@@ -31,7 +31,7 @@
     "countryPlaceholder": "e.g. France, USA, Italy",
     "regionLabel": "Region",
     "regionPlaceholder": "e.g. Bordeaux, Margaux, Napa Valley",
-    "alcoholLabel": "Alcohol % (ABV)",
+    "alcoholLabel": "Alcohol %",
     "alcoholPlaceholder": "e.g. 14.5%"
   },
   "color": {
@@ -72,12 +72,12 @@
   "palate": {
     "title": "Palate & Structural Balance",
     "stepBadge": "Step 4 of 6",
-    "tanninTitle": "Tannin Quantity & Grip",
+    "tanninTitle": "Tannin",
     "tanninTexturesTitle": "Tannin Texture & Feel",
-    "acidityTitle": "Acidity Level",
-    "bodyTitle": "Body Weight",
-    "flavorTitle": "Flavor Intensity (Palate Concentration)",
-    "finishTitle": "Finish & Aftertaste Length",
+    "acidityTitle": "Acidity",
+    "bodyTitle": "Body",
+    "flavorTitle": "Flavor Intensity",
+    "finishTitle": "Aftertaste Length",
     "holdToTimeBtn": "Hold to Time",
     "holdToTimeSub": "Press & Hold",
     "releaseBtn": "Release",
@@ -87,7 +87,7 @@
     "finishDescMedium": "Balanced, pleasant persistence of fruit and oak",
     "finishDescMediumPlus": "Impressive sustained complexity and structure",
     "finishDescLong": "Exceptional lingering resonance, multi-dimensional finish",
-    "sweetnessTitle": "Sweetness Level",
+    "sweetnessTitle": "Sweetness",
     "alcoholTitle": "Alcohol Warmth"
   },
   "conclusion": {
@@ -95,7 +95,7 @@
     "stepBadge": "Step 4 of 5",
     "scoreTitle": "Overall Sommelier Score (100-Point Scale)",
     "scoreSuffix": "/100",
-    "priceLabel": "Price / Estimated Value",
+    "priceLabel": "Price",
     "pricePlaceholder": "e.g.  or €75",
     "qualityLabel": "Quality Assessment Level",
     "qualityFaulty": "Faulty",
@@ -109,7 +109,7 @@
     "drinkWindowDrinkNowAging": "Can drink now, but has potential for aging (5-10+ years)",
     "drinkWindowPeak": "Drink now (at peak performance)",
     "drinkWindowDeclining": "Past its best / declining",
-    "notesLabel": "Personal Sommelier Tasting Summary & Food Pairings",
+    "notesLabel": "Notes",
     "notesPlaceholder": "Write your personal tasting notes, pairing suggestions (e.g. Ribeye, Prime Rib, Aged Gouda), or decanting observations...",
     "saveBtn": "Save Note to Cellar",
     "shareBtn": "Share Note"
