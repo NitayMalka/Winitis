@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sun, Eye, Info, Maximize2, Sparkles, Sliders } from 'lucide-react';
+import EditableText from '../TextEditor/EditableText';
+import { useTexts } from '../../context/TextContext';
 
 // Linear Red Wine Spectrum (0% Violet -> 25% Ruby -> 50% Garnet -> 75% Tawny -> 100% Brick)
 const SPECTRUM_CLASSES = [
@@ -246,48 +248,16 @@ export default function ColorStep({ colorData, updateColorData }) {
         }}
       >
 
-        {/* TOP HALF: WHITE AREA (Glass Placement Canvas) */}
+        {/* TOP HALF: WHITE AREA (Glass Placement Canvas - Pure White surface) */}
         <div 
           style={{
             backgroundColor: '#ffffff',
-            backgroundImage: 'radial-gradient(#e2e8f0 1px, transparent 1px)',
-            backgroundSize: '24px 24px',
             padding: '24px',
             minHeight: '320px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            alignItems: 'center',
             position: 'relative',
             borderBottom: '3px solid #cbd5e1'
           }}
-        >
-          <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div className="white-canvas-badge">
-              <Sun size={14} color="#d4af37" />
-              <span>TOP: Pure White Reference Canvas</span>
-            </div>
-            <button 
-              className="btn btn-outline" 
-              style={{ color: '#0f0910', borderColor: '#cbd5e1', background: '#f8fafc', padding: '4px 10px', fontSize: '0.72rem' }}
-              onClick={() => setIsFullscreenWhite(true)}
-            >
-              <Maximize2 size={12} /> Fullscreen
-            </button>
-          </div>
-
-          {/* Physical Glass Alignment Target */}
-          <div className="glass-target-guide" style={{ width: '210px', height: '200px', margin: '8px 0' }}>
-            <span style={{ fontSize: '2.6rem' }}>🍷</span>
-            <div className="glass-target-text" style={{ fontSize: '0.85rem' }}>
-              Hold wine glass here at 45° angle to observe edge & core depth
-            </div>
-          </div>
-
-          <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>
-            ↓ Compare directly against the matched wine color fill below ↓
-          </div>
-        </div>
+        />
 
         {/* BOTTOM HALF: MATCHED WINE COLOR FILL + FLIPPED 2D RECTANGLE BOX (X=Tone, Y=Color) */}
         <div 
@@ -301,32 +271,12 @@ export default function ColorStep({ colorData, updateColorData }) {
             justifyContent: 'space-between',
             alignItems: 'center',
             position: 'relative',
-            color: '#ffffff',
-            boxShadow: 'inset 0 10px 30px rgba(0,0,0,0.5)'
+            color: '#ffffff'
           }}
         >
 
-          {/* Floating Header Badge */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
-            <div 
-              style={{
-                background: 'rgba(15, 9, 16, 0.85)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid var(--border-gold)',
-                padding: '6px 14px',
-                borderRadius: '20px',
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                color: 'var(--gold-light)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              <Eye size={14} color="#d4af37" />
-              <span>BOTTOM: Matched Color Canvas</span>
-            </div>
-
+          {/* Color Info Badge (Right aligned) */}
+          <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
             <div 
               style={{
                 background: 'rgba(15, 9, 16, 0.85)',
@@ -343,67 +293,34 @@ export default function ColorStep({ colorData, updateColorData }) {
             </div>
           </div>
 
-          {/* FLIPPED 2D RED WINE SPECTRUM RECTANGLE BOX (X = Tone Darkness, Y = Red Spectrum Color) */}
+          {/* 2D RED WINE SPECTRUM CANVAS (Panned to the left, outer container, buttons, and helper texts removed) */}
           <div 
-            style={{
-              width: '100%',
-              maxWidth: '520px',
-              background: 'rgba(15, 9, 16, 0.88)',
-              backdropFilter: 'blur(16px)',
-              border: '1px solid var(--border-gold)',
-              borderRadius: '20px',
-              padding: '16px 20px',
-              boxShadow: '0 12px 35px rgba(0,0,0,0.6)',
-              margin: '12px auto'
+            style={{ 
+              position: 'relative', 
+              width: '100%', 
+              maxWidth: '460px', 
+              alignSelf: 'flex-start',
+              margin: '16px 0', 
+              touchAction: 'none' 
             }}
           >
-            {/* Quick Class Pills (Vertical Spectrum Targets) */}
-            <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', marginBottom: '10px' }}>
-              {SPECTRUM_CLASSES.map((cls) => (
-                <button
-                  key={cls.id}
-                  type="button"
-                  className={`btn ${currentClassObj.id === cls.id ? 'btn-gold' : 'btn-outline'}`}
-                  style={{
-                    padding: '4px 10px',
-                    fontSize: '0.72rem',
-                    background: currentClassObj.id === cls.id ? undefined : 'rgba(255, 255, 255, 0.05)',
-                    borderColor: 'var(--border-gold)'
-                  }}
-                  onClick={() => setNormY(cls.pos)}
-                >
-                  {cls.name.split(' ')[0]}
-                </button>
-              ))}
-            </div>
-
-            {/* 2D MATRIX CANVAS: X = Tone Darkness (Left Light -> Right Dark), Y = Red Spectrum Color (Top Violet -> Bottom Brick) */}
-            <div style={{ position: 'relative', width: '100%', touchAction: 'none' }}>
-              <canvas 
-                ref={canvasRef}
-                width={460}
-                height={200}
-                style={{
-                  width: '100%',
-                  height: '200px',
-                  display: 'block',
-                  borderRadius: '14px',
-                  cursor: 'crosshair',
-                  boxShadow: 'inset 0 0 15px rgba(0,0,0,0.6), 0 4px 15px rgba(0,0,0,0.4)',
-                  border: '2px solid rgba(255,255,255,0.4)'
-                }}
-                onPointerDown={handlePointerDown}
-                onMouseDown={handlePointerDown}
-                onTouchStart={handlePointerDown}
-              />
-            </div>
-
-            {/* Axis Helper Labels */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'rgba(255,255,255,0.85)', marginTop: '8px', fontWeight: 600 }}>
-              <span>◄ Light Tone</span>
-              <span>↔ Drag circle handle: X=Tone Darkness | Y=Red Color Spectrum ↕</span>
-              <span>Dark Tone ►</span>
-            </div>
+            <canvas 
+              ref={canvasRef}
+              width={460}
+              height={200}
+              style={{
+                width: '100%',
+                height: '200px',
+                display: 'block',
+                borderRadius: '14px',
+                cursor: 'crosshair',
+                border: '2px solid rgba(255, 255, 255, 0.5)',
+                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.45)'
+              }}
+              onPointerDown={handlePointerDown}
+              onMouseDown={handlePointerDown}
+              onTouchStart={handlePointerDown}
+            />
           </div>
 
           {/* LOWER CONTROLS PANEL: CORE EXTRACTION & RIM EDGE TRANSITION */}
@@ -426,11 +343,15 @@ export default function ColorStep({ colorData, updateColorData }) {
               {/* Core Extraction Depth Buttons */}
               <div className="slider-group">
                 <div className="slider-label" style={{ fontSize: '0.75rem' }}>
-                  <span>Core Extraction Depth</span>
+                  <span><EditableText textKey="color.coreDepthLabel" defaultText="Core Extraction Depth" /></span>
                   <span className="slider-value">{intensity}</span>
                 </div>
                 <div style={{ display: 'flex', gap: '6px' }}>
-                  {['Pale', 'Medium', 'Deep'].map((val) => (
+                  {[
+                    { val: 'Pale', key: 'color.depthPale' },
+                    { val: 'Medium', key: 'color.depthMedium' },
+                    { val: 'Deep', key: 'color.depthDeep' }
+                  ].map(({ val, key }) => (
                     <button
                       key={val}
                       type="button"
@@ -438,7 +359,7 @@ export default function ColorStep({ colorData, updateColorData }) {
                       style={{ flex: 1, padding: '6px', fontSize: '0.75rem', fontWeight: 600 }}
                       onClick={() => setIntensity(val)}
                     >
-                      {val}
+                      <EditableText textKey={key} defaultText={val} />
                     </button>
                   ))}
                 </div>
@@ -446,7 +367,9 @@ export default function ColorStep({ colorData, updateColorData }) {
 
               {/* Rim Edge Transition Selector */}
               <div className="form-group">
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Rim Edge Transition</label>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>
+                  <EditableText textKey="color.rimTransitionLabel" defaultText="Rim Edge Transition" />
+                </label>
                 <select 
                   className="form-select"
                   style={{ padding: '6px 10px', fontSize: '0.78rem' }}

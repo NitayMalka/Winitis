@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { RED_WINE_AROMAS } from '../../data/wineData';
 import { Wind, Sparkles, Check, Info, Trash2, Sliders } from 'lucide-react';
+import EditableText from '../TextEditor/EditableText';
+import { useTexts } from '../../context/TextContext';
 
 const INTENSITY_LEVELS = ['Light', 'Medium(-)', 'Medium', 'Medium(+)', 'Pronounced'];
 const DEVELOPMENT_LEVELS = ['Youthful', 'Developing', 'Fully Developed', 'Tired'];
@@ -210,10 +212,10 @@ export default function NoseStep({ noseData, updateNoseData }) {
       <div className="card-header">
         <h3 className="card-title font-serif">
           <Wind size={22} color="#d4af37" />
-          Interactive Concentric Aroma Wheel
+          <EditableText textKey="nose.title" defaultText="Nose & Aromatic Profile" />
         </h3>
         <span style={{ fontSize: '0.8rem', color: 'var(--text-gold)', background: 'rgba(212,175,55,0.1)', padding: '4px 12px', borderRadius: '12px' }}>
-          Step 3 of 5
+          <EditableText textKey="nose.stepBadge" defaultText="Step 2 of 5" />
         </span>
       </div>
 
@@ -224,31 +226,28 @@ export default function NoseStep({ noseData, updateNoseData }) {
           gridTemplateColumns: '240px 1fr',
           gap: '24px',
           alignItems: 'start',
-          background: 'rgba(15, 9, 16, 0.95)',
-          border: '1px solid var(--border-gold)',
-          borderRadius: 'var(--radius-lg)',
-          padding: '24px',
-          boxShadow: '0 15px 35px rgba(0,0,0,0.5)'
+          marginTop: '8px'
         }}
         className="nose-workspace-grid"
       >
 
-        {/* LEFT COLUMN: SELECTED AROMAS PANEL */}
+        {/* LEFT COLUMN: SELECTED AROMAS (Outer container styling removed) */}
         <div 
           style={{
-            background: 'rgba(255, 255, 255, 0.03)',
-            border: '1px solid rgba(212, 175, 55, 0.25)',
-            borderRadius: 'var(--radius-md)',
-            padding: '16px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '12px',
-            minHeight: '440px'
+            gap: '12px'
           }}
         >
           <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--gold-light)', display: 'flex', alignItems: 'center', gap: '6px', borderBottom: '1px solid rgba(212,175,55,0.15)', paddingBottom: '8px' }}>
             <Sparkles size={16} color="#d4af37" />
-            <span>Selected Aromas ({selectedAromas.length})</span>
+            <span>
+              <EditableText 
+                textKey="nose.selectedAromasTitle" 
+                defaultText={`Selected Aromas (${selectedAromas.length})`}
+                interpolations={{ count: selectedAromas.length }}
+              />
+            </span>
           </div>
 
           {selectedAromas.length > 0 ? (
@@ -264,7 +263,7 @@ export default function NoseStep({ noseData, updateNoseData }) {
                     borderRadius: '10px',
                     fontSize: '0.8rem',
                     display: 'flex',
-                    justify: 'space-between',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
                     cursor: 'pointer',
                     transition: 'all 0.15s ease'
@@ -279,23 +278,13 @@ export default function NoseStep({ noseData, updateNoseData }) {
             </div>
           ) : (
             <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.78rem', padding: '40px 10px', fontStyle: 'italic' }}>
-              No aromas selected yet.<br/><br/>
-              Click Ring 3 wedges on the wheel to select aromas for your evaluation.
+              <EditableText textKey="nose.emptyAromasHint" defaultText="Tap aromas on the wheel or category tabs below to select" multiline={true} />
             </div>
           )}
         </div>
 
         {/* CENTER / RIGHT COLUMN: INTERACTIVE AROMA WHEEL WITH CURVED TEXT ARCS */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-          <div style={{ textAlign: 'center' }}>
-            <h4 className="font-serif" style={{ color: 'var(--gold-light)', fontSize: '1.2rem' }}>
-              Sommelier Wheel & Curved Slider Arcs
-            </h4>
-            <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '2px' }}>
-              <span style={{ color: '#d4af37', fontWeight: 700 }}>Intensity: {currentIntensity}</span> • 
-              <span style={{ color: '#e67e22', fontWeight: 700, marginLeft: '8px' }}>Development: {currentDevelopment}</span>
-            </p>
-          </div>
 
           <div style={{ width: '100%', maxWidth: '490px', touchAction: 'none', position: 'relative' }}>
             <svg 

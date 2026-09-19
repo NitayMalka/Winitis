@@ -1,7 +1,10 @@
 import React from 'react';
 import { Share2, Trash2, Calendar, MapPin, Eye, DollarSign } from 'lucide-react';
+import EditableText from '../TextEditor/EditableText';
+import { useTexts } from '../../context/TextContext';
 
 export default function NoteCard({ note, onView, onShare, onDelete }) {
+  const { t } = useTexts();
   const originStr = [note.region, note.country].filter(Boolean).join(', ') || 'Origin Unspecified';
   const priceStr = note.conclusion?.price || note.price;
 
@@ -13,7 +16,7 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
             <div className="note-wine-title font-serif">{note.wineName || 'Red Wine Evaluation'}</div>
             {note.vintage && (
               <div style={{ fontSize: '0.85rem', color: 'var(--gold-primary)', fontWeight: 600 }}>
-                Vintage {note.vintage}
+                <EditableText textKey="cellar.vintagePrefix" defaultText="Vintage" /> {note.vintage}
               </div>
             )}
           </div>
@@ -54,7 +57,7 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
 
           {note.palate?.finish && (
             <div className="note-color-indicator" style={{ marginBottom: 0, color: 'var(--gold-light)', border: '1px solid rgba(212,175,55,0.2)' }}>
-              <span>Finish: {note.palate.finish}</span>
+              <span><EditableText textKey="cellar.finishPrefix" defaultText="Finish:" /> {note.palate.finish}</span>
             </div>
           )}
         </div>
@@ -62,7 +65,9 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
         {/* Nose & Aromas Preview */}
         {note.nose?.aromas?.length > 0 && (
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-            <strong style={{ color: 'var(--text-gold)' }}>Aromas: </strong>
+            <strong style={{ color: 'var(--text-gold)' }}>
+              <EditableText textKey="cellar.aromasPrefix" defaultText="Aromas:" />{' '}
+            </strong>
             {note.nose.aromas.slice(0, 4).join(', ')}
             {note.nose.aromas.length > 4 && '...'}
           </div>
@@ -83,14 +88,14 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
           style={{ flex: 1, padding: '6px', fontSize: '0.75rem' }}
           onClick={() => onView(note)}
         >
-          <Eye size={14} /> View
+          <Eye size={14} /> <EditableText textKey="cellar.viewBtn" defaultText="View" />
         </button>
 
         <button 
           className="btn btn-gold" 
           style={{ padding: '6px 10px', fontSize: '0.75rem' }}
           onClick={() => onShare(note)}
-          title="Share Note"
+          title={t('cellar.shareBtn', 'Share')}
         >
           <Share2 size={14} />
         </button>
@@ -99,7 +104,7 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
           className="btn btn-outline" 
           style={{ padding: '6px 10px', fontSize: '0.75rem', borderColor: 'rgba(239,68,68,0.3)', color: '#ef4444' }}
           onClick={() => onDelete(note.id)}
-          title="Delete Note"
+          title={t('cellar.deleteBtn', 'Delete')}
         >
           <Trash2 size={14} />
         </button>

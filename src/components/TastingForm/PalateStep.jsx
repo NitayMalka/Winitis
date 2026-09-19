@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Activity, Flame, Droplets, Gauge, Timer, Sparkles, Check, Wine, Zap } from 'lucide-react';
+import EditableText from '../TextEditor/EditableText';
+import { useTexts } from '../../context/TextContext';
 
 const TANNIN_SLIDER_OPTIONS = [
   { value: 'Low (Soft)', label: 'Low', pillLabel: 'Low' },
@@ -499,10 +501,10 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
       <div className="card-header">
         <h3 className="card-title font-serif">
           <Activity size={22} color="#d4af37" />
-          Palate & Structural Balance
+          <EditableText textKey="palate.title" defaultText="Palate & Structural Balance" />
         </h3>
         <span style={{ fontSize: '0.8rem', color: 'var(--text-gold)', background: 'rgba(212,175,55,0.1)', padding: '4px 12px', borderRadius: '12px' }}>
-          Step 4 of 5
+          <EditableText textKey="palate.stepBadge" defaultText="Step 4 of 6" />
         </span>
       </div>
 
@@ -515,7 +517,7 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
           <div className="palate-section-header">
             <div className="palate-section-title" style={{ color: 'var(--gold-light)' }}>
               <Flame size={17} color="#b81d40" />
-              Tannin Quantity & Grip
+              <EditableText textKey="palate.tanninTitle" defaultText="Tannin Quantity & Grip" />
             </div>
           </div>
           <div className="palate-section-desc">
@@ -556,7 +558,7 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
           <div className="palate-section-header">
             <div className="palate-section-title" style={{ color: 'var(--text-main)' }}>
               <Droplets size={17} color="#38bdf8" />
-              Acidity (Mouth-Watering Freshness)
+              <EditableText textKey="palate.acidityTitle" defaultText="Acidity Level" />
             </div>
           </div>
           <div className="palate-section-desc">
@@ -580,7 +582,7 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
           <div className="palate-section-header">
             <div className="palate-section-title" style={{ color: 'var(--text-main)' }}>
               <Gauge size={17} color="#d4af37" />
-              Body & Viscosity (Palate Weight)
+              <EditableText textKey="palate.bodyTitle" defaultText="Body Weight" />
             </div>
           </div>
           <div className="palate-section-desc">
@@ -603,7 +605,7 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
         <div className="palate-section-card" style={{ padding: '16px 20px' }}>
           <div className="palate-section-header">
             <span className="palate-section-title" style={{ fontSize: '0.9rem' }}>
-              Flavor Intensity (Palate Concentration)
+              <EditableText textKey="palate.flavorTitle" defaultText="Flavor Intensity (Palate Concentration)" />
             </span>
           </div>
 
@@ -628,7 +630,7 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
               <div className="palate-section-header" style={{ marginBottom: '6px' }}>
                 <div className="palate-section-title" style={{ color: 'var(--gold-light)', fontSize: '1.02rem' }}>
                   <Timer size={19} color="var(--gold-primary)" />
-                  Finish & Aftertaste Length
+                  <EditableText textKey="palate.finishTitle" defaultText="Finish & Aftertaste Length" />
                 </div>
               </div>
 
@@ -691,19 +693,25 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
                       <div className="timer-live-time">
                         {liveElapsed.toFixed(1)}s
                       </div>
-                      <span className="timer-btn-label">Release</span>
+                      <span className="timer-btn-label">
+                        <EditableText textKey="palate.releaseBtn" defaultText="Release" />
+                      </span>
                     </>
                   ) : timerSavedFlash ? (
                     <>
                       <Check size={18} color="#4ade80" />
-                      <span className="timer-btn-label" style={{ color: '#4ade80' }}>Saved!</span>
+                      <span className="timer-btn-label" style={{ color: '#4ade80' }}>
+                        <EditableText textKey="palate.savedBtn" defaultText="Saved!" />
+                      </span>
                     </>
                   ) : (
                     <>
                       <Timer size={18} color="var(--gold-primary)" />
-                      <span className="timer-btn-label">Hold to Time</span>
+                      <span className="timer-btn-label">
+                        <EditableText textKey="palate.holdToTimeBtn" defaultText="Hold to Time" />
+                      </span>
                       <span style={{ fontSize: '0.6rem', color: 'var(--text-muted)', marginTop: '-2px' }}>
-                        Press & Hold
+                        <EditableText textKey="palate.holdToTimeSub" defaultText="Press & Hold" />
                       </span>
                     </>
                   )}
@@ -715,7 +723,7 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
             <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: 'var(--text-gold)', opacity: 0.85 }}>
               <Sparkles size={12} />
               <span>
-                Sommelier Tip: Press & hold upon swallowing. Release when flavor persistence fades.
+                <EditableText textKey="palate.finishTip" defaultText="Sommelier Tip: Press & hold upon swallowing. Release when flavor persistence fades." />
               </span>
             </div>
           </div>
@@ -727,7 +735,7 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
             <div className="palate-section-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '16px 20px', margin: 0 }}>
               <div className="palate-section-header" style={{ marginBottom: '10px' }}>
                 <span className="palate-section-title" style={{ fontSize: '0.9rem' }}>
-                  Sweetness Level
+                  <EditableText textKey="palate.sweetnessTitle" defaultText="Sweetness Level" />
                 </span>
               </div>
               <Sommelier5SectorSlider
@@ -742,7 +750,7 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
             <div className="palate-section-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '16px 20px', margin: 0 }}>
               <div className="palate-section-header" style={{ marginBottom: '10px' }}>
                 <span className="palate-section-title" style={{ fontSize: '0.9rem' }}>
-                  Alcohol Warmth
+                  <EditableText textKey="palate.alcoholTitle" defaultText="Alcohol Warmth" />
                 </span>
               </div>
               <SommelierTrackSlider

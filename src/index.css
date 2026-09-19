@@ -1151,3 +1151,611 @@ input[type="range"]::-webkit-slider-thumb:hover {
   }
 }
 
+/* Winitis Text Editor & In-Place Editing Styles */
+.winitis-editable-text {
+  display: inline-block;
+  transition: all 0.15s ease;
+}
+
+.winitis-editable-text:hover {
+  background: rgba(212, 175, 55, 0.12) !important;
+  outline: 1.5px dashed var(--gold-primary) !important;
+  outline-offset: 3px;
+}
+
+.winitis-editable-badge {
+  display: inline-flex;
+  vertical-align: middle;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.winitis-editable-text:hover .winitis-editable-badge {
+  opacity: 1 !important;
+  transform: scale(1.2);
+}
+
+/* =======================================================
+   WINE TASTING VERDICT / ONE-SCREEN SUMMARY SECTOR
+   ======================================================= */
+.verdict-card {
+  width: 100%;
+  border-radius: 12px;
+  padding: 32px 36px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+/* Editorial Parchment Theme (Matching Reference Image) */
+.verdict-card.theme-parchment {
+  background-color: #f7f3e8;
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(255,255,255,0.7) 0%, transparent 60%),
+    radial-gradient(circle at 90% 90%, rgba(220,210,195,0.4) 0%, transparent 70%);
+  color: #1a1216;
+  border: 2px solid #3c322b;
+  outline: 1px solid #c8bcad;
+  outline-offset: -6px;
+}
+
+.verdict-card.theme-parchment .verdict-wine-title {
+  color: #12090e;
+}
+
+.verdict-card.theme-parchment .spec-label {
+  color: #63544a;
+  font-weight: 700;
+}
+
+.verdict-card.theme-parchment .spec-value {
+  color: #2b1f25;
+  font-weight: 600;
+}
+
+.verdict-card.theme-parchment .verdict-price-tag {
+  color: #1b1116;
+}
+
+.verdict-card.theme-parchment .verdict-divider-line,
+.verdict-card.theme-parchment .verdict-inner-divider {
+  background: #beb2a2;
+}
+
+.verdict-card.theme-parchment .verdict-section-heading {
+  color: #1f141b;
+}
+
+.verdict-card.theme-parchment .verdict-color-desc,
+.verdict-card.theme-parchment .verdict-gauge-subtitle,
+.verdict-card.theme-parchment .vfm-subtitle {
+  color: #2b1e25;
+}
+
+.verdict-card.theme-parchment .verdict-aroma-row {
+  color: #1a1117;
+}
+
+.verdict-card.theme-parchment .verdict-gauge-track {
+  background: rgba(0, 0, 0, 0.08);
+  border-color: #5c4e44;
+}
+
+.verdict-card.theme-parchment .verdict-gauge-fill {
+  background: linear-gradient(90deg, #786457 0%, #4a3c33 100%);
+}
+
+.verdict-card.theme-parchment .verdict-vfm-cartouche {
+  border-color: #2e231c;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.verdict-card.theme-parchment .vfm-v-divider {
+  background: #3e3229;
+}
+
+.verdict-card.theme-parchment .vfm-prefix,
+.verdict-card.theme-parchment .vfm-score-number {
+  color: #160c12;
+}
+
+.verdict-card.theme-parchment .vfm-glass-btn.filled {
+  color: #1e1319;
+}
+
+.verdict-card.theme-parchment .vfm-glass-btn.empty {
+  color: rgba(60, 48, 55, 0.25);
+}
+
+/* Dark Sommelier Theme */
+.verdict-card.theme-dark {
+  background: linear-gradient(135deg, #150918 0%, #0a040b 100%);
+  color: #f3ede2;
+  border: 1.5px solid var(--gold-primary);
+  outline: 1px solid rgba(212, 175, 55, 0.2);
+  outline-offset: -6px;
+}
+
+.verdict-card.theme-dark .verdict-wine-title {
+  color: var(--gold-light);
+}
+
+.verdict-card.theme-dark .spec-label {
+  color: var(--text-gold);
+}
+
+.verdict-card.theme-dark .spec-value {
+  color: #ffffff;
+}
+
+.verdict-card.theme-dark .verdict-price-tag {
+  color: var(--gold-primary);
+}
+
+.verdict-card.theme-dark .verdict-divider-line,
+.verdict-card.theme-dark .verdict-inner-divider {
+  background: rgba(212, 175, 55, 0.25);
+}
+
+.verdict-card.theme-dark .verdict-section-heading {
+  color: var(--gold-light);
+}
+
+.verdict-card.theme-dark .verdict-color-desc,
+.verdict-card.theme-dark .verdict-gauge-subtitle,
+.verdict-card.theme-dark .vfm-subtitle {
+  color: var(--text-muted);
+}
+
+.verdict-card.theme-dark .verdict-aroma-row {
+  color: #ffffff;
+}
+
+.verdict-card.theme-dark .verdict-gauge-track {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
+.verdict-card.theme-dark .verdict-gauge-fill {
+  background: linear-gradient(90deg, #b81d40 0%, var(--gold-primary) 100%);
+}
+
+.verdict-card.theme-dark .verdict-vfm-cartouche {
+  border-color: var(--gold-primary);
+  background: rgba(212, 175, 55, 0.05);
+}
+
+.verdict-card.theme-dark .vfm-v-divider {
+  background: rgba(212, 175, 55, 0.4);
+}
+
+.verdict-card.theme-dark .vfm-prefix,
+.verdict-card.theme-dark .vfm-score-number {
+  color: var(--gold-light);
+}
+
+.verdict-card.theme-dark .vfm-glass-btn.filled {
+  color: var(--gold-primary);
+}
+
+.verdict-card.theme-dark .vfm-glass-btn.empty {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+/* Header Elements */
+.verdict-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.verdict-header-left {
+  flex: 1;
+}
+
+.verdict-wine-title {
+  font-size: 1.7rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  margin: 0 0 6px 0;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.verdict-wine-specs {
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.verdict-header-right {
+  text-align: right;
+  min-width: 140px;
+}
+
+.verdict-price-tag {
+  font-size: 1.18rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+
+/* Scalloped Gold Rosette Medal */
+.verdict-medal-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.verdict-gold-medal {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffae8 0%, #ecd68b 35%, #c8a241 70%, #9e7a24 100%);
+  border: 3px dashed #7a5e18;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 2px 5px rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  position: relative;
+}
+
+.verdict-medal-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1.5px solid #6b5215;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #1b1207;
+  padding: 2px;
+}
+
+.medal-score-number {
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.medal-score-label {
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  line-height: 1.15;
+  margin-top: 1px;
+}
+
+/* Dividers */
+.verdict-divider-line {
+  height: 1px;
+  width: 100%;
+  margin: 18px 0 22px 0;
+}
+
+.verdict-inner-divider {
+  height: 1px;
+  width: 100%;
+  margin: 18px 0;
+}
+
+/* Core 3 Columns */
+.verdict-body-grid {
+  display: grid;
+  grid-template-columns: 210px 1.25fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Bottle Column */
+.verdict-bottle-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.verdict-bottle-frame {
+  width: 100%;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-bottle-img-wrap {
+  width: 100%;
+  max-width: 220px;
+  display: flex;
+  justify-content: center;
+  filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.4));
+}
+
+.custom-bottle-img {
+  max-height: 420px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.verdict-bottle-controls {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.verdict-bottle-controls .btn-link {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: var(--gold-primary);
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.verdict-bottle-controls .btn-link:hover {
+  background: rgba(212, 175, 55, 0.12);
+}
+
+/* Center Column */
+.verdict-center-column {
+  display: flex;
+  flex-direction: column;
+  padding: 0 4px;
+}
+
+.verdict-section-heading {
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+}
+
+.verdict-color-swatch {
+  width: 100%;
+  height: 52px;
+  border-radius: 12px;
+  border: 1.5px solid #5a493e;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.4);
+}
+
+.color-swatch-sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), transparent);
+  border-radius: 12px 12px 0 0;
+}
+
+.verdict-color-desc {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+/* Aromas & Flavors */
+.verdict-aromas-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.verdict-aroma-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.verdict-aroma-row .aroma-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Right Column: Structure Gauges */
+.verdict-structure-column {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  padding-left: 8px;
+}
+
+.verdict-gauge-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.verdict-gauge-track {
+  width: 100%;
+  height: 14px;
+  border-radius: 7px;
+  border: 1.5px solid #544439;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.verdict-gauge-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.verdict-gauge-subtitle {
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* -----------------------------------------------------------
+   BOTTOM VFM (VALUE FOR MONEY) CARTOUCHE
+   ----------------------------------------------------------- */
+.verdict-vfm-cartouche {
+  margin-top: 26px;
+  border: 2px solid #2d211a;
+  border-radius: 6px;
+  padding: 12px 20px;
+  position: relative;
+}
+
+/* Bracketed Cartouche Ornate Notch Corners */
+.verdict-vfm-cartouche::before,
+.verdict-vfm-cartouche::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid inherit;
+  pointer-events: none;
+}
+
+.vfm-inner-box {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  justify-content: center;
+}
+
+.vfm-prefix {
+  font-size: 2.3rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.vfm-v-divider {
+  width: 1.5px;
+  height: 52px;
+  flex-shrink: 0;
+}
+
+.vfm-content-area {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vfm-score-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.vfm-score-number {
+  font-size: 2.1rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.vfm-glasses-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vfm-glass-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  width: 22px;
+  height: 33px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.vfm-glass-btn:not(.read-only):hover {
+  transform: scale(1.2);
+}
+
+.vfm-subtitle {
+  font-size: 0.86rem;
+  font-style: italic;
+  font-weight: 600;
+}
+
+/* Responsive Styles for Mobile / Tablet */
+@media (max-width: 820px) {
+  .verdict-card {
+    padding: 20px 18px;
+  }
+  .verdict-header-row {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
+  }
+  .verdict-header-right {
+    text-align: center;
+  }
+  .verdict-body-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .verdict-bottle-column {
+    order: 1;
+  }
+  .verdict-center-column {
+    order: 2;
+  }
+  .verdict-structure-column {
+    order: 3;
+    padding-left: 0;
+  }
+  .vfm-inner-box {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  .vfm-v-divider {
+    display: none;
+  }
+}
+
+/* Print Stylesheet */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .app-header,
+  .step-bar,
+  .app-footer,
+  .no-print,
+  .winitis-floating-bar,
+  .winitis-editable-badge {
+    display: none !important;
+  }
+  .verdict-card {
+    box-shadow: none !important;
+    border: 2px solid #000 !important;
+    padding: 20px !important;
+  }
+}

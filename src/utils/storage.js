@@ -34,7 +34,18 @@ export const saveNote = (note) => {
     updatedNotes = [newNote, ...notes];
   }
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedNotes));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedNotes));
+  } catch (err) {
+    console.warn('LocalStorage quota exceeded. Attempting to save note without high-res photo...', err);
+    try {
+      // Graceful fallback: remove bottleImage from the current note if it was taking too much space
+      const fallbackNotes = updatedNotes.map(n => (n.id === (note.id || newNote?.id) ? { ...n, bottleImage: null, useGenericBottle: true } : n));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(fallbackNotes));
+    } catch (fallbackErr) {
+      console.error('Critical storage quota exceeded', fallbackErr);
+    }
+  }
   return updatedNotes;
 };
 

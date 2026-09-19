@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import NoteCard from './NoteCard';
 import { exportNotesJSON } from '../../utils/storage';
 import { Search, Plus, Download, Wine, Sparkles } from 'lucide-react';
+import EditableText from '../TextEditor/EditableText';
+import { useTexts } from '../../context/TextContext';
 
 export default function NotesList({ notes, onViewNote, onShareNote, onDeleteNote, onNewTasting }) {
+  const { t } = useTexts();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGrapeFilter, setSelectedGrapeFilter] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
@@ -35,20 +38,24 @@ export default function NotesList({ notes, onViewNote, onShareNote, onDeleteNote
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
         <div>
           <h2 className="heading-serif" style={{ fontSize: '1.8rem', color: 'var(--gold-light)' }}>
-            Cellar Tasting Log
+            <EditableText textKey="cellar.title" defaultText="Cellar Tasting Log" />
           </h2>
           <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)' }}>
-            {notes.length} saved red wine evaluations in local storage
+            <EditableText 
+              textKey="cellar.subtitle" 
+              defaultText={`${notes.length} saved red wine evaluations in local storage`} 
+              interpolations={{ count: notes.length }} 
+            />
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
           <button className="btn btn-outline" onClick={exportNotesJSON} title="Backup as JSON">
-            <Download size={16} /> Export JSON
+            <Download size={16} /> <EditableText textKey="cellar.exportJsonBtn" defaultText="Export JSON" />
           </button>
 
           <button className="btn btn-primary" onClick={onNewTasting}>
-            <Plus size={16} /> New Tasting
+            <Plus size={16} /> <EditableText textKey="cellar.newTastingBtn" defaultText="New Tasting" />
           </button>
         </div>
       </div>
@@ -62,23 +69,25 @@ export default function NotesList({ notes, onViewNote, onShareNote, onDeleteNote
               type="text" 
               className="form-input" 
               style={{ paddingLeft: '36px', width: '100%' }}
-              placeholder="Search wine, country, region, or grape..."
+              placeholder={t('cellar.searchPlaceholder', 'Search wine, country, region, or grape...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Sort:</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+              <EditableText textKey="cellar.sortLabel" defaultText="Sort:" />
+            </span>
             <select 
               className="form-select" 
               style={{ padding: '8px 12px', fontSize: '0.85rem' }}
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
-              <option value="newest">Newest First</option>
-              <option value="score">Highest Rated</option>
-              <option value="vintage">Vintage Year</option>
+              <option value="newest">{t('cellar.sortNewest', 'Newest First')}</option>
+              <option value="score">{t('cellar.sortScore', 'Highest Rated')}</option>
+              <option value="vintage">{t('cellar.sortVintage', 'Vintage Year')}</option>
             </select>
           </div>
         </div>
@@ -116,12 +125,18 @@ export default function NotesList({ notes, onViewNote, onShareNote, onDeleteNote
       ) : (
         <div className="card" style={{ textAlign: 'center', padding: '60px 20px' }}>
           <Wine size={48} color="#d4af37" style={{ opacity: 0.5, marginBottom: '16px' }} />
-          <h3 className="font-serif" style={{ color: 'var(--gold-light)' }}>No Tasting Notes Found</h3>
+          <h3 className="font-serif" style={{ color: 'var(--gold-light)' }}>
+            <EditableText textKey="cellar.emptyTitle" defaultText="No Tasting Notes Found" />
+          </h3>
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '8px' }}>
-            {searchTerm ? 'No wines match your search query.' : 'Start your first red wine evaluation to populate your cellar log!'}
+            {searchTerm ? (
+              <EditableText textKey="cellar.emptySearchDesc" defaultText="No wines match your search query." />
+            ) : (
+              <EditableText textKey="cellar.emptyDefaultDesc" defaultText="Start your first red wine evaluation to populate your cellar log!" />
+            )}
           </p>
           <button className="btn btn-primary" style={{ marginTop: '20px' }} onClick={onNewTasting}>
-            <Plus size={16} /> Start Red Wine Evaluation
+            <Plus size={16} /> <EditableText textKey="cellar.startEvaluationBtn" defaultText="Start Red Wine Evaluation" />
           </button>
         </div>
       )}

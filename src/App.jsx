@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
-import WineInfoStep from './components/TastingForm/WineInfoStep';
 import ColorStep from './components/TastingForm/ColorStep';
 import NoseStep from './components/TastingForm/NoseStep';
 import PalateStep from './components/TastingForm/PalateStep';
 import ConclusionStep from './components/TastingForm/ConclusionStep';
+import VerdictStep from './components/TastingForm/VerdictStep';
 import NotesList from './components/SavedNotes/NotesList';
 import ShareModal from './components/ShareModal';
+import VerdictModal from './components/SavedNotes/VerdictModal';
 import QuickReferenceModal from './components/QuickReferenceModal';
 import { getSavedNotes, saveNote, deleteNote } from './utils/storage';
-import { Wine, ArrowRight, ArrowLeft, Check, Sparkles, Eye, Wind, Activity, Award } from 'lucide-react';
+import { Wine, Check, Sparkles, Eye, Wind, Activity, Award, FileText } from 'lucide-react';
+import { useTexts } from './context/TextContext';
+import TextEditorDrawer from './components/TextEditor/TextEditorDrawer';
+import TextEditorFloatingBar from './components/TextEditor/TextEditorFloatingBar';
+import EditableText from './components/TextEditor/EditableText';
 
 const INITIAL_NOTE_STATE = {
   wineName: '',
@@ -18,6 +23,9 @@ const INITIAL_NOTE_STATE = {
   country: '',
   region: '',
   alcohol: '14.0%',
+  bottleImage: null,
+  useGenericBottle: true,
+  vfm: 4,
   color: {
     id: 'ruby',
     name: 'Ruby',
@@ -35,6 +43,7 @@ const INITIAL_NOTE_STATE = {
     sweetness: 'Dry',
     acidity: 'Medium(+)',
     tannin: 'Medium(+) (Grippy)',
+    tanninTexture: 'Velvety',
     alcoholLevel: 'High (≥14%)',
     body: 'Full-Bodied',
     finish: 'Long (45s+)'
@@ -50,10 +59,11 @@ const INITIAL_NOTE_STATE = {
 
 export default function App() {
   const [currentView, setCurrentView] = useState('new'); // 'new' | 'saved'
-  const [currentStep, setCurrentStep] = useState(1); // 1 to 5
+  const [currentStep, setCurrentStep] = useState(1); // 1 to 6
   const [wineNote, setWineNote] = useState(INITIAL_NOTE_STATE);
   const [savedNotes, setSavedNotes] = useState([]);
   const [shareNoteTarget, setShareNoteTarget] = useState(null);
+  const [viewVerdictTarget, setViewVerdictTarget] = useState(null);
   const [showGuideModal, setShowGuideModal] = useState(false);
 
   useEffect(() => {
@@ -84,7 +94,6 @@ export default function App() {
   const handleSaveCurrentNote = () => {
     const updatedList = saveNote(wineNote);
     setSavedNotes(updatedList);
-    setShareNoteTarget(wineNote);
   };
 
   const handleDeleteNote = (id) => {
@@ -100,12 +109,14 @@ export default function App() {
     setCurrentView('new');
   };
 
+  const { t } = useTexts();
+
   const steps = [
-    { num: 1, label: 'Identity', icon: Wine },
-    { num: 2, label: 'Color Inspector', icon: Eye },
-    { num: 3, label: 'Nose & Aromas', icon: Wind },
-    { num: 4, label: 'Palate & Structure', icon: Activity },
-    { num: 5, label: 'Rating & Save', icon: Award }
+    { num: 1, label: t('navigation.step1', 'Color Inspector'), key: 'navigation.step1', icon: Eye },
+    { num: 2, label: t('navigation.step2', 'Nose & Aromas'), key: 'navigation.step2', icon: Wind },
+    { num: 3, label: t('navigation.step3', 'Palate & Structure'), key: 'navigation.step3', icon: Activity },
+    { num: 4, label: t('navigation.step4', 'Rating & Notes'), key: 'navigation.step4', icon: Award },
+    { num: 5, label: t('navigation.step5', 'Verdict Summary'), key: 'navigation.step5', icon: FileText }
   ];
 
   return (
@@ -115,6 +126,9 @@ export default function App() {
         setCurrentView={setCurrentView}
         savedCount={savedNotes.length}
         onOpenGuide={() => setShowGuideModal(true)}
+        onSave={handleSaveCurrentNote}
+        onShare={() => setShareNoteTarget(wineNote)}
+        onPrint={() => window.print()}
       />
 
       {currentView === 'new' && (
@@ -133,7 +147,7 @@ export default function App() {
                     {currentStep > s.num ? <Check size={12} /> : s.num}
                   </div>
                   <Icon size={14} />
-                  <span>{s.label}</span>
+                  <EditableText textKey={s.key} defaultText={s.label} />
                 </div>
               );
             })}
@@ -141,73 +155,44 @@ export default function App() {
 
           <main className="main-content">
             {currentStep === 1 && (
-              <WineInfoStep 
-                wineInfo={wineNote} 
-                updateWineInfo={handleUpdateWineInfo} 
-              />
-            )}
-
-            {currentStep === 2 && (
               <ColorStep 
                 colorData={wineNote.color} 
                 updateColorData={handleUpdateColor} 
               />
             )}
 
-            {currentStep === 3 && (
+            {currentStep === 2 && (
               <NoseStep 
                 noseData={wineNote.nose} 
                 updateNoseData={handleUpdateNose} 
               />
             )}
 
-            {currentStep === 4 && (
+            {currentStep === 3 && (
               <PalateStep 
                 palateData={wineNote.palate} 
                 updatePalateData={handleUpdatePalate} 
               />
             )}
 
-            {currentStep === 5 && (
+            {currentStep === 4 && (
               <ConclusionStep 
+                wineInfo={wineNote}
+                updateWineInfo={handleUpdateWineInfo}
                 conclusionData={wineNote.conclusion} 
                 updateConclusionData={handleUpdateConclusion}
+              />
+            )}
+
+            {currentStep === 5 && (
+              <VerdictStep 
+                wineNote={wineNote} 
+                updateWineNote={setWineNote}
                 onSave={handleSaveCurrentNote}
                 onShare={() => setShareNoteTarget(wineNote)}
               />
             )}
 
-            {/* Bottom Wizard Stepper Navigation */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
-              <button 
-                className="btn btn-outline"
-                disabled={currentStep === 1}
-                onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
-                style={{ visibility: currentStep === 1 ? 'hidden' : 'visible' }}
-              >
-                <ArrowLeft size={16} /> Previous
-              </button>
-
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                Step {currentStep} of 5
-              </span>
-
-              {currentStep < 5 ? (
-                <button 
-                  className="btn btn-gold"
-                  onClick={() => setCurrentStep(prev => Math.min(5, prev + 1))}
-                >
-                  Next Step <ArrowRight size={16} />
-                </button>
-              ) : (
-                <button 
-                  className="btn btn-primary"
-                  onClick={handleSaveCurrentNote}
-                >
-                  Save & Complete <Check size={16} />
-                </button>
-              )}
-            </div>
           </main>
         </>
       )}
@@ -216,7 +201,7 @@ export default function App() {
         <main className="main-content">
           <NotesList 
             notes={savedNotes}
-            onViewNote={(note) => setShareNoteTarget(note)}
+            onViewNote={(note) => setViewVerdictTarget(note)}
             onShareNote={(note) => setShareNoteTarget(note)}
             onDeleteNote={handleDeleteNote}
             onNewTasting={handleStartNewTasting}
@@ -232,6 +217,18 @@ export default function App() {
         />
       )}
 
+      {/* Verdict Full Summary Modal */}
+      {viewVerdictTarget && (
+        <VerdictModal 
+          note={viewVerdictTarget}
+          onClose={() => setViewVerdictTarget(null)}
+          onShare={(note) => {
+            setViewVerdictTarget(null);
+            setShareNoteTarget(note);
+          }}
+        />
+      )}
+
       {/* Guide Modal */}
       {showGuideModal && (
         <QuickReferenceModal 
@@ -240,11 +237,17 @@ export default function App() {
       )}
 
       <footer className="app-footer">
-        <div>Winitis Red Wine Tasting Companion • Sommelier Level Deductive Tasting PWA</div>
+        <div>
+          <EditableText textKey="footer.line1" defaultText="Winitis Red Wine Tasting Companion • Sommelier Level Deductive Tasting PWA" />
+        </div>
         <div style={{ fontSize: '0.75rem', marginTop: '4px', opacity: 0.7 }}>
-          Designed for Red Wines • Split-Screen Color Inspection • Offline Local Storage
+          <EditableText textKey="footer.line2" defaultText="Designed for Red Wines • Split-Screen Color Inspection • Offline Local Storage" />
         </div>
       </footer>
+
+      {/* Persistent Text Customizer Mode (Temporary Edit Version) */}
+      <TextEditorFloatingBar />
+      <TextEditorDrawer />
     </div>
   );
 }
