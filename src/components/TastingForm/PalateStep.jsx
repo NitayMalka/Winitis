@@ -484,7 +484,6 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
     };
   }, []);
 
-  const finishTier = getFinishTierInfo(finishSeconds);
   const currentTannin = palateData.tannin || 'Medium (Velvety)';
   const currentTexture = palateData.tanninTexture || 'Velvety';
   const currentAcidity = palateData.acidity || 'Medium';
@@ -503,9 +502,6 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
           <Activity size={22} color="#d4af37" />
           <EditableText textKey="palate.title" defaultText="Palate & Structural Balance" />
         </h3>
-        <span style={{ fontSize: '0.8rem', color: 'var(--text-gold)', background: 'rgba(212,175,55,0.1)', padding: '4px 12px', borderRadius: '12px' }}>
-          <EditableText textKey="palate.stepBadge" defaultText="Step 4 of 6" />
-        </span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -519,9 +515,6 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
               <Flame size={17} color="#b81d40" />
               <EditableText textKey="palate.tanninTitle" defaultText="Tannin Quantity & Grip" />
             </div>
-          </div>
-          <div className="palate-section-desc">
-            Astringency and drying sensation on gums. Forms the essential aging backbone of fine red wines.
           </div>
 
           {/* Gold Sommelier Slider: Low <-> Medium <-> High */}
@@ -561,9 +554,6 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
               <EditableText textKey="palate.acidityTitle" defaultText="Acidity Level" />
             </div>
           </div>
-          <div className="palate-section-desc">
-            Stimulates salivary glands at the sides of the tongue. Provides vibrancy, lift, and aging balance.
-          </div>
 
           {/* Gold Sommelier Slider: Low <-> Medium <-> High */}
           <SommelierTrackSlider
@@ -584,9 +574,6 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
               <Gauge size={17} color="#d4af37" />
               <EditableText textKey="palate.bodyTitle" defaultText="Body Weight" />
             </div>
-          </div>
-          <div className="palate-section-desc">
-            Overall impression of weight and thickness in mouth, influenced by alcohol, tannins, and extract.
           </div>
 
           {/* Gold Sommelier Slider: Light <-> Medium <-> Full */}
@@ -627,15 +614,11 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
           {/* Left: Finish & Aftertaste Length */}
           <div className="finish-slider-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%', marginBottom: 0 }}>
             <div>
-              <div className="palate-section-header" style={{ marginBottom: '6px' }}>
+              <div className="palate-section-header" style={{ marginBottom: '12px' }}>
                 <div className="palate-section-title" style={{ color: 'var(--gold-light)', fontSize: '1.02rem' }}>
                   <Timer size={19} color="var(--gold-primary)" />
                   <EditableText textKey="palate.finishTitle" defaultText="Finish & Aftertaste Length" />
                 </div>
-              </div>
-
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '12px', lineHeight: 1.4 }}>
-                <strong style={{ color: finishTier.color }}>{finishTier.tier} ({finishSeconds}s)</strong> — {finishTier.desc}
               </div>
 
               {/* Controls: Continuous Slider + Stopwatch Long-Press Button */}
