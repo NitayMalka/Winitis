@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Activity, Flame, Droplets, Gauge, Timer, Sparkles, Check, Wine, Zap } from 'lucide-react';
+import { Activity, Flame, Droplets, Gauge, Timer, Check, Wine, Zap } from 'lucide-react';
 import EditableText from '../TextEditor/EditableText';
 import { useTexts } from '../../context/TextContext';
 
@@ -700,14 +700,6 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
                   )}
                 </button>
               </div>
-            </div>
-
-            {/* Sommelier Hint */}
-            <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.72rem', color: 'var(--text-gold)', opacity: 0.85 }}>
-              <Sparkles size={12} />
-              <span>
-                <EditableText textKey="palate.finishTip" defaultText="Sommelier Tip: Press & hold upon swallowing. Release when flavor persistence fades." />
-              </span>
             </div>
           </div>
 
