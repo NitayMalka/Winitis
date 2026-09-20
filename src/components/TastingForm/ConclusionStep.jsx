@@ -64,7 +64,7 @@ export default function ConclusionStep({
                 <EditableText textKey="wineInfo.vintageLabel" defaultText="Vintage Year" />
               </label>
               <input 
-                type="number" 
+                type="text" 
                 className="form-input" 
                 value={wineInfo?.vintage || ''} 
                 onChange={(e) => handleWineInfoChange('vintage', e.target.value)} 
@@ -111,14 +111,16 @@ export default function ConclusionStep({
 
         {/* SCORE SLIDER (100-PT SCALE) */}
         <div style={{ background: 'rgba(212, 175, 55, 0.1)', padding: '16px 20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-gold)', textAlign: 'center' }}>
-          <div className="font-serif" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '12px', fontSize: '3.2rem', fontWeight: 900, color: 'var(--gold-light)', textShadow: '0 0 15px rgba(212,175,55,0.4)' }}>
-            <span style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-gold)', letterSpacing: '0.5px' }}>
+          <div className="font-serif" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '32px', fontSize: '3.2rem', fontWeight: 900, color: 'var(--gold-light)', textShadow: '0 0 15px rgba(212,175,55,0.4)' }}>
+            <span style={{ fontSize: '2.2rem', fontWeight: 700, color: 'var(--text-gold)', letterSpacing: '1px' }}>
               <EditableText textKey="conclusion.scoreTitle" defaultText="Score" />
             </span>
-            <span>{conclusionData?.score || 92}</span>
-            <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)', fontWeight: 400 }}>
-              <EditableText textKey="conclusion.scoreSuffix" defaultText="/100" />
-            </span>
+            <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: '8px' }}>
+              <span>{conclusionData?.score || 92}</span>
+              <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)', fontWeight: 400 }}>
+                <EditableText textKey="conclusion.scoreSuffix" defaultText="/100" />
+              </span>
+            </div>
           </div>
           <input 
             type="range" 

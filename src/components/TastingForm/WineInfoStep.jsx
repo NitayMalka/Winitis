@@ -49,7 +49,7 @@ export default function WineInfoStep({ wineInfo, updateWineInfo }) {
             <EditableText textKey="wineInfo.vintageLabel" defaultText="Vintage Year" />
           </label>
           <input 
-            type="number" 
+            type="text" 
             className="form-input" 
             value={wineInfo.vintage || ''} 
             onChange={(e) => handleChange('vintage', e.target.value)} 
