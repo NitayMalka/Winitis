@@ -389,6 +389,133 @@ function Sommelier5SectorSlider({ value, onChange, options, ariaLabel }) {
   );
 }
 
+const TEXTURE_SNAP_POSITIONS = [7.14, 21.43, 35.71, 50.0, 64.29, 78.57, 92.86];
+
+/**
+ * 7-Sector Slideable Track Slider for Tannin Texture
+ * [ Silky | Velvety | Chalky | Fine-grained | Grippy | Chewy | Muscular ]
+ */
+function SommelierTextureSlider({ value, onChange, options, ariaLabel }) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragPct, setDragPct] = useState(null);
+  const trackRef = useRef(null);
+
+  const activeIndex = (() => {
+    const idx = options.indexOf(value);
+    return idx === -1 ? 1 : idx;
+  })();
+
+  const getNearestIndexFromPct = (pct) => {
+    const step = 100 / options.length;
+    const idx = Math.floor(pct / step);
+    return Math.max(0, Math.min(options.length - 1, idx));
+  };
+
+  const updateFromPointer = (clientX) => {
+    if (!trackRef.current) return;
+    const rect = trackRef.current.getBoundingClientRect();
+    const rawX = clientX - rect.left;
+    const rawPct = (rawX / rect.width) * 100;
+    const clampedPct = Math.max(7.14, Math.min(92.86, rawPct));
+    setDragPct(clampedPct);
+
+    const newIndex = getNearestIndexFromPct(clampedPct);
+    if (options[newIndex] && options[newIndex] !== value) {
+      onChange(options[newIndex]);
+    }
+  };
+
+  const handlePointerDown = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+    e.currentTarget.setPointerCapture(e.pointerId);
+    updateFromPointer(e.clientX);
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging) return;
+    updateFromPointer(e.clientX);
+  };
+
+  const handlePointerUp = (e) => {
+    setIsDragging(false);
+    setDragPct(null);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch (err) {}
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const next = Math.min(options.length - 1, activeIndex + 1);
+      onChange(options[next]);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const prev = Math.max(0, activeIndex - 1);
+      onChange(options[prev]);
+    }
+  };
+
+  const activeOption = options[activeIndex] || options[1];
+  const snapPosition = TEXTURE_SNAP_POSITIONS[activeIndex] ?? 21.43;
+  const currentLeft = isDragging && dragPct !== null ? dragPct : snapPosition;
+
+  return (
+    <div
+      ref={trackRef}
+      className="sommelier-slider-track"
+      tabIndex={0}
+      role="slider"
+      aria-label={ariaLabel}
+      aria-valuenow={activeIndex}
+      aria-valuemin={0}
+      aria-valuemax={options.length - 1}
+      aria-valuetext={activeOption}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      onKeyDown={handleKeyDown}
+      style={{ height: '44px', cursor: 'grab' }}
+    >
+      {/* 7 Exposed Sectors with thin separators */}
+      <div className="sommelier-slider-sectors">
+        {options.map((opt, i) => (
+          <React.Fragment key={opt}>
+            <div
+              className="sommelier-slider-sector"
+              style={{
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                color: 'var(--text-muted)'
+              }}
+              onClick={() => onChange(opt)}
+            >
+              {opt}
+            </div>
+            {i < options.length - 1 && <div className="sommelier-slider-separator" />}
+          </React.Fragment>
+        ))}
+      </div>
+
+      {/* Gold Sliding Indicator */}
+      <div
+        className={`sommelier-slider-thumb ${isDragging ? 'dragging' : ''}`}
+        style={{
+          left: `${currentLeft}%`,
+          width: '13.8%',
+          fontSize: '0.72rem',
+          padding: '0 2px',
+          transition: isDragging ? 'none' : 'left 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease, box-shadow 0.2s ease'
+        }}
+      >
+        {activeOption}
+      </div>
+    </div>
+  );
+}
+
 export default function PalateStep({ palateData = {}, updatePalateData }) {
   const [finishSeconds, setFinishSeconds] = useState(() => parseInitialSeconds(palateData));
   const [isPressingTimer, setIsPressingTimer] = useState(false);
@@ -527,7 +654,7 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
             </div>
           </div>
 
-          {/* Sommelier Tannin Texture Track Bar (Matches slider bars design) */}
+          {/* Sommelier Tannin Texture Slideable Track Bar */}
           <div className="palate-row-layout" style={{ marginTop: '12px' }}>
             <div className="palate-section-title" style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.9rem' }}>
               <Sparkles size={16} color="#d4af37" />
@@ -535,20 +662,12 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div className="texture-track-bar">
-                {TANNIN_TEXTURES.map((tex, i) => (
-                  <React.Fragment key={tex}>
-                    <button
-                      type="button"
-                      className={`texture-track-segment ${currentTexture === tex ? 'active' : ''}`}
-                      onClick={() => handleChange('tanninTexture', tex)}
-                    >
-                      {tex}
-                    </button>
-                    {i < TANNIN_TEXTURES.length - 1 && <div className="sommelier-slider-separator" />}
-                  </React.Fragment>
-                ))}
-              </div>
+              <SommelierTextureSlider
+                value={currentTexture}
+                onChange={(val) => handleChange('tanninTexture', val)}
+                options={TANNIN_TEXTURES}
+                ariaLabel="Tannin Texture"
+              />
             </div>
           </div>
         </div>
