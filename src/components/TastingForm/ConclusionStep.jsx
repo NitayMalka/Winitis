@@ -54,7 +54,6 @@ export default function ConclusionStep({
               <input 
                 type="text" 
                 className="form-input" 
-                placeholder={t('wineInfo.wineNamePlaceholder', 'e.g. Château Margaux Grand Cru 2016')}
                 value={wineInfo?.wineName || ''} 
                 onChange={(e) => handleWineInfoChange('wineName', e.target.value)} 
               />
@@ -67,7 +66,6 @@ export default function ConclusionStep({
               <input 
                 type="number" 
                 className="form-input" 
-                placeholder={t('wineInfo.vintagePlaceholder', 'e.g. 2018')}
                 value={wineInfo?.vintage || ''} 
                 onChange={(e) => handleWineInfoChange('vintage', e.target.value)} 
               />
@@ -80,7 +78,6 @@ export default function ConclusionStep({
               <input 
                 type="text" 
                 className="form-input" 
-                placeholder={t('wineInfo.countryPlaceholder', 'e.g. France, USA, Italy')}
                 value={wineInfo?.country || ''} 
                 onChange={(e) => handleWineInfoChange('country', e.target.value)} 
               />
@@ -93,7 +90,6 @@ export default function ConclusionStep({
               <input 
                 type="text" 
                 className="form-input" 
-                placeholder={t('wineInfo.alcoholPlaceholder', 'e.g. 14.5%')}
                 value={wineInfo?.alcohol || ''} 
                 onChange={(e) => handleWineInfoChange('alcohol', e.target.value)} 
               />
@@ -106,7 +102,6 @@ export default function ConclusionStep({
               <input 
                 type="text" 
                 className="form-input" 
-                placeholder={t('conclusion.pricePlaceholder', 'e.g. $85 or €75')}
                 value={conclusionData?.price || ''} 
                 onChange={(e) => handleChange('price', e.target.value)} 
               />
@@ -139,7 +134,6 @@ export default function ConclusionStep({
           </label>
           <textarea 
             className="form-textarea"
-            placeholder={t('conclusion.notesPlaceholder', 'Write your personal tasting notes, pairing suggestions (e.g. Ribeye, Prime Rib, Aged Gouda), or decanting observations...')}
             value={conclusionData?.notes || ''}
             onChange={(e) => handleChange('notes', e.target.value)}
           />
