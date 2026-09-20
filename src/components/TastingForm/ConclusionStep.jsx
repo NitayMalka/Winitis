@@ -110,12 +110,15 @@ export default function ConclusionStep({
         </div>
 
         {/* SCORE SLIDER (100-PT SCALE) */}
-        <div style={{ background: 'rgba(212, 175, 55, 0.1)', padding: '20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-gold)', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.85rem', color: 'var(--text-gold)', fontWeight: 600, marginBottom: '4px' }}>
-            <EditableText textKey="conclusion.scoreTitle" defaultText="Overall Sommelier Score (100-Point Scale)" />
-          </div>
-          <div className="font-serif" style={{ fontSize: '3.2rem', fontWeight: 900, color: 'var(--gold-light)', textShadow: '0 0 15px rgba(212,175,55,0.4)' }}>
-            {conclusionData?.score || 92} <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)' }}><EditableText textKey="conclusion.scoreSuffix" defaultText="/100" /></span>
+        <div style={{ background: 'rgba(212, 175, 55, 0.1)', padding: '16px 20px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-gold)', textAlign: 'center' }}>
+          <div className="font-serif" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '12px', fontSize: '3.2rem', fontWeight: 900, color: 'var(--gold-light)', textShadow: '0 0 15px rgba(212,175,55,0.4)' }}>
+            <span style={{ fontSize: '1.4rem', fontWeight: 700, color: 'var(--text-gold)', letterSpacing: '0.5px' }}>
+              <EditableText textKey="conclusion.scoreTitle" defaultText="Score" />
+            </span>
+            <span>{conclusionData?.score || 92}</span>
+            <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)', fontWeight: 400 }}>
+              <EditableText textKey="conclusion.scoreSuffix" defaultText="/100" />
+            </span>
           </div>
           <input 
             type="range" 

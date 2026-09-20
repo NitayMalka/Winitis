@@ -93,7 +93,7 @@
   "conclusion": {
     "title": "Sommelier Conclusion & Rating",
     "stepBadge": "Step 4 of 5",
-    "scoreTitle": "Overall Sommelier Score (100-Point Scale)",
+    "scoreTitle": "Score",
     "scoreSuffix": "/100",
     "priceLabel": "Price",
     "pricePlaceholder": "e.g.  or €75",
