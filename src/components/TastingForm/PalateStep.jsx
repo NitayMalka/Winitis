@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Activity, Flame, Droplets, Gauge, Timer, Check, Wine, Zap } from 'lucide-react';
+import { Activity, Flame, Droplets, Gauge, Timer, Check, Wine, Zap, Sparkles } from 'lucide-react';
 import EditableText from '../TextEditor/EditableText';
 import { useTexts } from '../../context/TextContext';
 
@@ -527,21 +527,29 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
             </div>
           </div>
 
-          {/* Sommelier Tannin Texture Pills */}
-          <div className="texture-pills-wrap" style={{ marginTop: '10px', paddingTop: '8px' }}>
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-gold)', display: 'flex', alignItems: 'center', gap: '4px', marginRight: '4px' }}>
-              Texture:
-            </span>
-            {TANNIN_TEXTURES.map((tex) => (
-              <button
-                key={tex}
-                type="button"
-                className={`texture-pill ${currentTexture === tex ? 'active' : ''}`}
-                onClick={() => handleChange('tanninTexture', tex)}
-              >
-                {tex}
-              </button>
-            ))}
+          {/* Sommelier Tannin Texture Track Bar (Matches slider bars design) */}
+          <div className="palate-row-layout" style={{ marginTop: '12px' }}>
+            <div className="palate-section-title" style={{ color: 'var(--text-muted)', margin: 0, fontSize: '0.9rem' }}>
+              <Sparkles size={16} color="#d4af37" />
+              <EditableText textKey="palate.tanninTexturesTitle" defaultText="Texture" />
+            </div>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="texture-track-bar">
+                {TANNIN_TEXTURES.map((tex, i) => (
+                  <React.Fragment key={tex}>
+                    <button
+                      type="button"
+                      className={`texture-track-segment ${currentTexture === tex ? 'active' : ''}`}
+                      onClick={() => handleChange('tanninTexture', tex)}
+                    >
+                      {tex}
+                    </button>
+                    {i < TANNIN_TEXTURES.length - 1 && <div className="sommelier-slider-separator" />}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

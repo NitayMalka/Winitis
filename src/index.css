@@ -925,7 +925,59 @@ input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: 0 4px 20px rgba(212, 175, 55, 0.65);
 }
 
-/* Tannin Texture Pills */
+/* Tannin Texture Track Bar (matches Sommelier slider bars) */
+.texture-track-bar {
+  position: relative;
+  width: 100%;
+  height: 44px;
+  background: rgba(10, 5, 12, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.texture-track-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.texture-track-segment {
+  flex: 1;
+  min-width: 58px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+.texture-track-segment:hover:not(.active) {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.texture-track-segment.active {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.88) 0%, rgba(170, 130, 10, 0.98) 100%);
+  color: #0f0910;
+  font-weight: 800;
+  border: 1px solid #fff2cc;
+  box-shadow: 0 3px 14px rgba(212, 175, 55, 0.45);
+}
+
+/* Tannin Texture Pills Legacy Fallback */
 .texture-pills-wrap {
   display: flex;
   flex-wrap: wrap;
