@@ -509,25 +509,26 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
         {/* ====================================================
             1. TANNIN ARCHITECTURE (Crucial Pillar for Red Wine)
            ==================================================== */}
-        <div className="palate-section-card" style={{ background: 'linear-gradient(135deg, rgba(128, 0, 32, 0.18) 0%, rgba(20, 10, 24, 0.7) 100%)', borderColor: 'rgba(184, 29, 64, 0.35)' }}>
-          <div className="palate-section-header">
-            <div className="palate-section-title" style={{ color: 'var(--gold-light)' }}>
-              <Flame size={17} color="#b81d40" />
-              <EditableText textKey="palate.tanninTitle" defaultText="Tannin Quantity & Grip" />
+        <div className="palate-section-card" style={{ padding: '14px 20px' }}>
+          <div className="palate-row-layout">
+            <div className="palate-section-title" style={{ color: 'var(--text-main)', margin: 0 }}>
+              <Flame size={17} color="#d4af37" />
+              <EditableText textKey="palate.tanninTitle" defaultText="Tannin" />
+            </div>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <SommelierTrackSlider
+                value={currentTannin}
+                onChange={(val) => handleChange('tannin', val)}
+                options={TANNIN_SLIDER_OPTIONS}
+                anchorLabels={['Low', 'Medium', 'High']}
+                ariaLabel="Tannin Level"
+              />
             </div>
           </div>
 
-          {/* Gold Sommelier Slider: Low <-> Medium <-> High */}
-          <SommelierTrackSlider
-            value={currentTannin}
-            onChange={(val) => handleChange('tannin', val)}
-            options={TANNIN_SLIDER_OPTIONS}
-            anchorLabels={['Low', 'Medium', 'High']}
-            ariaLabel="Tannin Level"
-          />
-
           {/* Sommelier Tannin Texture Pills */}
-          <div className="texture-pills-wrap">
+          <div className="texture-pills-wrap" style={{ marginTop: '10px', paddingTop: '8px' }}>
             <span style={{ fontSize: '0.72rem', color: 'var(--text-gold)', display: 'flex', alignItems: 'center', gap: '4px', marginRight: '4px' }}>
               Texture:
             </span>
@@ -547,63 +548,67 @@ export default function PalateStep({ palateData = {}, updatePalateData }) {
         {/* ====================================================
             2. ACIDITY (Freshness & Salivation)
            ==================================================== */}
-        <div className="palate-section-card">
-          <div className="palate-section-header">
-            <div className="palate-section-title" style={{ color: 'var(--text-main)' }}>
+        <div className="palate-section-card" style={{ padding: '14px 20px' }}>
+          <div className="palate-row-layout">
+            <div className="palate-section-title" style={{ color: 'var(--text-main)', margin: 0 }}>
               <Droplets size={17} color="#38bdf8" />
-              <EditableText textKey="palate.acidityTitle" defaultText="Acidity Level" />
+              <EditableText textKey="palate.acidityTitle" defaultText="Acidity" />
+            </div>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <SommelierTrackSlider
+                value={currentAcidity}
+                onChange={(val) => handleChange('acidity', val)}
+                options={ACIDITY_SLIDER_OPTIONS}
+                anchorLabels={['Low', 'Medium', 'High']}
+                ariaLabel="Acidity Level"
+              />
             </div>
           </div>
-
-          {/* Gold Sommelier Slider: Low <-> Medium <-> High */}
-          <SommelierTrackSlider
-            value={currentAcidity}
-            onChange={(val) => handleChange('acidity', val)}
-            options={ACIDITY_SLIDER_OPTIONS}
-            anchorLabels={['Low', 'Medium', 'High']}
-            ariaLabel="Acidity Level"
-          />
         </div>
 
         {/* ====================================================
             3. BODY & PALATE WEIGHT (Viscosity)
            ==================================================== */}
-        <div className="palate-section-card">
-          <div className="palate-section-header">
-            <div className="palate-section-title" style={{ color: 'var(--text-main)' }}>
+        <div className="palate-section-card" style={{ padding: '14px 20px' }}>
+          <div className="palate-row-layout">
+            <div className="palate-section-title" style={{ color: 'var(--text-main)', margin: 0 }}>
               <Gauge size={17} color="#d4af37" />
-              <EditableText textKey="palate.bodyTitle" defaultText="Body Weight" />
+              <EditableText textKey="palate.bodyTitle" defaultText="Body" />
+            </div>
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <SommelierTrackSlider
+                value={currentBody}
+                onChange={(val) => handleChange('body', val)}
+                options={BODY_SLIDER_OPTIONS}
+                anchorLabels={['Light', 'Medium', 'Full']}
+                ariaLabel="Body Weight"
+              />
             </div>
           </div>
-
-          {/* Gold Sommelier Slider: Light <-> Medium <-> Full */}
-          <SommelierTrackSlider
-            value={currentBody}
-            onChange={(val) => handleChange('body', val)}
-            options={BODY_SLIDER_OPTIONS}
-            anchorLabels={['Light', 'Medium', 'Full']}
-            ariaLabel="Body Weight"
-          />
         </div>
 
         {/* ====================================================
             4. FLAVOR INTENSITY ON PALATE
            ==================================================== */}
-        <div className="palate-section-card" style={{ padding: '16px 20px' }}>
-          <div className="palate-section-header">
-            <span className="palate-section-title" style={{ fontSize: '0.9rem' }}>
-              <EditableText textKey="palate.flavorTitle" defaultText="Flavor Intensity (Palate Concentration)" />
-            </span>
-          </div>
+        <div className="palate-section-card" style={{ padding: '14px 20px' }}>
+          <div className="palate-row-layout">
+            <div className="palate-section-title" style={{ color: 'var(--text-main)', margin: 0 }}>
+              <Zap size={17} color="#d4af37" />
+              <EditableText textKey="palate.flavorTitle" defaultText="Flavor Intensity" />
+            </div>
 
-          {/* Gold Sommelier Slider: Light <-> Medium <-> Pronounced */}
-          <SommelierTrackSlider
-            value={currentFlavor}
-            onChange={(val) => handleChange('flavorIntensity', val)}
-            options={FLAVOR_SLIDER_OPTIONS}
-            anchorLabels={['Light', 'Medium', 'Pronounced']}
-            ariaLabel="Flavor Intensity"
-          />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <SommelierTrackSlider
+                value={currentFlavor}
+                onChange={(val) => handleChange('flavorIntensity', val)}
+                options={FLAVOR_SLIDER_OPTIONS}
+                anchorLabels={['Light', 'Medium', 'Pronounced']}
+                ariaLabel="Flavor Intensity"
+              />
+            </div>
+          </div>
         </div>
 
         {/* ====================================================
