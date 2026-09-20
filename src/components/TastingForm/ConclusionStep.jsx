@@ -115,12 +115,7 @@ export default function ConclusionStep({
             <span style={{ fontSize: '2.2rem', fontWeight: 700, color: 'var(--text-gold)', letterSpacing: '1px' }}>
               <EditableText textKey="conclusion.scoreTitle" defaultText="Score" />
             </span>
-            <div style={{ display: 'inline-flex', alignItems: 'baseline', gap: '8px' }}>
-              <span>{conclusionData?.score || 92}</span>
-              <span style={{ fontSize: '1.2rem', color: 'var(--text-muted)', fontWeight: 400 }}>
-                <EditableText textKey="conclusion.scoreSuffix" defaultText="/100" />
-              </span>
-            </div>
+            <span>{conclusionData?.score || 92}</span>
           </div>
           <input 
             type="range" 
