@@ -17,9 +17,6 @@ export default function WineInfoStep({ wineInfo, updateWineInfo }) {
           <Wine size={22} color="#d4af37" />
           <EditableText textKey="wineInfo.title" defaultText="Wine Identity & Specs" />
         </h3>
-        <span style={{ fontSize: '0.8rem', color: 'var(--text-gold)', background: 'rgba(212,175,55,0.1)', padding: '4px 12px', borderRadius: '12px' }}>
-          <EditableText textKey="wineInfo.stepBadge" defaultText="Step 1 of 6" />
-        </span>
       </div>
 
       <div className="form-grid">

@@ -28,9 +28,6 @@ export default function ConclusionStep({
           <Award size={22} color="#d4af37" />
           <EditableText textKey="conclusion.title" defaultText="Sommelier Conclusion & Rating" />
         </h3>
-        <span style={{ fontSize: '0.8rem', color: 'var(--text-gold)', background: 'rgba(212,175,55,0.1)', padding: '4px 12px', borderRadius: '12px' }}>
-          <EditableText textKey="conclusion.stepBadge" defaultText="Step 4 of 5" />
-        </span>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

@@ -214,9 +214,6 @@ export default function NoseStep({ noseData, updateNoseData }) {
           <Wind size={22} color="#d4af37" />
           <EditableText textKey="nose.title" defaultText="Nose & Aromatic Profile" />
         </h3>
-        <span style={{ fontSize: '0.8rem', color: 'var(--text-gold)', background: 'rgba(212,175,55,0.1)', padding: '4px 12px', borderRadius: '12px' }}>
-          <EditableText textKey="nose.stepBadge" defaultText="Step 2 of 5" />
-        </span>
       </div>
 
       {/* WORKSPACE LAYOUT: LEFT (Selected Aromas) | RIGHT / CENTER (Aroma Wheel + Curved Arc Label Sliders) */}
