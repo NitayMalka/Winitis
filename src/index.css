@@ -1727,8 +1727,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 /* Core 3 Columns */
 .verdict-body-grid {
   display: grid;
-  grid-template-columns: 165px 1.15fr 1fr;
-  gap: 18px;
+  grid-template-columns: 140px 1.2fr 1fr;
+  gap: 16px;
   align-items: stretch;
   flex: 1;
   min-height: 0;
@@ -1740,75 +1740,85 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   height: 100%;
+  min-width: 0;
 }
 
 .verdict-bottle-frame {
   width: 100%;
   height: 100%;
-  max-height: 440px;
+  max-height: 420px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
 }
 
 .generic-wine-bottle-wrap {
   width: 100%;
-  max-width: 160px;
+  max-width: 140px;
   height: 100%;
-  max-height: 440px;
+  max-height: 420px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
 }
 
 .generic-wine-bottle-wrap svg {
-  max-height: 440px;
-  width: auto;
-  height: 100%;
+  max-height: 420px;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .custom-bottle-img-wrap {
   width: 100%;
-  max-width: 160px;
+  max-width: 140px;
   height: 100%;
-  max-height: 440px;
+  max-height: 420px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   filter: drop-shadow(0 15px 25px rgba(0, 0, 0, 0.4));
 }
 
 .custom-bottle-img {
-  max-height: 440px;
+  max-height: 420px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
   border-radius: 8px;
 }
 
-/* Center Column */
+/* Column 2 (Center): Sight & Palate Structure */
 .verdict-center-column {
   display: flex;
   flex-direction: column;
   padding: 0 2px;
   min-width: 0;
   height: 100%;
-  justify-content: flex-start;
+  justify-content: space-between;
+}
+
+.verdict-palate-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .verdict-section-heading {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 900;
   letter-spacing: 0.05em;
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
   text-transform: uppercase;
 }
 
 .verdict-color-swatch {
   width: 100%;
-  height: 38px;
+  height: 32px;
   border-radius: 8px;
   border: 1.5px solid #5a493e;
   position: relative;
@@ -1827,15 +1837,25 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .verdict-color-desc {
-  font-size: 0.84rem;
+  font-size: 0.80rem;
   font-weight: 600;
-  margin-top: 5px;
+  margin-top: 4px;
   line-height: 1.25;
 }
 
 .verdict-subtext {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   opacity: 0.85;
+}
+
+/* Column 3 (Right): Nose & Aromas Showcase */
+.verdict-aromas-column {
+  display: flex;
+  flex-direction: column;
+  padding-left: 4px;
+  min-width: 0;
+  height: 100%;
+  justify-content: flex-start;
 }
 
 /* Nose Badges & Aromas */
@@ -1843,7 +1863,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
 }
 
@@ -1859,23 +1879,29 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: 195px;
+  max-height: 240px;
   overflow-y: auto;
 }
 
 .verdict-aroma-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.86rem;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.84rem;
   font-weight: 700;
-  line-height: 1.3;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
 }
 
 .verdict-aroma-row .aroma-icon {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   line-height: 1;
-  width: 22px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1886,17 +1912,32 @@ input[type="range"]::-webkit-slider-thumb:hover {
   line-height: 1.25;
 }
 
-/* Right Column: Structure Gauges & Palate Pillars */
-.verdict-structure-column {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 10px;
-  padding-left: 4px;
-  min-width: 0;
-  height: 100%;
+/* Theme overrides for aroma cards */
+.verdict-card.theme-parchment .verdict-aroma-row {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid #dcd2c4;
+  box-shadow: 0 1.5px 4px rgba(60, 48, 40, 0.05);
+  color: #1a1117;
 }
 
+.verdict-card.theme-parchment .verdict-aroma-row .aroma-icon {
+  background: rgba(212, 175, 55, 0.12);
+  border: 1px solid rgba(190, 160, 100, 0.25);
+}
+
+.verdict-card.theme-dark .verdict-aroma-row {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  color: #f5eedf;
+}
+
+.verdict-card.theme-dark .verdict-aroma-row .aroma-icon {
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+/* Structure Gauges & Palate Pillars */
 .verdict-gauge-group {
   display: flex;
   flex-direction: column;
@@ -1907,9 +1948,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.80rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  margin-bottom: 3px;
+  margin-bottom: 2px;
 }
 
 .verdict-gauge-label .gauge-val {
@@ -1919,22 +1960,22 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .verdict-gauge-track {
   width: 100%;
-  height: 12px;
-  border-radius: 6px;
+  height: 10px;
+  border-radius: 5px;
   border: 1.5px solid #544439;
   position: relative;
   overflow: hidden;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
 .verdict-gauge-fill {
   height: 100%;
-  border-radius: 5px;
+  border-radius: 4px;
   transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .verdict-gauge-subtitle {
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-weight: 600;
   font-style: italic;
   line-height: 1.2;
@@ -1945,15 +1986,15 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-palate-pillars-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 7px;
-  margin-top: 6px;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .palate-pillar-item {
   display: flex;
   flex-direction: column;
-  padding: 6px 8px;
-  border-radius: 7px;
+  padding: 5px 7px;
+  border-radius: 6px;
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
@@ -2191,7 +2232,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   /* 3 Columns stay side-by-side on mobile! */
   .verdict-body-grid {
     display: grid !important;
-    grid-template-columns: 60px 1.15fr 1.05fr !important;
+    grid-template-columns: 74px 1.22fr 1fr !important;
     gap: 8px !important;
     align-items: start !important;
     flex: 1 !important;
@@ -2201,45 +2242,64 @@ input[type="range"]::-webkit-slider-thumb:hover {
   .verdict-bottle-column {
     order: unset !important;
     height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 0 !important;
   }
   .verdict-bottle-frame {
     min-height: unset !important;
-    height: 380px !important;
+    height: 100% !important;
+    max-height: 380px !important;
     display: flex !important;
-    align-items: flex-end !important;
+    align-items: center !important;
     justify-content: center !important;
+    width: 100% !important;
   }
   .generic-wine-bottle-wrap {
-    max-width: 58px !important;
+    max-width: 74px !important;
     max-height: 380px !important;
     height: 100% !important;
+    width: 100% !important;
     display: flex !important;
-    align-items: flex-end !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   .generic-wine-bottle-wrap svg {
     max-height: 380px !important;
-    width: auto !important;
-    height: 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    display: block !important;
   }
   .custom-bottle-img-wrap {
-    max-width: 58px !important;
+    max-width: 74px !important;
     max-height: 380px !important;
     height: 100% !important;
+    width: 100% !important;
     display: flex !important;
-    align-items: flex-end !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   .custom-bottle-img {
     max-height: 380px !important;
+    max-width: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
   }
 
+  /* Column 2 (Center): Sight & Palate on Mobile */
   .verdict-center-column {
     order: unset !important;
-    padding: 0 !important;
+    padding: 0 1px !important;
     min-width: 0 !important;
     display: flex !important;
     flex-direction: column !important;
     height: 100% !important;
-    justify-content: flex-start !important;
+    justify-content: space-between !important;
+    gap: 3px !important;
   }
   .verdict-section-heading {
     font-size: 0.68rem !important;
@@ -2247,73 +2307,38 @@ input[type="range"]::-webkit-slider-thumb:hover {
     letter-spacing: 0.04em !important;
   }
   .verdict-color-swatch {
-    height: 26px !important;
-    border-radius: 5px !important;
+    height: 22px !important;
+    border-radius: 4px !important;
   }
   .verdict-color-desc {
-    font-size: 0.66rem !important;
+    font-size: 0.62rem !important;
     margin-top: 2px !important;
-    line-height: 1.2 !important;
+    line-height: 1.15 !important;
   }
-  .verdict-nose-badges {
-    display: flex !important;
-    gap: 4px !important;
-    margin: 2px 0 4px 0 !important;
-  }
-  .verdict-pill-badge {
-    font-size: 0.60rem !important;
-    padding: 1px 5px !important;
-    border-radius: 8px !important;
-  }
-  .verdict-aromas-list {
-    gap: 4px !important;
-    max-height: 180px !important;
-    overflow-y: auto !important;
-    scrollbar-width: none !important;
-  }
-  .verdict-aromas-list::-webkit-scrollbar {
-    display: none !important;
-  }
-  .verdict-aroma-row {
-    font-size: 0.66rem !important;
-    gap: 4px !important;
-    line-height: 1.2 !important;
-  }
-  .verdict-aroma-row .aroma-icon {
-    font-size: 0.78rem !important;
-    width: 14px !important;
-  }
-  .verdict-aroma-row .aroma-text {
-    line-height: 1.2 !important;
-  }
-
-  .verdict-structure-column {
-    order: unset !important;
-    gap: 6px !important;
-    padding-left: 2px !important;
-    min-width: 0 !important;
+  .verdict-palate-block {
     display: flex !important;
     flex-direction: column !important;
-    height: 100% !important;
+    gap: 2px !important;
   }
   .verdict-gauge-group {
     display: flex !important;
     flex-direction: column !important;
-    margin-bottom: 2px !important;
+    margin-bottom: 1px !important;
   }
   .verdict-gauge-label {
     display: flex !important;
     justify-content: space-between !important;
-    font-size: 0.62rem !important;
+    font-size: 0.60rem !important;
     font-weight: 700 !important;
+    margin-bottom: 1px !important;
   }
   .verdict-gauge-track {
-    height: 8px !important;
-    border-radius: 4px !important;
+    height: 7px !important;
+    border-radius: 3px !important;
     margin-bottom: 1px !important;
   }
   .verdict-gauge-subtitle {
-    font-size: 0.58rem !important;
+    font-size: 0.56rem !important;
     line-height: 1.15 !important;
     margin-top: 1px !important;
   }
@@ -2322,7 +2347,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   .verdict-palate-pillars-grid {
     display: grid !important;
     grid-template-columns: 1fr 1fr !important;
-    gap: 4px !important;
+    gap: 3px !important;
     margin-top: 2px !important;
   }
   .palate-pillar-item {
@@ -2330,10 +2355,58 @@ input[type="range"]::-webkit-slider-thumb:hover {
     border-radius: 4px !important;
   }
   .palate-pillar-item .pillar-label {
-    font-size: 0.54rem !important;
+    font-size: 0.52rem !important;
   }
   .palate-pillar-item .pillar-val {
     font-size: 0.62rem !important;
+  }
+
+  /* Column 3 (Right): Nose & Aromas on Mobile */
+  .verdict-aromas-column {
+    order: unset !important;
+    padding-left: 2px !important;
+    min-width: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    justify-content: flex-start !important;
+  }
+  .verdict-nose-badges {
+    display: flex !important;
+    gap: 3px !important;
+    margin: 2px 0 6px 0 !important;
+    flex-wrap: wrap !important;
+  }
+  .verdict-pill-badge {
+    font-size: 0.58rem !important;
+    padding: 1px 5px !important;
+    border-radius: 6px !important;
+  }
+  .verdict-aromas-list {
+    gap: 4px !important;
+    max-height: 220px !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    margin-top: 2px !important;
+  }
+  .verdict-aromas-list::-webkit-scrollbar {
+    display: none !important;
+  }
+  .verdict-aroma-row {
+    font-size: 0.64rem !important;
+    padding: 4px 6px !important;
+    gap: 5px !important;
+    border-radius: 6px !important;
+    line-height: 1.2 !important;
+  }
+  .verdict-aroma-row .aroma-icon {
+    font-size: 0.80rem !important;
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 4px !important;
+  }
+  .verdict-aroma-row .aroma-text {
+    line-height: 1.2 !important;
   }
 
   /* Notes Cartouche on Mobile */

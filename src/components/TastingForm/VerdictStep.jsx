@@ -107,6 +107,26 @@ export default function VerdictStep({
   const notes = wineNote.conclusion?.notes || '';
   const displayNotes = notes ? notes.trim().slice(0, 160) : '';
 
+  // Helper to remove any parenthetical text (e.g. "(Cassis)", "(30s)")
+  const cleanText = (str) => {
+    if (!str) return '';
+    return String(str)
+      .replace(/\s*\([^)]*\)/g, '')
+      .replace(/[()]/g, '')
+      .trim();
+  };
+
+  // Helper to cleanly convert "(+)" to "+" and strip other parens
+  const cleanIntensity = (val) => {
+    if (!val) return '';
+    return String(val)
+      .replace(/\(\+\)/g, '+')
+      .replace(/\(-\)/g, '-')
+      .replace(/\s*\([^)]*\)/g, '')
+      .replace(/[()]/g, '')
+      .trim();
+  };
+
   // 1. Color Parameters (Sector 1)
   const colorHex = wineNote.color?.hex || '#5c133a';
   const colorName = wineNote.color?.name || 'Deep Ruby';
@@ -121,6 +141,7 @@ export default function VerdictStep({
 
   // 2. Nose Parameters (Sector 2)
   const noseIntensity = wineNote.nose?.intensity || 'Medium(+)';
+  const noseIntensityClean = cleanIntensity(noseIntensity);
   const noseDevelopment = wineNote.nose?.development || 'Youthful';
   const rawAromas = wineNote.nose?.aromas || [
     'Blackcurrant & Ripe Plum',
@@ -128,18 +149,26 @@ export default function VerdictStep({
     'Elegant Vanilla & Spice Notes',
     'Faint Leather & Forest Floor'
   ];
-  // Limit aroma text to 32 characters so words are never cut off
-  const userAromas = rawAromas.slice(0, 5).map(a => a.length > 32 ? a.slice(0, 32).trim() : a);
+  // Strip parentheses (e.g. "(Cassis)") and limit length for clean luxury presentation
+  const userAromas = rawAromas
+    .map(a => cleanText(a))
+    .filter(Boolean)
+    .slice(0, 5)
+    .map(a => a.length > 28 ? a.slice(0, 28).trim() : a);
 
   // 3. Palate & Structural Parameters (Sector 2 - all 8 attributes)
   const bodyVal = wineNote.palate?.body || 'Medium(+)';
+  const bodyClean = cleanIntensity(bodyVal);
   const acidityVal = wineNote.palate?.acidity || 'Medium(+)';
+  const acidityClean = cleanIntensity(acidityVal);
   const tanninVal = wineNote.palate?.tannin || 'Medium(+)';
-  const tanninLevelClean = tanninVal.replace(/\s*\([^)]*\)/g, '').trim() || 'Medium(+)';
+  const tanninClean = cleanIntensity(tanninVal);
+  const tanninLevelClean = tanninClean;
   const tanninTexture = wineNote.palate?.tanninTexture || (tanninVal.match(/\(([^)]+)\)/)?.[1] || '');
-  const sweetnessVal = wineNote.palate?.sweetness || 'Dry';
+  const tanninTextureClean = cleanText(tanninTexture);
+  const sweetnessVal = cleanIntensity(wineNote.palate?.sweetness || 'Dry');
   const alcoholLevelVal = wineNote.palate?.alcoholLevel || 'Medium (11-13.9%)';
-  const flavorIntensityVal = wineNote.palate?.flavorIntensity || 'Pronounced';
+  const flavorIntensityVal = cleanIntensity(wineNote.palate?.flavorIntensity || 'Pronounced');
   const finishVal = wineNote.palate?.finish || 'Medium(+) (30s)';
   const finishSeconds = typeof wineNote.palate?.finishSeconds === 'number'
     ? wineNote.palate.finishSeconds
@@ -150,17 +179,15 @@ export default function VerdictStep({
 
   const formatFinishDisplay = () => {
     const raw = String(finishVal || '').trim();
-    if (/\d+\s*s/i.test(raw)) {
-      return raw;
+    const cleanLevel = cleanIntensity(raw);
+    if (finishSeconds !== null && finishSeconds !== undefined && finishSeconds > 0) {
+      return `${cleanLevel} ${finishSeconds}s`;
     }
-    if (finishSeconds !== null && finishSeconds !== undefined) {
-      return `${raw} (${finishSeconds}s)`;
+    const secMatch = raw.match(/(\d+)\s*s/i);
+    if (secMatch) {
+      return `${cleanLevel} ${secMatch[1]}s`;
     }
-    if (raw.toLowerCase().includes('long')) return `${raw} (45s+)`;
-    if (raw.toLowerCase().includes('medium(+)')) return `${raw} (30-45s)`;
-    if (raw.toLowerCase().includes('short')) return `${raw} (<15s)`;
-    if (raw.toLowerCase().includes('medium')) return `${raw} (15-30s)`;
-    return raw;
+    return cleanLevel;
   };
 
   // 4. Rating & VFM (Sector 3)
@@ -495,7 +522,7 @@ export default function VerdictStep({
             </div>
           </div>
 
-          {/* COLUMN 2 (CENTER): COLOR, CLARITY & NOSE AROMAS */}
+          {/* COLUMN 2 (CENTER): SIGHT & PALATE STRUCTURE */}
           <div className="verdict-center-column">
             
             {/* COLOR & CLARITY SECTION (SECTOR 1 RANKINGS) */}
@@ -526,7 +553,102 @@ export default function VerdictStep({
             {/* Separator Line */}
             <div className="verdict-inner-divider" />
 
-            {/* NOSE & AROMAS SECTION (SECTOR 2 NOSE RANKINGS) */}
+            {/* PALATE & STRUCTURAL SECTION (SECTOR 2 PALATE ATTRIBUTES) */}
+            <div className="verdict-section-block verdict-palate-block">
+              <h3 className="verdict-section-heading font-serif" style={{ marginBottom: '4px' }}>
+                <EditableText textKey="palate.title" defaultText="PALATE & STRUCTURAL" />:
+              </h3>
+
+              {/* 1. BODY GAUGE */}
+              <div className="verdict-gauge-group">
+                <div className="verdict-gauge-label font-serif">
+                  <span><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
+                  <span className="gauge-val">{bodyClean}</span>
+                </div>
+                <div className="verdict-gauge-track">
+                  <div
+                    className="verdict-gauge-fill"
+                    style={{ width: `${getGaugePercent(bodyVal)}%` }}
+                  />
+                </div>
+                <div className="verdict-gauge-subtitle font-serif">
+                  {getStructureSubtitle('body', bodyVal)}
+                </div>
+              </div>
+
+              {/* 2. ACIDITY GAUGE */}
+              <div className="verdict-gauge-group">
+                <div className="verdict-gauge-label font-serif">
+                  <span><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
+                  <span className="gauge-val">{acidityClean}</span>
+                </div>
+                <div className="verdict-gauge-track">
+                  <div
+                    className="verdict-gauge-fill"
+                    style={{ width: `${getGaugePercent(acidityVal)}%` }}
+                  />
+                </div>
+                <div className="verdict-gauge-subtitle font-serif">
+                  {getStructureSubtitle('acidity', acidityVal)}
+                </div>
+              </div>
+
+              {/* 3. TANNINS GAUGE (LEVEL & TEXTURE) */}
+              <div className="verdict-gauge-group">
+                <div className="verdict-gauge-label font-serif">
+                  <span><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
+                  <span className="gauge-val">{tanninClean}</span>
+                </div>
+                <div className="verdict-gauge-track">
+                  <div
+                    className="verdict-gauge-fill"
+                    style={{ width: `${getGaugePercent(tanninVal)}%` }}
+                  />
+                </div>
+                <div className="verdict-gauge-subtitle font-serif">
+                  {getStructureSubtitle('tannin', tanninVal, tanninTextureClean)}
+                </div>
+              </div>
+
+              {/* 4. PALATE ATTRIBUTES PILLARS (SWEETNESS, ALCOHOL, FLAVOR, FINISH) */}
+              <div className="verdict-palate-pillars-grid">
+                
+                <div className="palate-pillar-item font-serif">
+                  <span className="pillar-label">
+                    <EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" />
+                  </span>
+                  <span className="pillar-val">{sweetnessVal}</span>
+                </div>
+
+                <div className="palate-pillar-item font-serif">
+                  <span className="pillar-label">
+                    <EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" />
+                  </span>
+                  <span className="pillar-val">{cleanIntensity(alcoholLevelVal.split(' ')[0])}</span>
+                </div>
+
+                <div className="palate-pillar-item font-serif">
+                  <span className="pillar-label">
+                    <EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" />
+                  </span>
+                  <span className="pillar-val">{flavorIntensityVal}</span>
+                </div>
+
+                <div className="palate-pillar-item font-serif">
+                  <span className="pillar-label">
+                    <EditableText textKey="verdict.finishTitle" defaultText="FINISH:" />
+                  </span>
+                  <span className="pillar-val">{formatFinishDisplay()}</span>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          {/* COLUMN 3 (RIGHT): NOSE & AROMAS SHOWCASE */}
+          <div className="verdict-aromas-column">
+            
             <div className="verdict-section-block">
               <h3 className="verdict-section-heading font-serif">
                 <EditableText textKey="verdict.noseTitle" defaultText="NOSE & AROMAS:" />
@@ -535,14 +657,14 @@ export default function VerdictStep({
               {/* Nose Intensity & Development Badges */}
               <div className="verdict-nose-badges">
                 <span className="verdict-pill-badge">
-                  <EditableText textKey="verdict.intensityLabel" defaultText="Intensity:" /> <strong>{noseIntensity}</strong>
+                  <EditableText textKey="verdict.intensityLabel" defaultText="Intensity:" /> <strong>{noseIntensityClean}</strong>
                 </span>
                 <span className="verdict-pill-badge">
-                  <EditableText textKey="verdict.developmentLabel" defaultText="Development:" /> <strong>{noseDevelopment}</strong>
+                  <EditableText textKey="verdict.developmentLabel" defaultText="Development:" /> <strong>{cleanIntensity(noseDevelopment)}</strong>
                 </span>
               </div>
 
-              {/* Selected Aromas List */}
+              {/* Selected Aromas Showcase */}
               <div className="verdict-aromas-list font-serif">
                 {userAromas.length > 0 ? (
                   userAromas.map((aroma, idx) => (
@@ -553,104 +675,11 @@ export default function VerdictStep({
                   ))
                 ) : (
                   <div className="verdict-aroma-row" style={{ fontStyle: 'italic', opacity: 0.7 }}>
-                    <span>🍇</span>
-                    <span>No specific aromas selected</span>
+                    <span className="aroma-icon">🍇</span>
+                    <span className="aroma-text">No specific aromas selected</span>
                   </div>
                 )}
               </div>
-            </div>
-
-          </div>
-
-          {/* COLUMN 3 (RIGHT): PALATE & STRUCTURE (ALL 8 ATTRIBUTES!) */}
-          <div className="verdict-structure-column">
-            
-            <h3 className="verdict-section-heading font-serif" style={{ marginBottom: '6px' }}>
-              <EditableText textKey="palate.title" defaultText="PALATE & STRUCTURAL" />:
-            </h3>
-
-            {/* 1. BODY GAUGE */}
-            <div className="verdict-gauge-group">
-              <div className="verdict-gauge-label font-serif">
-                <span><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
-                <span className="gauge-val">{bodyVal}</span>
-              </div>
-              <div className="verdict-gauge-track">
-                <div
-                  className="verdict-gauge-fill"
-                  style={{ width: `${getGaugePercent(bodyVal)}%` }}
-                />
-              </div>
-              <div className="verdict-gauge-subtitle font-serif">
-                {getStructureSubtitle('body', bodyVal)}
-              </div>
-            </div>
-
-            {/* 2. ACIDITY GAUGE */}
-            <div className="verdict-gauge-group">
-              <div className="verdict-gauge-label font-serif">
-                <span><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
-                <span className="gauge-val">{acidityVal}</span>
-              </div>
-              <div className="verdict-gauge-track">
-                <div
-                  className="verdict-gauge-fill"
-                  style={{ width: `${getGaugePercent(acidityVal)}%` }}
-                />
-              </div>
-              <div className="verdict-gauge-subtitle font-serif">
-                {getStructureSubtitle('acidity', acidityVal)}
-              </div>
-            </div>
-
-            {/* 3. TANNINS GAUGE (LEVEL & TEXTURE) */}
-            <div className="verdict-gauge-group">
-              <div className="verdict-gauge-label font-serif">
-                <span><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
-                <span className="gauge-val">{tanninLevelClean}</span>
-              </div>
-              <div className="verdict-gauge-track">
-                <div
-                  className="verdict-gauge-fill"
-                  style={{ width: `${getGaugePercent(tanninVal)}%` }}
-                />
-              </div>
-              <div className="verdict-gauge-subtitle font-serif">
-                {getStructureSubtitle('tannin', tanninVal, tanninTexture)}
-              </div>
-            </div>
-
-            {/* 4. REMAINING 4 PALATE ATTRIBUTES (SWEETNESS, ALCOHOL, FLAVOR, FINISH) */}
-            <div className="verdict-palate-pillars-grid">
-              
-              <div className="palate-pillar-item font-serif">
-                <span className="pillar-label">
-                  <EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" />
-                </span>
-                <span className="pillar-val">{sweetnessVal}</span>
-              </div>
-
-              <div className="palate-pillar-item font-serif">
-                <span className="pillar-label">
-                  <EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" />
-                </span>
-                <span className="pillar-val">{alcoholLevelVal.split(' ')[0]}</span>
-              </div>
-
-              <div className="palate-pillar-item font-serif">
-                <span className="pillar-label">
-                  <EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" />
-                </span>
-                <span className="pillar-val">{flavorIntensityVal}</span>
-              </div>
-
-              <div className="palate-pillar-item font-serif">
-                <span className="pillar-label">
-                  <EditableText textKey="verdict.finishTitle" defaultText="FINISH:" />
-                </span>
-                <span className="pillar-val">{formatFinishDisplay()}</span>
-              </div>
-
             </div>
 
           </div>
