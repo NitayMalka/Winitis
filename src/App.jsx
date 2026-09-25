@@ -8,7 +8,18 @@ import NotesList from './components/SavedNotes/NotesList';
 import ShareModal from './components/ShareModal';
 import VerdictModal from './components/SavedNotes/VerdictModal';
 import QuickReferenceModal from './components/QuickReferenceModal';
-import { getSavedNotes, saveNote, deleteNote } from './utils/storage';
+import { 
+  getSavedNotes, 
+  saveNote, 
+  deleteNote, 
+  getActiveStep, 
+  saveActiveStep, 
+  getActiveView, 
+  saveActiveView, 
+  getActiveDraftNote, 
+  saveActiveDraftNote, 
+  clearActiveDraftNote 
+} from './utils/storage';
 import { Wine, Check, Sparkles, Eye, Wind, Award, FileText } from 'lucide-react';
 import { useTexts } from './context/TextContext';
 import EditableText from './components/TextEditor/EditableText';
@@ -55,9 +66,9 @@ const INITIAL_NOTE_STATE = {
 };
 
 export default function App() {
-  const [currentView, setCurrentView] = useState('new'); // 'new' | 'saved'
-  const [currentStep, setCurrentStep] = useState(1); // 1 to 6
-  const [wineNote, setWineNote] = useState(INITIAL_NOTE_STATE);
+  const [currentView, setCurrentView] = useState(() => getActiveView());
+  const [currentStep, setCurrentStep] = useState(() => getActiveStep());
+  const [wineNote, setWineNote] = useState(() => getActiveDraftNote(INITIAL_NOTE_STATE));
   const [savedNotes, setSavedNotes] = useState([]);
   const [shareNoteTarget, setShareNoteTarget] = useState(null);
   const [viewVerdictTarget, setViewVerdictTarget] = useState(null);
@@ -67,6 +78,21 @@ export default function App() {
     const loaded = getSavedNotes();
     setSavedNotes(loaded);
   }, []);
+
+  // Persist current active step across app switches and browser sessions
+  useEffect(() => {
+    saveActiveStep(currentStep);
+  }, [currentStep]);
+
+  // Persist current view across app switches
+  useEffect(() => {
+    saveActiveView(currentView);
+  }, [currentView]);
+
+  // Persist active in-progress note draft
+  useEffect(() => {
+    saveActiveDraftNote(wineNote);
+  }, [wineNote]);
 
   const handleUpdateWineInfo = (info) => {
     setWineNote(prev => ({ ...prev, ...info }));
@@ -91,6 +117,7 @@ export default function App() {
   const handleSaveCurrentNote = () => {
     const updatedList = saveNote(wineNote);
     setSavedNotes(updatedList);
+    clearActiveDraftNote();
   };
 
   const handleDeleteNote = (id) => {
@@ -101,9 +128,12 @@ export default function App() {
   };
 
   const handleStartNewTasting = () => {
+    clearActiveDraftNote();
     setWineNote(INITIAL_NOTE_STATE);
     setCurrentStep(1);
     setCurrentView('new');
+    saveActiveStep(1);
+    saveActiveView('new');
   };
 
   const { t } = useTexts();

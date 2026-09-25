@@ -1,6 +1,64 @@
 import { SAMPLE_NOTES } from '../data/wineData';
 
 const STORAGE_KEY = 'winitis_tasting_notes';
+const ACTIVE_STEP_KEY = 'winitis_active_step';
+const ACTIVE_DRAFT_KEY = 'winitis_active_draft_note';
+const ACTIVE_VIEW_KEY = 'winitis_active_view';
+
+export const getActiveStep = () => {
+  try {
+    const val = localStorage.getItem(ACTIVE_STEP_KEY);
+    const num = parseInt(val, 10);
+    if (num >= 1 && num <= 4) return num;
+  } catch (e) {}
+  return 1;
+};
+
+export const saveActiveStep = (step) => {
+  try {
+    localStorage.setItem(ACTIVE_STEP_KEY, String(step));
+  } catch (e) {}
+};
+
+export const getActiveView = () => {
+  try {
+    const val = localStorage.getItem(ACTIVE_VIEW_KEY);
+    if (val === 'saved' || val === 'new') return val;
+  } catch (e) {}
+  return 'new';
+};
+
+export const saveActiveView = (view) => {
+  try {
+    localStorage.setItem(ACTIVE_VIEW_KEY, view);
+  } catch (e) {}
+};
+
+export const getActiveDraftNote = (initialState) => {
+  try {
+    const data = localStorage.getItem(ACTIVE_DRAFT_KEY);
+    if (data) {
+      const parsed = JSON.parse(data);
+      if (parsed && typeof parsed === 'object') {
+        return { ...initialState, ...parsed };
+      }
+    }
+  } catch (e) {}
+  return initialState;
+};
+
+export const saveActiveDraftNote = (note) => {
+  try {
+    localStorage.setItem(ACTIVE_DRAFT_KEY, JSON.stringify(note));
+  } catch (e) {}
+};
+
+export const clearActiveDraftNote = () => {
+  try {
+    localStorage.removeItem(ACTIVE_DRAFT_KEY);
+    localStorage.setItem(ACTIVE_STEP_KEY, '1');
+  } catch (e) {}
+};
 
 export const getSavedNotes = () => {
   try {
