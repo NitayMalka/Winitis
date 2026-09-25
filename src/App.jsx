@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ColorStep from './components/TastingForm/ColorStep';
 import NoseStep from './components/TastingForm/NoseStep';
-import PalateStep from './components/TastingForm/PalateStep';
 import ConclusionStep from './components/TastingForm/ConclusionStep';
 import VerdictStep from './components/TastingForm/VerdictStep';
 import NotesList from './components/SavedNotes/NotesList';
@@ -10,7 +9,7 @@ import ShareModal from './components/ShareModal';
 import VerdictModal from './components/SavedNotes/VerdictModal';
 import QuickReferenceModal from './components/QuickReferenceModal';
 import { getSavedNotes, saveNote, deleteNote } from './utils/storage';
-import { Wine, Check, Sparkles, Eye, Wind, Activity, Award, FileText } from 'lucide-react';
+import { Wine, Check, Sparkles, Eye, Wind, Award, FileText } from 'lucide-react';
 import { useTexts } from './context/TextContext';
 import EditableText from './components/TextEditor/EditableText';
 
@@ -30,7 +29,7 @@ const INITIAL_NOTE_STATE = {
     hex: '#7e1022',
     intensity: 'Deep',
     clarity: 'Clear',
-    rimVariation: 'Standard Ruby Rim'
+    rimVariation: 'Ruby Edge'
   },
   nose: {
     intensity: 'Medium(+)',
@@ -110,28 +109,26 @@ export default function App() {
   const { t } = useTexts();
 
   const steps = [
-    { num: 1, label: t('navigation.step1', 'Color Inspector'), key: 'navigation.step1', icon: Eye },
-    { num: 2, label: t('navigation.step2', 'Nose & Aromas'), key: 'navigation.step2', icon: Wind },
-    { num: 3, label: t('navigation.step3', 'Palate & Structure'), key: 'navigation.step3', icon: Activity },
-    { num: 4, label: t('navigation.step4', 'Rating & Notes'), key: 'navigation.step4', icon: Award },
-    { num: 5, label: t('navigation.step5', 'Verdict Summary'), key: 'navigation.step5', icon: FileText }
+    { num: 1, label: t('navigation.step1', 'Color'), key: 'navigation.step1', icon: Eye },
+    { num: 2, label: t('navigation.step2', 'Nose'), key: 'navigation.step2', icon: Wind },
+    { num: 3, label: t('navigation.step3', 'Rating'), key: 'navigation.step3', icon: Award },
+    { num: 4, label: t('navigation.step4', 'Summary'), key: 'navigation.step4', icon: FileText }
   ];
 
   return (
     <div className="app-container">
-      <Header 
-        currentView={currentView}
-        setCurrentView={setCurrentView}
-        savedCount={savedNotes.length}
-        onOpenGuide={() => setShowGuideModal(true)}
-        onSave={handleSaveCurrentNote}
-        onShare={() => setShareNoteTarget(wineNote)}
-        onPrint={() => window.print()}
-      />
+      <div className="sticky-nav-wrapper">
+        <Header 
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+          savedCount={savedNotes.length}
+          onOpenGuide={() => setShowGuideModal(true)}
+          onSave={handleSaveCurrentNote}
+          onShare={() => setShareNoteTarget(wineNote)}
+          onPrint={() => window.print()}
+        />
 
-      {currentView === 'new' && (
-        <>
-          {/* Step Progress Navigation Bar */}
+        {currentView === 'new' && (
           <div className="step-bar">
             {steps.map((s) => {
               const Icon = s.icon;
@@ -150,8 +147,11 @@ export default function App() {
               );
             })}
           </div>
+        )}
+      </div>
 
-          <main className="main-content">
+      {currentView === 'new' && (
+        <main className="main-content">
             {currentStep === 1 && (
               <ColorStep 
                 colorData={wineNote.color} 
@@ -163,17 +163,12 @@ export default function App() {
               <NoseStep 
                 noseData={wineNote.nose} 
                 updateNoseData={handleUpdateNose} 
+                palateData={wineNote.palate}
+                updatePalateData={handleUpdatePalate}
               />
             )}
 
             {currentStep === 3 && (
-              <PalateStep 
-                palateData={wineNote.palate} 
-                updatePalateData={handleUpdatePalate} 
-              />
-            )}
-
-            {currentStep === 4 && (
               <ConclusionStep 
                 wineInfo={wineNote}
                 updateWineInfo={handleUpdateWineInfo}
@@ -182,7 +177,7 @@ export default function App() {
               />
             )}
 
-            {currentStep === 5 && (
+            {currentStep === 4 && (
               <VerdictStep 
                 wineNote={wineNote} 
                 updateWineNote={setWineNote}
@@ -192,7 +187,6 @@ export default function App() {
             )}
 
           </main>
-        </>
       )}
 
       {currentView === 'saved' && (
@@ -234,14 +228,7 @@ export default function App() {
         />
       )}
 
-      <footer className="app-footer">
-        <div>
-          <EditableText textKey="footer.line1" defaultText="Winitis Red Wine Tasting Companion • Sommelier Level Deductive Tasting PWA" />
-        </div>
-        <div style={{ fontSize: '0.75rem', marginTop: '4px', opacity: 0.7 }}>
-          <EditableText textKey="footer.line2" defaultText="Designed for Red Wines • Split-Screen Color Inspection • Offline Local Storage" />
-        </div>
-      </footer>
+
     </div>
   );
 }

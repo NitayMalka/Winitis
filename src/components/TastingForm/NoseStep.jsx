@@ -3,6 +3,7 @@ import { RED_WINE_AROMAS } from '../../data/wineData';
 import { Wind, Sparkles, Check, Info, Trash2, Sliders } from 'lucide-react';
 import EditableText from '../TextEditor/EditableText';
 import { useTexts } from '../../context/TextContext';
+import PalateStep from './PalateStep';
 
 const INTENSITY_LEVELS = ['Light', 'Medium(-)', 'Medium', 'Medium(+)', 'Pronounced'];
 const DEVELOPMENT_LEVELS = ['Youthful', 'Developing', 'Fully Developed', 'Tired'];
@@ -76,7 +77,7 @@ function percentToLevel(pct, list) {
   return list[idx];
 }
 
-export default function NoseStep({ noseData, updateNoseData }) {
+export default function NoseStep({ noseData, updateNoseData, palateData, updatePalateData }) {
   const selectedAromas = noseData.aromas || [];
   const [activeTier, setActiveTier] = useState('primary');
   const [activeCategory, setActiveCategory] = useState(CATEGORY_MAP[0]); // Default Red Fruit
@@ -208,7 +209,7 @@ export default function NoseStep({ noseData, updateNoseData }) {
   const sliceAngle3 = 360 / numRing3Slices;
 
   return (
-    <div className="card">
+    <div className="card nose-step-card">
       <div className="card-header">
         <h3 className="card-title font-serif">
           <Wind size={22} color="#d4af37" />
@@ -216,74 +217,10 @@ export default function NoseStep({ noseData, updateNoseData }) {
         </h3>
       </div>
 
-      {/* WORKSPACE LAYOUT: LEFT (Selected Aromas) | RIGHT / CENTER (Aroma Wheel + Curved Arc Label Sliders) */}
-      <div 
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '240px 1fr',
-          gap: '24px',
-          alignItems: 'start',
-          marginTop: '8px'
-        }}
-        className="nose-workspace-grid"
-      >
-
-        {/* LEFT COLUMN: SELECTED AROMAS (Outer container styling removed) */}
-        <div 
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}
-        >
-          <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--gold-light)', display: 'flex', alignItems: 'center', gap: '6px', borderBottom: '1px solid rgba(212,175,55,0.15)', paddingBottom: '8px' }}>
-            <Sparkles size={16} color="#d4af37" />
-            <span>
-              <EditableText 
-                textKey="nose.selectedAromasTitle" 
-                defaultText={`Selected Aromas (${selectedAromas.length})`}
-                interpolations={{ count: selectedAromas.length }}
-              />
-            </span>
-          </div>
-
-          {selectedAromas.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', overflowY: 'auto', maxHeight: '440px', paddingRight: '4px' }}>
-              {selectedAromas.map((item) => (
-                <div 
-                  key={item} 
-                  style={{
-                    background: 'rgba(128, 0, 32, 0.35)',
-                    border: '1px solid var(--gold-primary)',
-                    color: '#ffffff',
-                    padding: '8px 12px',
-                    borderRadius: '10px',
-                    fontSize: '0.8rem',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                  onClick={() => toggleAroma(item)}
-                  title="Click to remove"
-                >
-                  <span style={{ fontWeight: 500 }}>{item}</span>
-                  <span style={{ color: 'var(--gold-light)', fontWeight: 'bold' }}>✕</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.78rem', padding: '40px 10px', fontStyle: 'italic' }}>
-              <EditableText textKey="nose.emptyAromasHint" defaultText="Tap aromas on the wheel or category tabs below to select" multiline={true} />
-            </div>
-          )}
-        </div>
-
-        {/* CENTER / RIGHT COLUMN: INTERACTIVE AROMA WHEEL WITH CURVED TEXT ARCS */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
-
-          <div style={{ width: '100%', maxWidth: '490px', touchAction: 'none', position: 'relative' }}>
+      {/* WORKSPACE LAYOUT: CENTERED AROMA WHEEL WITH SELECTED AROMAS BENEATH */}
+      <div className="nose-workspace-container">
+        {/* INTERACTIVE AROMA WHEEL WITH CURVED TEXT ARCS */}
+        <div className="nose-wheel-wrap" style={{ width: '100%', touchAction: 'none', position: 'relative' }}>
             <svg 
               ref={svgRef}
               viewBox="0 0 500 500" 
@@ -524,7 +461,36 @@ export default function NoseStep({ noseData, updateNoseData }) {
 
             </svg>
           </div>
+
+        {/* SELECTED AROMAS (Single slideable line beneath wheel - fixed height) */}
+        <div className="selected-aromas-slider">
+          {selectedAromas.length > 0 ? (
+            selectedAromas.map((item) => (
+              <div 
+                key={item} 
+                className="aroma-pill-slide"
+                onClick={() => toggleAroma(item)}
+                title="Click to remove"
+              >
+                <span style={{ fontWeight: 500 }}>{item}</span>
+                <span style={{ color: 'var(--gold-light)', fontWeight: 'bold' }}>✕</span>
+              </div>
+            ))
+          ) : (
+            <div style={{ width: '100%', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.78rem', fontStyle: 'italic' }}>
+              <EditableText textKey="nose.emptyAromasHint" defaultText="Tap aromas on the wheel to select" multiline={true} />
+            </div>
+          )}
         </div>
+
+        {/* PALATE & STRUCTURAL (Embedded in Nose & Aroma sector) */}
+        {palateData && updatePalateData && (
+          <PalateStep
+            palateData={palateData}
+            updatePalateData={updatePalateData}
+            isEmbedded={true}
+          />
+        )}
 
       </div>
     </div>

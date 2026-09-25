@@ -45,16 +45,35 @@ function hslToHex(h, s, l) {
 }
 
 export default function ColorStep({ colorData, updateColorData }) {
+  const { t } = useTexts();
   // Store exact normalized positions: normX = Tone Darkness (0.0 Left Light -> 1.0 Right Dark), normY = Red Spectrum (0.0 Top Violet -> 1.0 Bottom Brick)
   const [normX, setNormX] = useState(0.64); // Default ~24% lightness
   const [normY, setNormY] = useState(0.25); // Default Ruby
   const [saturation, setSaturation] = useState(82);
   const [intensity, setIntensity] = useState(colorData.intensity || 'Deep');
-  const [rimVariation, setRimVariation] = useState(colorData.rimVariation || 'Standard Ruby Edge');
+  const [rimVariation, setRimVariation] = useState(colorData.rimVariation || 'Ruby Edge');
   const [isFullscreenWhite, setIsFullscreenWhite] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const detailsTimerRef = useRef(null);
 
   const canvasRef = useRef(null);
   const isDraggingRef = useRef(false);
+
+
+
+  const handleToggleDetails = () => {
+    setShowDetails(true);
+    if (detailsTimerRef.current) clearTimeout(detailsTimerRef.current);
+    detailsTimerRef.current = setTimeout(() => {
+      setShowDetails(false);
+    }, 3000);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (detailsTimerRef.current) clearTimeout(detailsTimerRef.current);
+    };
+  }, []);
 
   // Derived continuous values
   const spectrumProgress = normY;
@@ -132,18 +151,18 @@ export default function ColorStep({ colorData, updateColorData }) {
 
     // Outer glow handle ring
     ctx.beginPath();
-    ctx.arc(handleX, handleY, 18, 0, Math.PI * 2);
+    ctx.arc(handleX, handleY, 14, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(255,255,255,0.35)';
     ctx.fill();
 
     // Inner white-bordered handle circle
     ctx.beginPath();
-    ctx.arc(handleX, handleY, 13, 0, Math.PI * 2);
+    ctx.arc(handleX, handleY, 10, 0, Math.PI * 2);
     ctx.fillStyle = currentColorHex;
     ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 4;
+    ctx.lineWidth = 3;
     ctx.shadowColor = 'rgba(0,0,0,0.85)';
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 8;
     ctx.fill();
     ctx.stroke();
   }, [normX, normY, currentColorHex]);
@@ -204,7 +223,7 @@ export default function ColorStep({ colorData, updateColorData }) {
   };
 
   return (
-    <div>
+    <div className="color-step-layout">
       {/* Fullscreen White Paper Modal */}
       {isFullscreenWhite && (
         <div 
@@ -234,158 +253,88 @@ export default function ColorStep({ colorData, updateColorData }) {
         </div>
       )}
 
-      {/* UNIFIED IPHONE-STYLE SPLIT SCREEN INTERFACE */}
-      <div 
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          borderRadius: '24px',
-          overflow: 'hidden',
-          border: '1px solid var(--border-gold)',
-          boxShadow: '0 20px 50px rgba(0,0,0,0.6)',
-          minHeight: '700px',
-          background: 'var(--bg-dark)'
-        }}
-      >
+      {/* RESPONSIVE IPHONE-OPTIMIZED SPLIT SCREEN INTERFACE */}
+      <div className="color-split-container">
 
         {/* TOP HALF: WHITE AREA (Glass Placement Canvas - Pure White surface) */}
-        <div 
-          style={{
-            backgroundColor: '#ffffff',
-            padding: '24px',
-            minHeight: '320px',
-            position: 'relative',
-            borderBottom: '3px solid #cbd5e1'
-          }}
-        />
+        <div className="color-white-canvas" />
 
-        {/* BOTTOM HALF: MATCHED WINE COLOR FILL + FLIPPED 2D RECTANGLE BOX (X=Tone, Y=Color) */}
+        {/* BOTTOM HALF: MATCHED WINE COLOR FILL + 2D SPECTRUM BOX */}
         <div 
-          style={{
-            backgroundColor: currentColorHex,
-            transition: 'background-color 0.12s ease',
-            padding: '24px',
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            position: 'relative',
-            color: '#ffffff'
-          }}
+          className="color-matched-canvas"
+          style={{ backgroundColor: currentColorHex }}
         >
 
-          {/* Color Info Badge (Right aligned) */}
-          <div style={{ display: 'flex', width: '100%', justifyContent: 'flex-end' }}>
-            <div 
-              style={{
-                background: 'rgba(15, 9, 16, 0.85)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid var(--border-gold)',
-                padding: '6px 14px',
-                borderRadius: '20px',
-                fontSize: '0.78rem',
-                fontWeight: 700,
-                color: 'var(--gold-light)'
-              }}
-            >
-              {currentClassObj.name} | Tone: {lightness}% | {currentColorHex.toUpperCase()}
+          {/* ROW: COLOR PICKER + BADGE ON LEFT, CORE & RIM CONTROLS ON RIGHT */}
+          <div className="color-row-container">
+            {/* LEFT COLUMN: BADGE + 2D RED WINE SPECTRUM CANVAS */}
+            <div className="color-canvas-column">
+              {/* Color Info Badge (Shows only color name; tap reveals details for 3s) */}
+              <div className="color-badge-container">
+                <div 
+                  className="color-badge"
+                  onClick={handleToggleDetails}
+                  title="Tap to view tone & hex code"
+                >
+                  <span className="color-badge-name">{currentClassObj.name}</span>
+                  <span className={`color-badge-details ${showDetails ? 'visible' : ''}`}>
+                    {' '}| Tone: {lightness}% | {currentColorHex.toUpperCase()}
+                  </span>
+                </div>
+              </div>
+
+              {/* 2D RED WINE SPECTRUM CANVAS (Narrowed) */}
+              <div className="color-canvas-wrap">
+                <canvas 
+                  ref={canvasRef}
+                  width={280}
+                  height={140}
+                  className="color-spectrum-canvas"
+                  onPointerDown={handlePointerDown}
+                  onMouseDown={handlePointerDown}
+                  onTouchStart={handlePointerDown}
+                />
+              </div>
             </div>
-          </div>
 
-          {/* 2D RED WINE SPECTRUM CANVAS (Panned to the left, outer container, buttons, and helper texts removed) */}
-          <div 
-            style={{ 
-              position: 'relative', 
-              width: '100%', 
-              maxWidth: '460px', 
-              alignSelf: 'flex-start',
-              margin: '16px 0', 
-              touchAction: 'none' 
-            }}
-          >
-            <canvas 
-              ref={canvasRef}
-              width={460}
-              height={200}
-              style={{
-                width: '100%',
-                height: '200px',
-                display: 'block',
-                borderRadius: '14px',
-                cursor: 'crosshair',
-                border: '2px solid rgba(255, 255, 255, 0.5)',
-                boxShadow: '0 8px 25px rgba(0, 0, 0, 0.45)'
-              }}
-              onPointerDown={handlePointerDown}
-              onMouseDown={handlePointerDown}
-              onTouchStart={handlePointerDown}
-            />
-          </div>
-
-          {/* LOWER CONTROLS PANEL: CORE EXTRACTION & RIM EDGE TRANSITION */}
-          <div 
-            style={{
-              width: '100%',
-              background: 'rgba(15, 9, 16, 0.92)',
-              backdropFilter: 'blur(16px)',
-              border: '1px solid var(--border-gold)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '14px 20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px',
-              boxShadow: '0 10px 30px rgba(0,0,0,0.6)'
-            }}
-          >
-            <div className="form-grid" style={{ gap: '14px', alignItems: 'center' }}>
+            {/* CORE EXTRACTION & RIM EDGE TRANSITION CONTAINER */}
+            <div className="color-controls-card">
               
-              {/* Core Extraction Depth Buttons */}
-              <div className="slider-group">
-                <div className="slider-label" style={{ fontSize: '0.75rem' }}>
-                  <span><EditableText textKey="color.coreDepthLabel" defaultText="Core Extraction Depth" /></span>
-                  <span className="slider-value">{intensity}</span>
-                </div>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  {[
-                    { val: 'Pale', key: 'color.depthPale' },
-                    { val: 'Medium', key: 'color.depthMedium' },
-                    { val: 'Deep', key: 'color.depthDeep' }
-                  ].map(({ val, key }) => (
-                    <button
-                      key={val}
-                      type="button"
-                      className={`btn ${intensity === val ? 'btn-primary' : 'btn-outline'}`}
-                      style={{ flex: 1, padding: '6px', fontSize: '0.75rem', fontWeight: 600 }}
-                      onClick={() => setIntensity(val)}
-                    >
-                      <EditableText textKey={key} defaultText={val} />
-                    </button>
-                  ))}
-                </div>
+              {/* Core Extraction Depth Selector (Single dropdown button like the rim) */}
+              <div className="form-group">
+                <label className="form-label">
+                  <EditableText textKey="color.coreDepthLabel" defaultText="Core Extraction Depth" />
+                </label>
+                <select 
+                  className="form-select"
+                  value={intensity}
+                  onChange={(e) => setIntensity(e.target.value)}
+                >
+                  <option value="Pale">{t ? t('color.depthPale', 'Pale') : 'Pale'}</option>
+                  <option value="Medium">{t ? t('color.depthMedium', 'Medium') : 'Medium'}</option>
+                  <option value="Deep">{t ? t('color.depthDeep', 'Deep') : 'Deep'}</option>
+                </select>
               </div>
 
               {/* Rim Edge Transition Selector */}
               <div className="form-group">
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>
+                <label className="form-label">
                   <EditableText textKey="color.rimTransitionLabel" defaultText="Rim Edge Transition" />
                 </label>
                 <select 
                   className="form-select"
-                  style={{ padding: '6px 10px', fontSize: '0.78rem' }}
                   value={rimVariation}
                   onChange={(e) => setRimVariation(e.target.value)}
                 >
-                  <option value="Standard Ruby Edge">Standard Ruby Edge (Youthful)</option>
-                  <option value="Subtle Magenta / Pink Edge">Subtle Magenta / Pink Edge (High Acid)</option>
-                  <option value="Pale Garnet Rim">Pale Garnet Edge (Maturing)</option>
-                  <option value="Amber / Orange Rim">Amber / Orange Rim (Aged 10-20 yrs)</option>
-                  <option value="Watery Edge (Light Extraction)">Watery Edge (Light Extraction)</option>
+                  <option value="Ruby Edge">{t ? t('color.rimOptionStandard', 'Ruby Edge (Youthful)') : 'Ruby Edge (Youthful)'}</option>
+                  <option value="Subtle Magenta">{t ? t('color.rimOptionMagenta', 'Subtle Magenta (High Acid)') : 'Subtle Magenta (High Acid)'}</option>
+                  <option value="Pale Garnet Edge">{t ? t('color.rimOptionGarnet', 'Pale Garnet Edge (Maturing)') : 'Pale Garnet Edge (Maturing)'}</option>
+                  <option value="Amber Rim">{t ? t('color.rimOptionAmber', 'Amber Rim (Aged)') : 'Amber Rim (Aged)'}</option>
+                  <option value="Watery Edge (Light Extraction)">{t ? t('color.rimOptionWatery', 'Watery Edge (Light Extraction)') : 'Watery Edge (Light Extraction)'}</option>
                 </select>
               </div>
 
             </div>
-
           </div>
 
         </div>

@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import GenericWineBottle from './GenericWineBottle';
 import EditableText from '../TextEditor/EditableText';
+import { Camera, RotateCcw, Quote, Sun, Moon, Share2, Loader2, Check } from 'lucide-react';
+import { toBlob, toPng } from 'html-to-image';
 import { useTexts } from '../../context/TextContext';
-import { Camera, Image, RotateCcw, Share2, Save, Download, Printer, Sparkles, Check } from 'lucide-react';
 
 // Helper to convert structural levels to gauge percentage
 function getGaugePercent(levelStr = '') {
@@ -22,33 +23,60 @@ function getGaugePercent(levelStr = '') {
   return 55;
 }
 
-// Text formatter for structural pillar subtitles
+// Text formatter for structural pillar subtitles - concise and never cut off
 function getStructureSubtitle(type, levelStr = '', texture = '') {
   const str = String(levelStr);
   if (type === 'body') {
-    if (str.includes('Full')) return 'Full-Bodied, Rich & Viscous';
-    if (str.includes('Light')) return 'Light, Delicate & Airy';
-    if (str.includes('+')) return 'Medium-Full, Balanced Weight';
-    if (str.includes('-')) return 'Medium-Light, Refreshing';
-    return 'Medium-Bodied, Harmonious';
+    if (str.includes('Full')) return 'Full & Rich Weight';
+    if (str.includes('Light')) return 'Light & Crisp';
+    if (str.includes('+')) return 'Medium-Full Weight';
+    if (str.includes('-')) return 'Medium-Light Weight';
+    return 'Medium Weight';
   }
   if (type === 'acidity') {
-    if (str.includes('High')) return 'Bright & Crisp, Mouth-Watering';
-    if (str.includes('Low')) return 'Soft & Mellow, Gentle Lift';
-    if (str.includes('+')) return 'Bright, Vibrant & Refreshing';
-    if (str.includes('-')) return 'Mild & Supple Freshness';
-    return 'Balanced, Clean & Refreshing';
+    if (str.includes('High')) return 'Bright & Crisp';
+    if (str.includes('Low')) return 'Soft & Mellow';
+    if (str.includes('+')) return 'Vibrant & Fresh';
+    if (str.includes('-')) return 'Mild & Supple';
+    return 'Clean & Balanced';
   }
   if (type === 'tannin') {
-    const texStr = texture ? `${texture}, ` : '';
-    if (str.includes('High')) return `${texStr}Firm & Structured Grip`;
-    if (str.includes('Low')) return `${texStr}Silky & Supple`;
-    if (str.includes('+')) return `${texStr}Velvety, Well-Integrated`;
-    if (str.includes('-')) return `${texStr}Soft & Approachable`;
-    return `${texStr}Velvety, Balanced Backbone`;
+    const cleanTex = texture ? texture.trim() : '';
+    if (cleanTex) {
+      if (str.includes('High')) return `${cleanTex} & Firm`;
+      if (str.includes('Low')) return `${cleanTex} & Soft`;
+      if (str.includes('+')) return `${cleanTex} Grip`;
+      if (str.includes('-')) return `${cleanTex} & Gentle`;
+      return `${cleanTex} Backbone`;
+    }
+    if (str.includes('High')) return 'Firm & Structured';
+    if (str.includes('Low')) return 'Silky & Soft';
+    if (str.includes('+')) return 'Velvety Grip';
+    if (str.includes('-')) return 'Soft & Gentle';
+    return 'Balanced Backbone';
   }
   return levelStr;
 }
+
+const getAromaIcon = (aroma) => {
+  const textLower = String(aroma).toLowerCase();
+  if (textLower.includes('oak') || textLower.includes('cedar') || textLower.includes('barrel') || textLower.includes('toast') || textLower.includes('smoke')) {
+    return '🪵';
+  }
+  if (textLower.includes('vanilla') || textLower.includes('spice') || textLower.includes('pepper') || textLower.includes('clove') || textLower.includes('cinnamon')) {
+    return '✳️';
+  }
+  if (textLower.includes('leather') || textLower.includes('earth') || textLower.includes('forest') || textLower.includes('mushroom') || textLower.includes('tobacco') || textLower.includes('leaves')) {
+    return '🍂';
+  }
+  if (textLower.includes('floral') || textLower.includes('violet') || textLower.includes('rose') || textLower.includes('lavender')) {
+    return '🌸';
+  }
+  if (textLower.includes('black') || textLower.includes('cassis') || textLower.includes('blackberry') || textLower.includes('blueberry') || textLower.includes('plum')) {
+    return '🫐';
+  }
+  return '🍇';
+};
 
 const NUMBER_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five'];
 
@@ -66,45 +94,88 @@ export default function VerdictStep({
   const [theme, setTheme] = useState('parchment'); // 'parchment' | 'dark'
   const [isSavedFlash, setIsSavedFlash] = useState(false);
 
-  // Note data with resilient fallbacks
+  // Identity & Specs
   const wineName = wineNote.wineName || 'THE REVELATOR RED BLEND';
   const vintage = wineNote.vintage || '2018';
+  const grape = wineNote.grape || 'Grand Vin';
+  const country = wineNote.country || '';
+  const region = wineNote.region || '';
+  const originStr = [region, country].filter(Boolean).join(', ') || 'Fine Wine';
   const alcohol = wineNote.alcohol || '14.5% alc./vol.';
-  const score = wineNote.conclusion?.score || 93;
-  const price = wineNote.conclusion?.price || '$45 / £38';
+  const score = typeof wineNote.conclusion?.score === 'number' ? wineNote.conclusion.score : 93;
+  const price = wineNote.conclusion?.price || '$45';
+  const notes = wineNote.conclusion?.notes || '';
+  const displayNotes = notes ? notes.trim().slice(0, 160) : '';
+
+  // 1. Color Parameters (Sector 1)
   const colorHex = wineNote.color?.hex || '#5c133a';
   const colorName = wineNote.color?.name || 'Deep Ruby';
   const rimVariation = wineNote.color?.rimVariation || 'Violet hues';
-  const intensity = wineNote.color?.intensity || 'Deep';
+  const colorIntensity = wineNote.color?.intensity || 'Deep';
+  const clarity = wineNote.color?.clarity || 'Clear';
 
-  const bodyVal = wineNote.palate?.body || 'Medium(+)';
-  const acidityVal = wineNote.palate?.acidity || 'Medium(+)';
-  const tanninVal = wineNote.palate?.tannin || 'Medium(+)';
-  const tanninTexture = wineNote.palate?.tanninTexture || 'Velvety';
+  const cleanColorName = colorName.replace(' (Matched)', '').trim();
+  const hasIntensityInName = cleanColorName.toLowerCase().startsWith(colorIntensity.toLowerCase());
+  const displayColorName = hasIntensityInName ? cleanColorName : `${colorIntensity} ${cleanColorName}`;
+  const cleanRim = rimVariation ? rimVariation.replace(/rim variation/i, 'Rim').trim() : '';
 
-  const vfmScore = typeof wineNote.vfm === 'number' ? wineNote.vfm : 4;
-  const bottleImage = wineNote.bottleImage || null;
-
-  // Selected Aromas categorization
-  const userAromas = wineNote.nose?.aromas || [
+  // 2. Nose Parameters (Sector 2)
+  const noseIntensity = wineNote.nose?.intensity || 'Medium(+)';
+  const noseDevelopment = wineNote.nose?.development || 'Youthful';
+  const rawAromas = wineNote.nose?.aromas || [
     'Blackcurrant & Ripe Plum',
     'Smoky Oak & Cedar Notes',
     'Elegant Vanilla & Spice Notes',
     'Faint Leather & Forest Floor'
   ];
+  // Limit aroma text to 32 characters so words are never cut off
+  const userAromas = rawAromas.slice(0, 5).map(a => a.length > 32 ? a.slice(0, 32).trim() : a);
+
+  // 3. Palate & Structural Parameters (Sector 2 - all 8 attributes)
+  const bodyVal = wineNote.palate?.body || 'Medium(+)';
+  const acidityVal = wineNote.palate?.acidity || 'Medium(+)';
+  const tanninVal = wineNote.palate?.tannin || 'Medium(+)';
+  const tanninLevelClean = tanninVal.replace(/\s*\([^)]*\)/g, '').trim() || 'Medium(+)';
+  const tanninTexture = wineNote.palate?.tanninTexture || (tanninVal.match(/\(([^)]+)\)/)?.[1] || '');
+  const sweetnessVal = wineNote.palate?.sweetness || 'Dry';
+  const alcoholLevelVal = wineNote.palate?.alcoholLevel || 'Medium (11-13.9%)';
+  const flavorIntensityVal = wineNote.palate?.flavorIntensity || 'Pronounced';
+  const finishVal = wineNote.palate?.finish || 'Medium(+) (30s)';
+  const finishSeconds = typeof wineNote.palate?.finishSeconds === 'number'
+    ? wineNote.palate.finishSeconds
+    : (() => {
+        const m = String(finishVal).match(/(\d+)\s*s/i);
+        return m ? parseInt(m[1], 10) : null;
+      })();
+
+  const formatFinishDisplay = () => {
+    const raw = String(finishVal || '').trim();
+    if (/\d+\s*s/i.test(raw)) {
+      return raw;
+    }
+    if (finishSeconds !== null && finishSeconds !== undefined) {
+      return `${raw} (${finishSeconds}s)`;
+    }
+    if (raw.toLowerCase().includes('long')) return `${raw} (45s+)`;
+    if (raw.toLowerCase().includes('medium(+)')) return `${raw} (30-45s)`;
+    if (raw.toLowerCase().includes('short')) return `${raw} (<15s)`;
+    if (raw.toLowerCase().includes('medium')) return `${raw} (15-30s)`;
+    return raw;
+  };
+
+  // 4. Rating & VFM (Sector 3)
+  const vfmScore = typeof wineNote.vfm === 'number' ? wineNote.vfm : 4;
+  const bottleImage = wineNote.bottleImage || null;
 
   const handlePhotoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // No file size limit - read file of any size (10MB, 25MB, 50MB+)
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result;
       const img = new window.Image();
       img.onload = () => {
-        // Automatically optimize/downscale in-memory (max 1600px)
-        // Keeps rendering super-fast and avoids browser memory pressure
         const MAX_DIM = 1600;
         let { width, height } = img;
         if (width > MAX_DIM || height > MAX_DIM) {
@@ -133,7 +204,6 @@ export default function VerdictStep({
       };
 
       img.onerror = () => {
-        // Fallback to raw data url if canvas decode fails
         updateWineNote({
           ...wineNote,
           bottleImage: dataUrl,
@@ -160,46 +230,94 @@ export default function VerdictStep({
     updateWineNote({ ...wineNote, vfm: newVfm });
   };
 
-  const handleSaveClick = () => {
-    if (onSave) onSave();
-    setIsSavedFlash(true);
-    setTimeout(() => setIsSavedFlash(false), 2000);
-  };
+  const [isSharingPhoto, setIsSharingPhoto] = useState(false);
+  const [shareSuccessFlash, setShareSuccessFlash] = useState(false);
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handleSharePhoto = async () => {
+    if (!cardRef.current || isSharingPhoto) return;
+    setIsSharingPhoto(true);
 
-  // Color description string
-  const colorDesc = `${intensity} ${colorName.replace(' (Matched)', '')}, ${rimVariation}`;
+    try {
+      await new Promise(r => setTimeout(r, 60));
+
+      const blob = await toBlob(cardRef.current, {
+        pixelRatio: 2,
+        cacheBust: true,
+        filter: (node) => {
+          return !node.classList?.contains('no-print');
+        }
+      });
+
+      if (!blob) {
+        throw new Error('Failed to capture card image');
+      }
+
+      const safeName = (wineName || 'wine').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const fileName = `${safeName}_verdict.png`;
+      const file = new File([blob], fileName, { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: wineName || 'Wine Tasting Verdict',
+          text: `Wine Tasting Summary: ${wineName} (${vintage})`
+        });
+        setShareSuccessFlash(true);
+        setTimeout(() => setShareSuccessFlash(false), 2500);
+      } else {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+        setShareSuccessFlash(true);
+        setTimeout(() => setShareSuccessFlash(false), 2500);
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Error sharing photo:', err);
+        try {
+          const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
+          const safeName = (wineName || 'wine').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+          const link = document.createElement('a');
+          link.download = `${safeName}_verdict.png`;
+          link.href = dataUrl;
+          link.click();
+          setShareSuccessFlash(true);
+          setTimeout(() => setShareSuccessFlash(false), 2500);
+        } catch (fallbackErr) {
+          console.error('Fallback photo download failed:', fallbackErr);
+        }
+      }
+    } finally {
+      setIsSharingPhoto(false);
+    }
+  };
 
   return (
-    <div className="verdict-wrapper" style={{ width: '100%', maxWidth: '940px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+    <div className="verdict-wrapper">
       
       {/* Top Toolbar Controls: Theme Toggle & Bottle Photo Actions */}
-      <div className="verdict-toolbar no-print" style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+      <div className="verdict-toolbar no-print">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          
+          {/* Day / Night Theme Single Toggle Button (Symbol only) */}
           <button
             type="button"
-            className={`btn ${theme === 'parchment' ? 'btn-gold' : 'btn-outline'}`}
-            style={{ fontSize: '0.78rem', padding: '6px 12px' }}
-            onClick={() => setTheme('parchment')}
+            className="btn btn-outline"
+            style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
+            onClick={() => setTheme(prev => prev === 'parchment' ? 'dark' : 'parchment')}
+            title={theme === 'parchment' ? 'Switch to Dark Theme' : 'Switch to Day / Parchment Theme'}
+            aria-label="Toggle Day / Night theme"
           >
-            📜 <EditableText textKey="verdict.themeToggleParchment" defaultText="Editorial Parchment" />
-          </button>
-          <button
-            type="button"
-            className={`btn ${theme === 'dark' ? 'btn-gold' : 'btn-outline'}`}
-            style={{ fontSize: '0.78rem', padding: '6px 12px' }}
-            onClick={() => setTheme('dark')}
-          >
-            🌙 <EditableText textKey="verdict.themeToggleDark" defaultText="Dark Sommelier" />
+            {theme === 'parchment' ? <Sun size={18} color="#d4af37" /> : <Moon size={18} color="#d4af37" />}
           </button>
 
           {/* Separator */}
-          <div style={{ width: '1px', height: '20px', background: 'var(--border-color)', margin: '0 4px' }} />
+          <div style={{ width: '1px', height: '20px', background: 'rgba(212, 175, 55, 0.25)', margin: '0 2px' }} />
 
-          {/* Bottle Photo Controls (Outside the card, next to Dark Sommelier) */}
+          {/* Bottle Photo Controls (Symbol only, no text) */}
           {!readOnly && (
             <>
               {bottleImage ? (
@@ -207,40 +325,70 @@ export default function VerdictStep({
                   <button
                     type="button"
                     className="btn btn-outline"
-                    style={{ fontSize: '0.78rem', padding: '6px 12px' }}
+                    style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
                     onClick={() => fileInputRef.current?.click()}
+                    title="Change Bottle Photo"
+                    aria-label="Change Bottle Photo"
                   >
-                    <Camera size={14} />
-                    <span><EditableText textKey="verdict.changePhotoBtn" defaultText="Change Photo" /></span>
+                    <Camera size={18} />
                   </button>
                   <button
                     type="button"
                     className="btn btn-outline"
-                    style={{ fontSize: '0.78rem', padding: '6px 12px' }}
+                    style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
                     onClick={handleRemovePhoto}
+                    title="Use Generic Bottle"
+                    aria-label="Use Generic Bottle"
                   >
-                    <RotateCcw size={14} />
-                    <span><EditableText textKey="verdict.removePhotoBtn" defaultText="Use Generic Bottle" /></span>
+                    <RotateCcw size={18} />
                   </button>
                 </>
               ) : (
                 <button
                   type="button"
                   className="btn btn-outline"
-                  style={{ fontSize: '0.78rem', padding: '6px 12px' }}
+                  style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
                   onClick={() => fileInputRef.current?.click()}
+                  title="Upload Bottle Photo"
+                  aria-label="Upload Bottle Photo"
                 >
-                  <Camera size={14} />
-                  <span><EditableText textKey="verdict.uploadBottleBtn" defaultText="Upload Bottle Photo" /></span>
+                  <Camera size={18} />
                 </button>
               )}
             </>
           )}
+
+          {/* Share Summary as Photo Button (Symbol only) */}
+          <button
+            type="button"
+            className="btn btn-outline"
+            style={{ 
+              padding: '8px 10px', 
+              minWidth: '38px', 
+              height: '36px', 
+              justifyContent: 'center',
+              borderColor: shareSuccessFlash ? 'var(--gold-primary)' : undefined,
+              background: shareSuccessFlash ? 'rgba(212, 175, 55, 0.2)' : undefined
+            }}
+            onClick={handleSharePhoto}
+            disabled={isSharingPhoto}
+            title="Share Summary as Photo"
+            aria-label="Share Summary as Photo"
+          >
+            {isSharingPhoto ? (
+              <Loader2 size={18} className="spin-animate" color="#d4af37" />
+            ) : shareSuccessFlash ? (
+              <Check size={18} color="#d4af37" />
+            ) : (
+              <Share2 size={18} />
+            )}
+          </button>
         </div>
       </div>
 
       {/* ==========================================================
-          THE ONE-SCREEN VERDICT SUMMARY CARD (MATCHING REFERENCE IMAGE)
+          THE 700PX ONE-SCREEN VERDICT SUMMARY CARD
+          (Matches Sector 1 Color Inspector 700px Screen Size)
          ========================================================== */}
       <div
         ref={cardRef}
@@ -257,11 +405,11 @@ export default function VerdictStep({
         />
 
         {/* ----------------------------------------------------
-            1. TOP HEADER BLOCK
+            1. TOP HEADER BLOCK: IDENTITY, SPECS & ROSETTE MEDAL
            ---------------------------------------------------- */}
         <div className="verdict-header-row">
           
-          {/* Left: Wine Title & Vintage & Alcohol */}
+          {/* Left: Wine Title & Specs (Vintage, Origin, Alcohol, Price) */}
           <div className="verdict-header-left">
             <h1 className="verdict-wine-title font-serif">
               {wineName}
@@ -272,6 +420,10 @@ export default function VerdictStep({
                   <EditableText textKey="verdict.vintageLabel" defaultText="VINTAGE:" />
                 </span>{' '}
                 <span className="spec-value">{vintage}</span>
+                <span className="spec-bullet"> • </span>
+                <span className="spec-value">{grape}</span>
+                <span className="spec-bullet"> • </span>
+                <span className="spec-value">{originStr}</span>
               </div>
               <div style={{ marginTop: '2px' }}>
                 <span className="spec-label">
@@ -280,31 +432,32 @@ export default function VerdictStep({
                 <span className="spec-value">
                   {alcohol.includes('%') ? alcohol : `${alcohol}% ${t('verdict.alcoholSuffix', 'alc./vol.')}`}
                 </span>
+                <span className="spec-bullet"> • </span>
+                <span className="spec-label">
+                  <EditableText textKey="verdict.priceLabel" defaultText="PRICE:" />
+                </span>{' '}
+                <span className="spec-value verdict-price-tag">{price}</span>
               </div>
             </div>
           </div>
 
-          {/* Center: Rosette Gold Medal Stamp (Points Score) */}
+          {/* Center/Right: Rosette Gold Medal Stamp (Points Score) */}
           <div className="verdict-medal-wrap">
-            <div className="verdict-gold-medal">
+            <div className={`verdict-gold-medal ${score === 0 ? 'unworthy-medal' : ''}`}>
               <div className="verdict-medal-inner">
                 <span className="medal-score-number font-serif">{score}</span>
                 <span className="medal-score-label font-serif">
-                  <EditableText textKey="verdict.scorePoints" defaultText="POINTS" />
-                  <br />
-                  <EditableText textKey="verdict.scoreScore" defaultText="SCORE" />
+                  {score === 0 ? (
+                    <span style={{ color: '#ef4444', fontWeight: 800, fontSize: '0.62rem', letterSpacing: '0.05em' }}>UNWORTHY</span>
+                  ) : (
+                    <>
+                      <EditableText textKey="verdict.scorePoints" defaultText="POINTS" />
+                      <br />
+                      <EditableText textKey="verdict.scoreScore" defaultText="SCORE" />
+                    </>
+                  )}
                 </span>
               </div>
-            </div>
-          </div>
-
-          {/* Right: Price */}
-          <div className="verdict-header-right font-serif">
-            <span className="spec-label">
-              <EditableText textKey="verdict.priceLabel" defaultText="PRICE:" />
-            </span>
-            <div className="verdict-price-tag">
-              [{price || '$45 / £38'}]
             </div>
           </div>
 
@@ -314,7 +467,7 @@ export default function VerdictStep({
         <div className="verdict-divider-line" />
 
         {/* ----------------------------------------------------
-            2. CORE 3-COLUMN SECTIONS (BOTTLE | COLOR & AROMAS | STRUCTURE)
+            2. CORE 3-COLUMN SECTIONS (BOTTLE | COLOR & NOSE | PALATE)
            ---------------------------------------------------- */}
         <div className="verdict-body-grid">
           
@@ -332,9 +485,9 @@ export default function VerdictStep({
               ) : (
                 <GenericWineBottle
                   wineName={wineName}
-                  grape={wineNote.grape}
+                  grape={grape}
                   vintage={vintage}
-                  region={wineNote.region || wineNote.country}
+                  region={originStr}
                   alcohol={alcohol}
                   wineColorHex={colorHex}
                 />
@@ -342,13 +495,13 @@ export default function VerdictStep({
             </div>
           </div>
 
-          {/* COLUMN 2 (CENTER): COLOR SWATCH & AROMAS & FLAVORS */}
+          {/* COLUMN 2 (CENTER): COLOR, CLARITY & NOSE AROMAS */}
           <div className="verdict-center-column">
             
-            {/* COLOR SECTION */}
+            {/* COLOR & CLARITY SECTION (SECTOR 1 RANKINGS) */}
             <div className="verdict-section-block">
               <h3 className="verdict-section-heading font-serif">
-                <EditableText textKey="verdict.colorTitle" defaultText="COLOR:" />
+                <EditableText textKey="verdict.colorTitle" defaultText="COLOR & CLARITY:" />
               </h3>
 
               {/* Rounded Rectangle Color Swatch */}
@@ -363,101 +516,141 @@ export default function VerdictStep({
               </div>
 
               <div className="verdict-color-desc font-serif">
-                {colorDesc}
+                <strong>{displayColorName}</strong>
+                {(cleanRim || clarity) && (
+                  <span className="verdict-subtext"> • {[cleanRim, clarity].filter(Boolean).join(' • ')}</span>
+                )}
               </div>
             </div>
 
             {/* Separator Line */}
             <div className="verdict-inner-divider" />
 
-            {/* AROMAS & FLAVORS SECTION */}
+            {/* NOSE & AROMAS SECTION (SECTOR 2 NOSE RANKINGS) */}
             <div className="verdict-section-block">
               <h3 className="verdict-section-heading font-serif">
-                <EditableText textKey="verdict.aromasTitle" defaultText="AROMAS & FLAVORS:" />
+                <EditableText textKey="verdict.noseTitle" defaultText="NOSE & AROMAS:" />
               </h3>
 
-              <div className="verdict-aromas-list font-serif">
-                {userAromas.map((aroma, idx) => {
-                  // Icon picker based on aroma keywords
-                  const textLower = String(aroma).toLowerCase();
-                  let icon = '🍇';
-                  if (textLower.includes('oak') || textLower.includes('cedar') || textLower.includes('barrel') || textLower.includes('toast') || textLower.includes('smoke')) {
-                    icon = '🪵';
-                  } else if (textLower.includes('vanilla') || textLower.includes('spice') || textLower.includes('pepper') || textLower.includes('clove') || textLower.includes('cinnamon')) {
-                    icon = '✳️';
-                  } else if (textLower.includes('leather') || textLower.includes('earth') || textLower.includes('forest') || textLower.includes('mushroom') || textLower.includes('tobacco') || textLower.includes('leaves')) {
-                    icon = '🍂';
-                  } else if (textLower.includes('floral') || textLower.includes('violet') || textLower.includes('rose') || textLower.includes('lavender')) {
-                    icon = '🌸';
-                  }
+              {/* Nose Intensity & Development Badges */}
+              <div className="verdict-nose-badges">
+                <span className="verdict-pill-badge">
+                  <EditableText textKey="verdict.intensityLabel" defaultText="Intensity:" /> <strong>{noseIntensity}</strong>
+                </span>
+                <span className="verdict-pill-badge">
+                  <EditableText textKey="verdict.developmentLabel" defaultText="Development:" /> <strong>{noseDevelopment}</strong>
+                </span>
+              </div>
 
-                  return (
+              {/* Selected Aromas List */}
+              <div className="verdict-aromas-list font-serif">
+                {userAromas.length > 0 ? (
+                  userAromas.map((aroma, idx) => (
                     <div key={idx} className="verdict-aroma-row">
-                      <span className="aroma-icon">{icon}</span>
+                      <span className="aroma-icon">{getAromaIcon(aroma)}</span>
                       <span className="aroma-text">{aroma}</span>
                     </div>
-                  );
-                })}
+                  ))
+                ) : (
+                  <div className="verdict-aroma-row" style={{ fontStyle: 'italic', opacity: 0.7 }}>
+                    <span>🍇</span>
+                    <span>No specific aromas selected</span>
+                  </div>
+                )}
               </div>
             </div>
 
           </div>
 
-          {/* COLUMN 3 (RIGHT): STRUCTURAL GAUGES (BODY, ACIDITY, TANNINS) */}
+          {/* COLUMN 3 (RIGHT): PALATE & STRUCTURE (ALL 8 ATTRIBUTES!) */}
           <div className="verdict-structure-column">
             
-            {/* BODY */}
+            <h3 className="verdict-section-heading font-serif" style={{ marginBottom: '6px' }}>
+              <EditableText textKey="palate.title" defaultText="PALATE & STRUCTURAL" />:
+            </h3>
+
+            {/* 1. BODY GAUGE */}
             <div className="verdict-gauge-group">
-              <h3 className="verdict-section-heading font-serif">
-                <EditableText textKey="verdict.bodyTitle" defaultText="BODY:" />
-              </h3>
-              
+              <div className="verdict-gauge-label font-serif">
+                <span><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
+                <span className="gauge-val">{bodyVal}</span>
+              </div>
               <div className="verdict-gauge-track">
                 <div
                   className="verdict-gauge-fill"
                   style={{ width: `${getGaugePercent(bodyVal)}%` }}
                 />
               </div>
-
               <div className="verdict-gauge-subtitle font-serif">
                 {getStructureSubtitle('body', bodyVal)}
               </div>
             </div>
 
-            {/* ACIDITY */}
+            {/* 2. ACIDITY GAUGE */}
             <div className="verdict-gauge-group">
-              <h3 className="verdict-section-heading font-serif">
-                <EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" />
-              </h3>
-
+              <div className="verdict-gauge-label font-serif">
+                <span><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
+                <span className="gauge-val">{acidityVal}</span>
+              </div>
               <div className="verdict-gauge-track">
                 <div
                   className="verdict-gauge-fill"
                   style={{ width: `${getGaugePercent(acidityVal)}%` }}
                 />
               </div>
-
               <div className="verdict-gauge-subtitle font-serif">
                 {getStructureSubtitle('acidity', acidityVal)}
               </div>
             </div>
 
-            {/* TANNINS */}
+            {/* 3. TANNINS GAUGE (LEVEL & TEXTURE) */}
             <div className="verdict-gauge-group">
-              <h3 className="verdict-section-heading font-serif">
-                <EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" />
-              </h3>
-
+              <div className="verdict-gauge-label font-serif">
+                <span><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
+                <span className="gauge-val">{tanninLevelClean}</span>
+              </div>
               <div className="verdict-gauge-track">
                 <div
                   className="verdict-gauge-fill"
                   style={{ width: `${getGaugePercent(tanninVal)}%` }}
                 />
               </div>
-
               <div className="verdict-gauge-subtitle font-serif">
                 {getStructureSubtitle('tannin', tanninVal, tanninTexture)}
               </div>
+            </div>
+
+            {/* 4. REMAINING 4 PALATE ATTRIBUTES (SWEETNESS, ALCOHOL, FLAVOR, FINISH) */}
+            <div className="verdict-palate-pillars-grid">
+              
+              <div className="palate-pillar-item font-serif">
+                <span className="pillar-label">
+                  <EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" />
+                </span>
+                <span className="pillar-val">{sweetnessVal}</span>
+              </div>
+
+              <div className="palate-pillar-item font-serif">
+                <span className="pillar-label">
+                  <EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" />
+                </span>
+                <span className="pillar-val">{alcoholLevelVal.split(' ')[0]}</span>
+              </div>
+
+              <div className="palate-pillar-item font-serif">
+                <span className="pillar-label">
+                  <EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" />
+                </span>
+                <span className="pillar-val">{flavorIntensityVal}</span>
+              </div>
+
+              <div className="palate-pillar-item font-serif">
+                <span className="pillar-label">
+                  <EditableText textKey="verdict.finishTitle" defaultText="FINISH:" />
+                </span>
+                <span className="pillar-val">{formatFinishDisplay()}</span>
+              </div>
+
             </div>
 
           </div>
@@ -465,7 +658,20 @@ export default function VerdictStep({
         </div>
 
         {/* ----------------------------------------------------
-            3. BOTTOM VFM (VALUE FOR MONEY) CARTOUCHE / PLAQUE
+            3. SOMMELIER NOTES & FOOD PAIRINGS CARTOUCHE
+           ---------------------------------------------------- */}
+        <div className="verdict-notes-cartouche font-serif">
+          <div className="notes-cartouche-header">
+            <Quote size={11} color="#d4af37" />
+            <EditableText textKey="verdict.notesTitle" defaultText="SOMMELIER NOTES & PAIRINGS:" />
+          </div>
+          <div className="notes-cartouche-text">
+            {displayNotes ? `"${displayNotes}"` : '"Balanced red wine evaluation displaying expressive terroir, harmonious structure, and lingering finish."'}
+          </div>
+        </div>
+
+        {/* ----------------------------------------------------
+            4. BOTTOM VFM (VALUE FOR MONEY) CARTOUCHE
            ---------------------------------------------------- */}
         <div className="verdict-vfm-cartouche font-serif">
           <div className="vfm-inner-box">

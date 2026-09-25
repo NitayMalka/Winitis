@@ -21,7 +21,7 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
             )}
           </div>
           <div className="note-badge-score font-serif">
-            {note.conclusion?.score || 90}
+            {note.conclusion?.score ?? 90}
           </div>
         </div>
 

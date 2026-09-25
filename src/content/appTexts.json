@@ -8,15 +8,14 @@
     "installPwa": "Install PWA"
   },
   "navigation": {
-    "step1": "Color Inspector",
-    "step2": "Nose & Aromas",
-    "step3": "Palate & Structure",
-    "step4": "Rating & Notes",
-    "step5": "Verdict Summary",
+    "step1": "Color",
+    "step2": "Nose",
+    "step3": "Rating",
+    "step4": "Summary",
     "previous": "Previous",
     "nextStep": "Next Step",
     "saveAndComplete": "Save & Complete",
-    "stepCounter": "Step {current} of 5"
+    "stepCounter": "Step {current} of 4"
   },
   "wineInfo": {
     "title": "Wine Identity & Specs",
@@ -48,10 +47,10 @@
     "depthMedium": "Medium",
     "depthDeep": "Deep",
     "rimTransitionLabel": "Rim Edge Transition",
-    "rimOptionStandard": "Standard Ruby Edge (Youthful)",
-    "rimOptionMagenta": "Subtle Magenta / Pink Edge (High Acid)",
+    "rimOptionStandard": "Ruby Edge (Youthful)",
+    "rimOptionMagenta": "Subtle Magenta (High Acid)",
     "rimOptionGarnet": "Pale Garnet Edge (Maturing)",
-    "rimOptionAmber": "Amber / Orange Rim (Aged 10-20 yrs)",
+    "rimOptionAmber": "Amber Rim (Aged)",
     "rimOptionWatery": "Watery Edge (Light Extraction)",
     "stepBadge": "Step 2 of 6"
   },
@@ -70,7 +69,7 @@
     "sommelierTip": "Sommelier Tip: Sniff in short 2-second bursts. Rest 5 seconds between evaluations."
   },
   "palate": {
-    "title": "Palate & Structural Balance",
+    "title": "Palate & Structural",
     "stepBadge": "Step 4 of 6",
     "tanninTitle": "Tannin",
     "tanninTexturesTitle": "Texture",
@@ -95,6 +94,8 @@
     "stepBadge": "Step 4 of 5",
     "scoreTitle": "Score",
     "scoreSuffix": "/100",
+    "unworthyBtn": "Unworthy (0)",
+    "unworthyBadge": "Unworthy",
     "priceLabel": "Price",
     "pricePlaceholder": "e.g.  or €75",
     "qualityLabel": "Quality Assessment Level",
@@ -191,6 +192,14 @@
     "bodyTitle": "BODY:",
     "acidityTitle": "ACIDITY:",
     "tanninsTitle": "TANNINS:",
+    "sweetnessTitle": "SWEETNESS:",
+    "alcoholLevelTitle": "ALCOHOL:",
+    "flavorTitle": "FLAVOR:",
+    "finishTitle": "FINISH:",
+    "noseTitle": "NOSE & AROMAS:",
+    "intensityLabel": "Intensity:",
+    "developmentLabel": "Development:",
+    "notesTitle": "SOMMELIER NOTES & PAIRINGS:",
     "vfmTitle": "VFM:",
     "vfmGlassesSub": "[{count} full glasses out of five]",
     "uploadBottleBtn": "Upload Bottle Photo",

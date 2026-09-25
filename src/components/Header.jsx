@@ -74,23 +74,45 @@ export default function Header({
           <button 
             className={`btn ${currentView === 'new' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => setCurrentView('new')}
+            title={t('header.newTasting', 'New Tasting')}
+            aria-label="New Tasting"
+            style={{ padding: '8px 10px', minWidth: '38px', height: '38px', justifyContent: 'center' }}
           >
-            <Wine size={16} />
-            <span><EditableText textKey="header.newTasting" defaultText="New Tasting" /></span>
+            <Wine size={18} />
           </button>
 
           <button 
             className={`btn ${currentView === 'saved' ? 'btn-gold' : 'btn-outline'}`}
             onClick={() => setCurrentView('saved')}
+            title={`${t('header.cellarLog', 'Cellar Log')} (${savedCount})`}
+            aria-label={`Cellar Log (${savedCount})`}
+            style={{ padding: '8px 10px', minWidth: '38px', height: '38px', justifyContent: 'center', position: 'relative' }}
           >
-            <ListFilter size={16} />
-            <span>
-              <EditableText 
-                textKey="header.cellarLog" 
-                defaultText={`Cellar Log (${savedCount})`} 
-                interpolations={{ count: savedCount }} 
-              />
-            </span>
+            <ListFilter size={18} />
+            {savedCount > 0 && (
+              <span 
+                style={{
+                  position: 'absolute',
+                  top: '-4px',
+                  right: '-4px',
+                  background: 'var(--gold-primary)',
+                  color: '#0f0910',
+                  fontSize: '0.62rem',
+                  fontWeight: 800,
+                  borderRadius: '10px',
+                  minWidth: '16px',
+                  height: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0 3px',
+                  lineHeight: 1,
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.5)'
+                }}
+              >
+                {savedCount}
+              </span>
+            )}
           </button>
 
           {/* Quick Action Symbols: Save, Share, Print (Symbol only, no text) */}

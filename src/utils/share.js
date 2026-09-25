@@ -5,14 +5,14 @@ export const formatNoteText = (note) => {
   return `🍷 WINITIS SOMMELIER NOTE: ${note.wineName || 'Red Wine Evaluation'}
 ---------------------------------------
 Vintage: ${note.vintage || 'N/A'} | Grape: ${note.grape || 'Red Blend'}
-Origin: ${regionVal} | Price: ${priceVal} | Alc: ${note.alcohol || 'N/A'}
+Origin: ${regionVal} | Price: ${priceVal} | Alcohol: ${note.alcohol || 'N/A'}
 
 🎨 APPEARANCE:
 Color: ${note.color?.name || 'N/A'} (${note.color?.intensity || 'Medium'} intensity)
 Rim: ${note.color?.rimVariation || 'Standard'}
 
 👃 NOSE:
-Intensity: ${note.nose?.intensity || 'Medium'} | Dev: ${note.nose?.development || 'Youthful'}
+Intensity: ${note.nose?.intensity || 'Medium'} | Development: ${note.nose?.development || 'Youthful'}
 Key Aromas: ${note.nose?.aromas?.join(', ') || 'N/A'}
 
 👅 PALATE:
@@ -22,7 +22,7 @@ Tannins: ${note.palate?.tannin || 'Medium'}
 Body: ${note.palate?.body || 'Medium'}
 Finish: ${note.palate?.finish || 'Medium'}
 
-⭐ RATING: ${note.conclusion?.score ? `${note.conclusion.score}/100` : 'Evaluated'}
+⭐ RATING: ${typeof note.conclusion?.score === 'number' ? `${note.conclusion.score}/100` : 'Evaluated'}
 Price: ${priceVal}
 Quality: ${note.conclusion?.quality || 'N/A'}
 Drinking Window: ${note.conclusion?.drinkWindow || 'N/A'}
