@@ -12,18 +12,49 @@ const DEVELOPMENT_LEVELS = ['Youthful', 'Developing', 'Fully Developed', 'Tired'
 const CATEGORY_MAP = [
   // Primary (0° to 120° -> -90° to 30°)
   { id: 'red_fruit', tier: 'primary', name: 'Red Fruit', startAngle: -90, endAngle: -60, color: '#b81d40', items: ['Red Cherry', 'Raspberry', 'Strawberry', 'Cranberry', 'Red Plum', 'Pomegranate'] },
-  { id: 'black_fruit', tier: 'primary', name: 'Black Fruit', startAngle: -60, endAngle: -30, color: '#5c133a', items: ['Blackberry', 'Blackcurrant (Cassis)', 'Black Cherry', 'Black Plum', 'Blueberry'] },
+  { id: 'black_fruit', tier: 'primary', name: 'Black Fruit', startAngle: -60, endAngle: -30, color: '#5c133a', items: ['Blackberry', 'Blackcurrant', 'Black Cherry', 'Black Plum', 'Blueberry'] },
   { id: 'floral', tier: 'primary', name: 'Floral & Herb', startAngle: -30, endAngle: 0, color: '#8e235b', items: ['Violet', 'Rose Petal', 'Eucalyptus/Mint', 'Green Pepper', 'Dried Herbs', 'Lavender'] },
   { id: 'spice', tier: 'primary', name: 'Spice & Pepper', startAngle: 0, endAngle: 30, color: '#a02334', items: ['Black Pepper', 'White Pepper', 'Liquorice/Anise', 'Clove', 'Cinnamon'] },
 
   // Secondary (120° to 240° -> 30° to 150°)
-  { id: 'oak', tier: 'secondary', name: 'Oak Influences', startAngle: 30, endAngle: 90, color: '#b8860b', items: ['Vanilla', 'Cedar', 'Toast', 'Smoke', 'Coconut (American Oak)', 'Dill', 'Sweet Tobacco'] },
-  { id: 'winemaking', tier: 'secondary', name: 'Winemaking', startAngle: 90, endAngle: 150, color: '#aa820a', items: ['Butter/Cream (MLF)', 'Yeast/Biscuit', 'Chocolate', 'Coffee/Espresso', 'Cocoa'] },
+  { id: 'oak', tier: 'secondary', name: 'Oak Influences', startAngle: 30, endAngle: 90, color: '#b8860b', items: ['Vanilla', 'Cedar', 'Toast', 'Smoke', 'Coconut', 'Dill', 'Sweet Tobacco'] },
+  { id: 'winemaking', tier: 'secondary', name: 'Winemaking', startAngle: 90, endAngle: 150, color: '#aa820a', items: ['Butter/Cream', 'Yeast/Biscuit', 'Chocolate', 'Coffee/Espresso', 'Cocoa'] },
 
   // Tertiary (240° to 360° -> 150° to 270°)
   { id: 'aging', tier: 'tertiary', name: 'Aging & Maturation', startAngle: 150, endAngle: 210, color: '#692a18', items: ['Leather', 'Forest Floor', 'Mushroom', 'Game/Meat', 'Truffle', 'Cigar Box'] },
   { id: 'earth', tier: 'tertiary', name: 'Dried Fruit & Earth', startAngle: 210, endAngle: 270, color: '#522215', items: ['Prune', 'Raisin', 'Dried Fig', 'Wet Leaves', 'Graphite/Lead Pencil', 'Tar'] }
 ];
+
+// Strips any parenthetical text e.g. "Butter/Cream (MLF)" -> "Butter/Cream"
+const cleanAromaText = (text) => (text ? text.replace(/\s*\([^)]*\)/g, '').trim() : '');
+
+// Generates an SVG stroke arc for textPath along a circular ring.
+// When isFlipped is true (bottom half slices), the path runs counter-clockwise (smile curve)
+// so the text reads left-to-right and remains upright and fully legible!
+function describeTextArc(cx, cy, r, startAngle, endAngle, isFlipped) {
+  const pad = 1.0;
+  const sA = isFlipped ? endAngle - pad : startAngle + pad;
+  const eA = isFlipped ? startAngle + pad : endAngle - pad;
+  const sweepFlag = isFlipped ? 0 : 1;
+  const start = polarToCartesian(cx, cy, r, sA);
+  const end = polarToCartesian(cx, cy, r, eA);
+  const largeArcFlag = Math.abs(endAngle - startAngle) <= 180 ? '0' : '1';
+  return ['M', start.x, start.y, 'A', r, r, 0, largeArcFlag, sweepFlag, end.x, end.y].join(' ');
+}
+
+// Dynamically calculates the optimal font size so text is bold and readable
+// along the wheel flow, while strictly never exiting slice borders.
+function getAromaFontSize(text, sliceAngle) {
+  // Center radius of Ring 3 is 181.5
+  const arcLength = 181.5 * (sliceAngle * Math.PI / 180);
+  // Available length reserving comfortable margins on both sides
+  const maxUsableWidth = arcLength - 22;
+  // Bold SVG sans-serif character width estimate is ~0.55 * fontSize
+  const charWidthRatio = 0.55;
+  const targetSize = maxUsableWidth / (Math.max(text.length, 3) * charWidthRatio);
+  // Allow prominent font size up to 13.5px, but scaled down if text is extra long
+  return Math.max(10.5, Math.min(13.5, Math.round(targetSize * 10) / 10));
+}
 
 // Helper: polar to cartesian
 function polarToCartesian(cx, cy, r, angleInDegrees) {
@@ -92,12 +123,18 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
   const svgRef = useRef(null);
   const activeSliderDragRef = useRef(null); // 'intensity' | 'development' | null
 
+  const isAromaSelected = (aroma) => {
+    const clean = cleanAromaText(aroma);
+    return selectedAromas.some(a => cleanAromaText(a) === clean);
+  };
+
   const toggleAroma = (aroma) => {
+    const clean = cleanAromaText(aroma);
     let updated;
-    if (selectedAromas.includes(aroma)) {
-      updated = selectedAromas.filter(a => a !== aroma);
+    if (selectedAromas.some(a => cleanAromaText(a) === clean)) {
+      updated = selectedAromas.filter(a => cleanAromaText(a) !== clean);
     } else {
-      updated = [...selectedAromas, aroma];
+      updated = [...selectedAromas.filter(a => cleanAromaText(a) !== clean), clean];
     }
     updateNoseData({ ...noseData, aromas: updated });
   };
@@ -233,22 +270,30 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                 
                 {/* Curved Text Path for Bottom Arc (Development) starting right at origin (+15°) */}
                 <path id="dev-text-path" d={describeStrokeArc(cx, cy, rControlRing + 16, 15, 165)} />
+
+                {/* Curved Text Paths for Ring 3 Aromas aligned with wheel flow */}
+                {ring3Items.map((rawItem, idx) => {
+                  const itemStartAngle = -90 + idx * sliceAngle3;
+                  const itemEndAngle = -90 + (idx + 1) * sliceAngle3;
+                  let midAngle = (itemStartAngle + itemEndAngle) / 2;
+                  while (midAngle > 180) midAngle -= 360;
+                  while (midAngle <= -180) midAngle += 360;
+                  const isFlipped = midAngle > 0 && midAngle < 180;
+                  const pathD = describeTextArc(cx, cy, 181.5, itemStartAngle, itemEndAngle, isFlipped);
+                  return <path key={`aroma-path-${idx}`} id={`aroma-path-${idx}`} d={pathD} />;
+                })}
               </defs>
 
               {/* RING 3: DYNAMIC OUTER CONCENTRIC RING (Radius 145 -> 218) */}
-              {ring3Items.map((item, idx) => {
+              {ring3Items.map((rawItem, idx) => {
+                const item = cleanAromaText(rawItem);
                 const itemStartAngle = -90 + idx * sliceAngle3;
                 const itemEndAngle = -90 + (idx + 1) * sliceAngle3;
-                const isSelected = selectedAromas.includes(item);
+                const isSelected = isAromaSelected(item);
 
                 const pathD = describeArc(cx, cy, 145, 218, itemStartAngle, itemEndAngle);
-                const midAngle = (itemStartAngle + itemEndAngle) / 2;
-                const textPos = polarToCartesian(cx, cy, 181, midAngle);
-
-                let textRotation = midAngle;
-                if (midAngle > 90 || midAngle < -90) {
-                  textRotation += 180;
-                }
+                const displayText = `${item}${isSelected ? ' ✓' : ''}`;
+                const fontSize = getAromaFontSize(displayText, sliceAngle3);
 
                 return (
                   <g key={item} style={{ cursor: 'pointer' }} onClick={() => toggleAroma(item)}>
@@ -261,17 +306,25 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                       style={{ transition: 'all 0.2s ease' }}
                     />
                     <text 
-                      x={textPos.x} 
-                      y={textPos.y} 
                       fill={isSelected ? '#0f0910' : '#ffffff'} 
-                      fontSize="9.5" 
-                      fontWeight={isSelected ? 'bold' : '600'}
+                      fontSize={fontSize} 
+                      fontWeight={isSelected ? 'bold' : '700'}
                       textAnchor="middle" 
-                      dominantBaseline="middle"
-                      transform={`rotate(${textRotation}, ${textPos.x}, ${textPos.y})`}
-                      style={{ pointerEvents: 'none', userSelect: 'none', textShadow: isSelected ? 'none' : '0 1px 4px rgba(0,0,0,0.9)' }}
+                      dominantBaseline="central"
+                      letterSpacing="0.02em"
+                      style={{ 
+                        pointerEvents: 'none', 
+                        userSelect: 'none', 
+                        textShadow: isSelected ? 'none' : '0 1px 3px rgba(0,0,0,0.9)' 
+                      }}
                     >
-                      {item} {isSelected ? '✓' : ''}
+                      <textPath 
+                        href={`#aroma-path-${idx}`}
+                        xlinkHref={`#aroma-path-${idx}`}
+                        startOffset="50%"
+                      >
+                        {displayText}
+                      </textPath>
                     </text>
                   </g>
                 );
@@ -398,8 +451,8 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
 
                 {/* CURVED "INTENSITY" TEXT LABEL CURVED EXACTLY ALONG SLIDER SHAPE STARTING AT ORIGIN */}
                 <text fill="#d4af37" fontSize="10" fontWeight="bold" letterSpacing="0.08em" style={{ pointerEvents: 'none' }}>
-                  <textPath href="#intensity-text-path" startOffset="2%">
-                    INTENSITY ({currentIntensity.toUpperCase()})
+                  <textPath href="#intensity-text-path" xlinkHref="#intensity-text-path" startOffset="2%">
+                    INTENSITY: {currentIntensity.replace(/[()]/g, '').toUpperCase()}
                   </textPath>
                 </text>
 
@@ -442,8 +495,8 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
 
                 {/* CURVED "DEVELOPMENT" TEXT LABEL CURVED EXACTLY ALONG SLIDER SHAPE STARTING AT ORIGIN */}
                 <text fill="#e67e22" fontSize="10" fontWeight="bold" letterSpacing="0.08em" style={{ pointerEvents: 'none' }}>
-                  <textPath href="#dev-text-path" startOffset="2%">
-                    DEVELOPMENT ({currentDevelopment.toUpperCase()})
+                  <textPath href="#dev-text-path" xlinkHref="#dev-text-path" startOffset="2%">
+                    DEVELOPMENT: {currentDevelopment.replace(/[()]/g, '').toUpperCase()}
                   </textPath>
                 </text>
 
@@ -472,7 +525,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                 onClick={() => toggleAroma(item)}
                 title="Click to remove"
               >
-                <span style={{ fontWeight: 500 }}>{item}</span>
+                <span style={{ fontWeight: 500 }}>{cleanAromaText(item)}</span>
                 <span style={{ color: 'var(--gold-light)', fontWeight: 'bold' }}>✕</span>
               </div>
             ))

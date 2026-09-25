@@ -49,13 +49,13 @@ export const RED_WINE_COLORS = [
 export const RED_WINE_AROMAS = {
   primary: [
     { category: 'Red Fruit', items: ['Red Cherry', 'Raspberry', 'Strawberry', 'Cranberry', 'Red Plum', 'Pomegranate'] },
-    { category: 'Black Fruit', items: ['Blackberry', 'Blackcurrant (Cassis)', 'Black Cherry', 'Black Plum', 'Blueberry'] },
-    { category: 'Floral & Herbaceous', items: ['Violet', 'Rose Petal', 'Eucalyptus/Mint', 'Green Bell Pepper (Pyrazine)', 'Dried Herbs', 'Lavender'] },
+    { category: 'Black Fruit', items: ['Blackberry', 'Blackcurrant', 'Black Cherry', 'Black Plum', 'Blueberry'] },
+    { category: 'Floral & Herbaceous', items: ['Violet', 'Rose Petal', 'Eucalyptus/Mint', 'Green Bell Pepper', 'Dried Herbs', 'Lavender'] },
     { category: 'Spice & Pepper', items: ['Black Pepper', 'White Pepper', 'Liquorice/Anise', 'Clove', 'Cinnamon'] }
   ],
   secondary: [
-    { category: 'Oak Influences', items: ['Vanilla', 'Cedar', 'Toast', 'Smoke', 'Coconut (American Oak)', 'Dill', 'Sweet Tobacco'] },
-    { category: 'Winemaking', items: ['Butter/Cream (MLF)', 'Yeast/Biscuit', 'Chocolate', 'Coffee/Espresso', 'Cocoa'] }
+    { category: 'Oak Influences', items: ['Vanilla', 'Cedar', 'Toast', 'Smoke', 'Coconut', 'Dill', 'Sweet Tobacco'] },
+    { category: 'Winemaking', items: ['Butter/Cream', 'Yeast/Biscuit', 'Chocolate', 'Coffee/Espresso', 'Cocoa'] }
   ],
   tertiary: [
     { category: 'Aging & Maturation', items: ['Leather', 'Forest Floor', 'Mushroom', 'Game/Meat', 'Truffle', 'Cigar Box'] },
@@ -84,7 +84,7 @@ export const SAMPLE_NOTES = [
     nose: {
       intensity: 'Pronounced',
       development: 'Developing',
-      aromas: ['Blackcurrant (Cassis)', 'Violet', 'Cedar', 'Cigar Box', 'Graphite/Lead Pencil', 'Vanilla']
+      aromas: ['Blackcurrant', 'Violet', 'Cedar', 'Cigar Box', 'Graphite/Lead Pencil', 'Vanilla']
     },
     palate: {
       sweetness: 'Dry',
