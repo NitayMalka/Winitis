@@ -56,6 +56,20 @@ function getAromaFontSize(text, sliceAngle) {
   return Math.max(10.5, Math.min(13.5, Math.round(targetSize * 10) / 10));
 }
 
+// Dynamically calculates the optimal font size for Ring 2 (Middle category ring)
+// so the text is bold and readable along the wheel flow without exiting slice borders.
+function getCategoryFontSize(text, sliceAngle) {
+  // Center radius of Ring 2 is 108.5
+  const arcLength = 108.5 * (sliceAngle * Math.PI / 180);
+  // Reserve safety margins on both sides of the slice (at least 8px padding each side)
+  const maxUsableWidth = arcLength - 14;
+  // Bold sans-serif character width estimate is ~0.56 * fontSize
+  const charWidthRatio = 0.56;
+  const targetSize = maxUsableWidth / (Math.max(text.length, 3) * charWidthRatio);
+  // Allow bold font size up to 13px, clamped down if text is longer
+  return Math.max(9.5, Math.min(13.0, Math.round(targetSize * 10) / 10));
+}
+
 // Helper: polar to cartesian
 function polarToCartesian(cx, cy, r, angleInDegrees) {
   const rad = (angleInDegrees * Math.PI) / 180.0;
@@ -282,6 +296,16 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                   const pathD = describeTextArc(cx, cy, 181.5, itemStartAngle, itemEndAngle, isFlipped);
                   return <path key={`aroma-path-${idx}`} id={`aroma-path-${idx}`} d={pathD} />;
                 })}
+
+                {/* Curved Text Paths for Ring 2 Category Wedges aligned with wheel flow */}
+                {CATEGORY_MAP.map((cat) => {
+                  let midAngle = (cat.startAngle + cat.endAngle) / 2;
+                  while (midAngle > 180) midAngle -= 360;
+                  while (midAngle <= -180) midAngle += 360;
+                  const isFlipped = midAngle > 25 && midAngle <= 180;
+                  const pathD = describeTextArc(cx, cy, 108.5, cat.startAngle, cat.endAngle, isFlipped);
+                  return <path key={`cat-path-${cat.id}`} id={`cat-path-${cat.id}`} d={pathD} />;
+                })}
               </defs>
 
               {/* RING 3: DYNAMIC OUTER CONCENTRIC RING (Radius 145 -> 218) */}
@@ -334,34 +358,41 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
               {CATEGORY_MAP.map((cat) => {
                 const isSelected = activeCategory.id === cat.id;
                 const pathD = describeArc(cx, cy, 76, 141, cat.startAngle, cat.endAngle);
-                const midAngle = (cat.startAngle + cat.endAngle) / 2;
-                const labelPos = polarToCartesian(cx, cy, 108, midAngle);
-
-                let textRotation = midAngle;
-                if (midAngle > 90 || midAngle < -90) textRotation += 180;
+                const sliceAngle = cat.endAngle - cat.startAngle;
+                const catName = cat.name.split(' ')[0];
+                const displayText = `${catName}${isSelected ? ' ▸' : ''}`;
+                const fontSize = getCategoryFontSize(displayText, sliceAngle);
 
                 return (
                   <g key={cat.id} style={{ cursor: 'pointer' }} onClick={() => handleSelectCategory(cat)}>
                     <path 
                       d={pathD} 
                       fill={cat.color} 
-                      opacity={isSelected ? 1.0 : 0.65}
-                      stroke={isSelected ? '#f7e4a1' : 'rgba(15, 9, 16, 0.8)'} 
+                      opacity={isSelected ? 1.0 : 0.70}
+                      stroke={isSelected ? '#f7e4a1' : 'rgba(15, 9, 16, 0.85)'} 
                       strokeWidth={isSelected ? 3.5 : 1.5}
                       style={{ transition: 'all 0.2s ease' }}
                     />
                     <text 
-                      x={labelPos.x} 
-                      y={labelPos.y} 
                       fill="#ffffff" 
-                      fontSize="10" 
-                      fontWeight={isSelected ? 'bold' : '600'}
+                      fontSize={fontSize} 
+                      fontWeight="800"
                       textAnchor="middle" 
-                      dominantBaseline="middle"
-                      transform={`rotate(${textRotation}, ${labelPos.x}, ${labelPos.y})`}
-                      style={{ pointerEvents: 'none', textShadow: '0 1px 4px rgba(0,0,0,0.9)', userSelect: 'none' }}
+                      dominantBaseline="central"
+                      letterSpacing="0.03em"
+                      style={{ 
+                        pointerEvents: 'none', 
+                        textShadow: '0 1px 4px rgba(0,0,0,0.95)', 
+                        userSelect: 'none' 
+                      }}
                     >
-                      {cat.name.split(' ')[0]} {isSelected ? '▶' : ''}
+                      <textPath 
+                        href={`#cat-path-${cat.id}`}
+                        xlinkHref={`#cat-path-${cat.id}`}
+                        startOffset="50%"
+                      >
+                        {displayText}
+                      </textPath>
                     </text>
                   </g>
                 );
