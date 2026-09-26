@@ -1064,7 +1064,7 @@ export default function VerdictStep({
         {(() => {
           const isKeyAttrLeft = (layout.keyAttributesPosition !== 'tastingSections') && !layout.hidden?.keyAttributes;
           const hasLeftContent = !layout.hidden?.bottle || isKeyAttrLeft;
-          const leftColWidth = isKeyAttrLeft ? '180px' : '140px';
+          const leftColWidth = isKeyAttrLeft ? '230px' : '180px';
 
           const renderBottleElement = () => (
             <div

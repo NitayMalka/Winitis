@@ -1661,8 +1661,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 /* Main Body 2-Column Grid (Bottle Left, Tasting Right) */
 .verdict-body-grid {
   display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 18px;
+  grid-template-columns: 230px 1fr;
+  gap: 22px;
   align-items: stretch;
   flex: 1;
   min-height: 0;
@@ -1689,7 +1689,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .verdict-left-column .verdict-bottle-frame {
-  max-height: 335px;
+  max-height: 350px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -1698,14 +1698,20 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .verdict-left-column .generic-wine-bottle-wrap,
 .verdict-left-column .custom-bottle-img-wrap {
-  max-height: 335px;
+  max-height: 350px;
   width: 100%;
-  max-width: 140px;
+  max-width: 190px;
 }
 
-.verdict-left-column .generic-wine-bottle-wrap svg,
+.verdict-left-column .generic-wine-bottle-wrap svg {
+  max-height: 350px;
+  transform: scaleX(1.15);
+  transform-origin: center center;
+}
+
 .verdict-left-column .custom-bottle-img {
-  max-height: 335px;
+  max-height: 350px;
+  max-width: 190px;
 }
 
 .verdict-left-column .verdict-key-attributes-block {
@@ -1784,13 +1790,16 @@ input[type="range"]::-webkit-slider-thumb:hover {
   border-radius: 8px;
 }
 
-/* Column 2: Tasting Content */
+/* Column 2: Tasting Content (Palate & Profile less wide, panned to right) */
 .verdict-tasting-content {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 2px;
+  gap: 3px;
   min-width: 0;
+  max-width: 580px;
+  margin-left: auto;
+  width: 100%;
 }
 
 .verdict-section-heading {
@@ -2282,6 +2291,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   .verdict-body-grid {
     grid-template-columns: 110px 1fr !important;
     gap: 8px !important;
+  }
+  .verdict-tasting-content {
+    max-width: 100% !important;
+    margin-left: 0 !important;
   }
   .generic-wine-bottle-wrap {
     max-width: 80px !important;
