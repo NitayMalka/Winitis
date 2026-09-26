@@ -1796,8 +1796,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-tasting-content {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 3px;
+  justify-content: flex-start;
+  gap: 8px;
   min-width: 0;
   max-width: 580px;
   margin-left: auto;
@@ -2287,6 +2287,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   .verdict-tasting-content {
     max-width: 100% !important;
     margin-left: 0 !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
   }
   .generic-wine-bottle-wrap {
     max-width: 80px !important;
