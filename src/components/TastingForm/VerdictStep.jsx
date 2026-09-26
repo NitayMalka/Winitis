@@ -125,25 +125,6 @@ export default function VerdictStep({
     .slice(0, 4)
     .map(a => a.length > 28 ? a.slice(0, 28).trim() : a);
 
-  // Dynamic food pairings matching wine color/grape (or inspiration defaults)
-  const isWhiteOrRose = colorHex.toLowerCase().includes('gold') ||
-    colorHex.toLowerCase().includes('straw') ||
-    colorName.toLowerCase().includes('white') ||
-    colorName.toLowerCase().includes('rosé') ||
-    colorName.toLowerCase().includes('rose') ||
-    colorName.toLowerCase().includes('yellow') ||
-    colorName.toLowerCase().includes('green');
-
-  const pairingsList = isWhiteOrRose ? [
-    { icon: '🐟', name: 'Grilled Salmon' },
-    { icon: '🧀', name: 'Goat Cheese' },
-    { icon: '🍗', name: 'Roasted Poultry' }
-  ] : [
-    { icon: '🥩', name: 'Ribeye Steak' },
-    { icon: '🧀', name: 'Aged Cheddar' },
-    { icon: '🍖', name: 'Lamb Shanks' }
-  ];
-
   // 3. Palate & Structural Parameters (Sector 2 - all 8 attributes)
   const bodyVal = wineNote.palate?.body || 'Medium(+)';
   const bodyClean = cleanIntensity(bodyVal);
@@ -499,26 +480,6 @@ export default function VerdictStep({
                 <EditableText textKey="verdict.keyAttributesTitle" defaultText="KEY ATTRIBUTES" />
               </div>
 
-              {/* 4-Color Attribute Segments Bar */}
-              <div className="verdict-attr-bar-container">
-                <div className="attr-color-segment attr-seg-sweetness" title={`Sweetness: ${sweetnessVal}`}>
-                  <span className="attr-seg-icon">💧</span>
-                </div>
-                <div className="attr-color-segment attr-seg-alcohol" title={`Alcohol: ${alcoholLevelVal}`}>
-                  <span className="attr-seg-icon">🌡️</span>
-                </div>
-                <div 
-                  className="attr-color-segment attr-seg-flavor" 
-                  style={{ backgroundColor: colorHex }} 
-                  title={`Color: ${displayColorName} | Flavor: ${flavorIntensityVal}`}
-                >
-                  <span className="attr-seg-icon">☀️</span>
-                </div>
-                <div className="attr-color-segment attr-seg-finish" title={`Finish: ${formatFinishDisplay()}`}>
-                  <span className="attr-seg-icon">⏱️</span>
-                </div>
-              </div>
-
               {/* 2x2 Palate Pillars */}
               <div className="verdict-palate-pillars-grid">
                 <div className="palate-pillar-item">
@@ -690,26 +651,6 @@ export default function VerdictStep({
                 </div>
               </div>
             </div>
-
-            {/* Food Pairings if present */}
-            {pairingsList.length > 0 && (
-              <>
-                <div className="verdict-inner-divider" />
-                <div className="verdict-pairings-col font-serif">
-                  <div className="pairings-title">
-                    <EditableText textKey="verdict.pairsWellWith" defaultText="PAIRS WELL WITH:" />
-                  </div>
-                  <div className="pairings-list-horizontal">
-                    {pairingsList.map((item, pIdx) => (
-                      <div key={pIdx} className="pairing-row">
-                        <span className="pairing-icon">{item.icon}</span>
-                        <span className="pairing-name">{item.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
           </div>
         </div>
 
