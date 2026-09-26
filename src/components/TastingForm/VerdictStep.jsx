@@ -8,7 +8,8 @@ import { useTexts } from '../../context/TextContext';
 // Default layout configuration
 const DEFAULT_LAYOUT = {
   bottlePosition: 'left', // 'left' | 'right'
-  tastingSectionsOrder: ['profileNotes', 'palate', 'keyAttributes'],
+  keyAttributesPosition: 'belowBottle', // 'belowBottle' | 'tastingSections'
+  tastingSectionsOrder: ['profileNotes', 'palate'],
   profileNotesOrder: ['profile', 'nose'],
   palateGaugesOrder: ['body', 'acidity', 'tannins'],
   keyAttributesOrder: ['pillars', 'pairings'],
@@ -18,6 +19,7 @@ const DEFAULT_LAYOUT = {
     specs: 1,
     medal: 1,
     bottle: 1,
+    profileNotes: 1,
     profile: 1,
     nose: 1,
     palate: 1,
@@ -25,8 +27,10 @@ const DEFAULT_LAYOUT = {
     acidity: 1,
     tannins: 1,
     attrBar: 1,
+    keyAttributes: 1,
     pillars: 1,
     pairings: 1,
+    notesRow: 1,
     notes: 1,
     glasses: 1,
     vfmBar: 1
@@ -56,22 +60,27 @@ const ITEM_LABELS = {
   vfmBar: 'VFM Footer Bar'
 };
 
-const STORAGE_LAYOUT_KEY = 'winitis_verdict_custom_layout_v2';
+const STORAGE_LAYOUT_KEY = 'winitis_verdict_custom_layout_v3';
 
 const getInitialLayout = (note) => {
+  let initial = { ...DEFAULT_LAYOUT };
   if (note?.customLayout && typeof note.customLayout === 'object' && Object.keys(note.customLayout).length > 0) {
-    return { ...DEFAULT_LAYOUT, ...note.customLayout };
-  }
-  try {
-    const saved = localStorage.getItem(STORAGE_LAYOUT_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return { ...DEFAULT_LAYOUT, ...parsed };
+    initial = { ...initial, ...note.customLayout };
+  } else {
+    try {
+      const saved = localStorage.getItem(STORAGE_LAYOUT_KEY);
+      if (saved) {
+        initial = { ...initial, ...JSON.parse(saved) };
+      }
+    } catch (e) {
+      console.warn('Failed to parse saved layout:', e);
     }
-  } catch (e) {
-    console.warn('Failed to parse saved layout:', e);
   }
-  return DEFAULT_LAYOUT;
+  // User explicitly requested key attributes below bottle
+  if (!initial.keyAttributesPosition) {
+    initial.keyAttributesPosition = 'belowBottle';
+  }
+  return initial;
 };
 
 // Helper to convert structural levels to gauge percentage
@@ -224,8 +233,17 @@ export default function VerdictStep({
       return;
     }
 
-    if (['profileNotes', 'palate', 'keyAttributes'].includes(id)) {
-      const arr = layout.tastingSectionsOrder || ['profileNotes', 'palate', 'keyAttributes'];
+    if (id === 'keyAttributes') {
+      const isBelowBottle = layout.keyAttributesPosition === 'belowBottle' || !layout.keyAttributesPosition;
+      saveLayout({
+        ...layout,
+        keyAttributesPosition: isBelowBottle ? 'tastingSections' : 'belowBottle'
+      });
+      return;
+    }
+
+    if (['profileNotes', 'palate'].includes(id)) {
+      const arr = layout.tastingSectionsOrder || ['profileNotes', 'palate'];
       const idx = arr.indexOf(id);
       const targetIdx = direction === 'prev' || direction === 'up' ? idx - 1 : idx + 1;
       saveLayout({
@@ -291,8 +309,18 @@ export default function VerdictStep({
         nextTitle: 'Move Right'
       };
     }
-    if (['profileNotes', 'palate', 'keyAttributes'].includes(id)) {
-      const arr = layout.tastingSectionsOrder || ['profileNotes', 'palate', 'keyAttributes'];
+    if (id === 'keyAttributes') {
+      const isBelowBottle = layout.keyAttributesPosition === 'belowBottle' || !layout.keyAttributesPosition;
+      return {
+        type: 'horizontal',
+        canMovePrev: !isBelowBottle,
+        canMoveNext: isBelowBottle,
+        prevTitle: 'Move Left (Below Bottle)',
+        nextTitle: 'Move Right (Tasting Column)'
+      };
+    }
+    if (['profileNotes', 'palate'].includes(id)) {
+      const arr = layout.tastingSectionsOrder || ['profileNotes', 'palate'];
       const idx = arr.indexOf(id);
       return {
         type: 'vertical',
@@ -1031,492 +1059,471 @@ export default function VerdictStep({
         )}
 
         {/* ----------------------------------------------------
-            2. MAIN BODY GRID: BOTTLE + TASTING DATA
+            2. MAIN BODY GRID: BOTTLE + KEY ATTRIBUTES (LEFT) & TASTING DATA (RIGHT)
            ---------------------------------------------------- */}
-        {(!layout.hidden?.bottle || !layout.hidden?.profileNotes || !layout.hidden?.palate || !layout.hidden?.keyAttributes) && (
-          <div
-            className="verdict-body-grid"
-            style={{
-              gridTemplateColumns: layout.hidden?.bottle
-                ? '1fr'
-                : layout.bottlePosition === 'right'
-                  ? '1fr 140px'
-                  : '140px 1fr'
-            }}
-          >
-            {/* Render Bottle First if bottlePosition is left */}
-            {layout.bottlePosition !== 'right' && !layout.hidden?.bottle && (
-              <div
-                className={getItemClass('bottle', 'verdict-bottle-column')}
-                style={getItemStyle('bottle')}
-                onClick={(e) => handleItemClick(e, 'bottle')}
-                title={isEditMode ? "Click to edit Bottle" : undefined}
-              >
-                <div className="verdict-bottle-frame">
-                  {bottleImage ? (
-                    <div className="custom-bottle-img-wrap">
-                      <img
-                        src={bottleImage}
-                        alt={wineName}
-                        className="custom-bottle-img"
-                      />
-                    </div>
-                  ) : (
-                    <GenericWineBottle
-                      wineName={wineName}
-                      grape={grape}
-                      vintage={vintage}
-                      region={originStr}
-                      alcohol={alcohol}
-                      wineColorHex={colorHex}
+        {(() => {
+          const isKeyAttrLeft = (layout.keyAttributesPosition !== 'tastingSections') && !layout.hidden?.keyAttributes;
+          const hasLeftContent = !layout.hidden?.bottle || isKeyAttrLeft;
+          const leftColWidth = isKeyAttrLeft ? '180px' : '140px';
+
+          const renderBottleElement = () => (
+            <div
+              className={getItemClass('bottle', 'verdict-bottle-column')}
+              style={getItemStyle('bottle')}
+              onClick={(e) => handleItemClick(e, 'bottle')}
+              title={isEditMode ? "Click to edit Bottle" : undefined}
+            >
+              <div className="verdict-bottle-frame">
+                {bottleImage ? (
+                  <div className="custom-bottle-img-wrap">
+                    <img
+                      src={bottleImage}
+                      alt={wineName}
+                      className="custom-bottle-img"
                     />
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  <GenericWineBottle
+                    wineName={wineName}
+                    grape={grape}
+                    vintage={vintage}
+                    region={originStr}
+                    alcohol={alcohol}
+                    wineColorHex={colorHex}
+                  />
+                )}
               </div>
-            )}
+            </div>
+          );
 
-            {/* COLUMN: TASTING DATA & SECTIONS */}
-            {(!layout.hidden?.profileNotes || !layout.hidden?.palate || !layout.hidden?.keyAttributes) && (
-              <div className="verdict-tasting-content">
-                {(layout.tastingSectionsOrder || ['profileNotes', 'palate', 'keyAttributes']).map((sectionKey, sIdx, allSecs) => {
-                  if (sectionKey === 'profileNotes') {
-                    if (layout.hidden?.profileNotes) return null;
-                    const hideProfile = layout.hidden?.profile;
-                    const hideNose = layout.hidden?.nose;
-                    if (hideProfile && hideNose) return null;
+          const renderKeyAttributesBlock = () => {
+            if (layout.hidden?.keyAttributes) return null;
+            const hidePillars = layout.hidden?.pillars;
 
-                    const pNotesOrder = layout.profileNotesOrder || ['profile', 'nose'];
+            return (
+              <div
+                key="keyAttributes"
+                className={getItemClass('keyAttributes', 'verdict-key-attributes-block font-serif')}
+                style={getItemStyle('keyAttributes')}
+                onClick={(e) => handleItemClick(e, 'keyAttributes')}
+                title={isEditMode ? "Click to edit Key Attributes Block" : undefined}
+              >
+                <h3 className="verdict-section-heading" style={{ marginBottom: '5px', textAlign: isKeyAttrLeft ? 'center' : 'left' }}>
+                  <EditableText textKey="verdict.keyAttributesTitle" defaultText="KEY ATTRIBUTES" />
+                </h3>
 
-                    return (
-                      <React.Fragment key="profileNotes">
-                        <div
-                          className={getItemClass('profileNotes', 'verdict-profile-notes-row')}
-                          style={getItemStyle('profileNotes', {
-                            gridTemplateColumns: (hideProfile || hideNose) ? '1fr' : '1fr 1fr'
-                          })}
-                          onClick={(e) => handleItemClick(e, 'profileNotes')}
-                          title={isEditMode ? "Click to edit Profile & Notes Section" : undefined}
-                        >
-                          {pNotesOrder.map(itemKey => {
-                            if (itemKey === 'profile' && !hideProfile) {
-                              return (
-                                <div
-                                  key="profile"
-                                  className={getItemClass('profile', 'verdict-profile-col font-serif')}
-                                  style={getItemStyle('profile')}
-                                  onClick={(e) => handleItemClick(e, 'profile')}
-                                  title={isEditMode ? "Click to edit Profile" : undefined}
-                                >
-                                  <h3 className="verdict-section-heading">
-                                    <EditableText textKey="verdict.profileTitle" defaultText="PROFILE" />
-                                  </h3>
-                                  <div className="verdict-profile-list">
-                                    <div className="profile-item">
-                                      <span className="profile-icon">📅</span>
-                                      <div className="profile-text">
-                                        <span className="profile-label"><EditableText textKey="verdict.vintageLabel" defaultText="VINTAGE:" /></span>
-                                        <strong className="profile-val">{vintage}</strong>
-                                      </div>
-                                    </div>
-                                    <div className="profile-item">
-                                      <span className="profile-icon">📍</span>
-                                      <div className="profile-text">
-                                        <span className="profile-label"><EditableText textKey="verdict.appellationLabel" defaultText="APPELLATION:" /></span>
-                                        <strong className="profile-val">{originStr.toUpperCase()}</strong>
-                                      </div>
-                                    </div>
-                                    <div className="profile-item">
-                                      <span className="profile-icon">🏞️</span>
-                                      <div className="profile-text">
-                                        <span className="profile-label"><EditableText textKey="verdict.styleLabel" defaultText="STYLE:" /></span>
-                                        <strong className="profile-val">{grape.toUpperCase()}</strong>
-                                      </div>
-                                    </div>
-                                    <div className="profile-item">
-                                      <span className="profile-icon">🍷</span>
-                                      <div className="profile-text">
-                                        <span className="profile-label"><EditableText textKey="verdict.alcoholLabel" defaultText="ALCOHOL:" /></span>
-                                        <strong className="profile-val">{alcohol.includes('%') ? alcohol : `${alcohol}%`}</strong>
-                                      </div>
-                                    </div>
-                                    <div className="profile-item">
-                                      <span className="profile-icon">🏷️</span>
-                                      <div className="profile-text">
-                                        <span className="profile-label"><EditableText textKey="verdict.priceLabel" defaultText="PRICE:" /></span>
-                                        <strong className="profile-val">{price}</strong>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            }
+                {/* 4-Segment Colored Bar (if not hidden) */}
+                {!layout.hidden?.attrBar && (
+                  <div
+                    className={getItemClass('attrBar', 'verdict-attributes-color-bar')}
+                    style={getItemStyle('attrBar')}
+                    onClick={(e) => handleItemClick(e, 'attrBar')}
+                    title={isEditMode ? "Click to edit Attributes Color Bar" : undefined}
+                  >
+                    <div className="attr-color-segment attr-seg-sweetness" title={`Sweetness: ${sweetnessVal}`}>
+                      <span className="attr-seg-icon">💧</span>
+                    </div>
+                    <div className="attr-color-segment attr-seg-alcohol" title={`Alcohol: ${alcoholLevelVal}`}>
+                      <span className="attr-seg-icon">🌡️</span>
+                    </div>
+                    <div 
+                      className="attr-color-segment attr-seg-flavor" 
+                      style={{ backgroundColor: colorHex }} 
+                      title={`Color: ${displayColorName} | Flavor: ${flavorIntensityVal}`}
+                    >
+                      <span className="attr-seg-icon">☀️</span>
+                    </div>
+                    <div className="attr-color-segment attr-seg-finish" title={`Finish: ${formatFinishDisplay()}`}>
+                      <span className="attr-seg-icon">⏱️</span>
+                    </div>
+                  </div>
+                )}
 
-                            if (itemKey === 'nose' && !hideNose) {
-                              return (
-                                <div
-                                  key="nose"
-                                  className={getItemClass('nose', 'verdict-nose-col font-serif')}
-                                  style={getItemStyle('nose')}
-                                  onClick={(e) => handleItemClick(e, 'nose')}
-                                  title={isEditMode ? "Click to edit Nose & Aromas" : undefined}
-                                >
-                                  <h3 className="verdict-section-heading">
-                                    <EditableText textKey="verdict.tastingNotesTitle" defaultText="TASTING NOTES" />
-                                  </h3>
-                                  <div className="verdict-nose-subheading">
-                                    <EditableText textKey="verdict.noseTitle" defaultText="NOSE & AROMAS" />
-                                  </div>
-                                  
-                                  <div className="verdict-nose-meta">
-                                    <div className="meta-line">
-                                      <span className="meta-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>{' '}
-                                      <strong className="meta-val">{noseIntensityClean.toUpperCase()}</strong>
-                                    </div>
-                                    <div className="meta-line">
-                                      <span className="meta-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>{' '}
-                                      <strong className="meta-val">{cleanIntensity(noseDevelopment).toUpperCase()}</strong>
-                                    </div>
-                                  </div>
+                {/* 2x2 Palate Pillars */}
+                {!hidePillars && (
+                  <div
+                    className={getItemClass('pillars', 'verdict-palate-pillars-grid')}
+                    style={getItemStyle('pillars')}
+                    onClick={(e) => handleItemClick(e, 'pillars')}
+                    title={isEditMode ? "Click to edit Palate Pillars" : undefined}
+                  >
+                    <div className="palate-pillar-item">
+                      <div className="pillar-header-row">
+                        <span className="pillar-label"><EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" /></span>
+                        <span className="pillar-icon">💧</span>
+                      </div>
+                      <span className="pillar-val">{sweetnessVal.toUpperCase()}</span>
+                    </div>
 
-                                  <div className="verdict-aromas-list font-serif">
-                                    {userAromas.length > 0 ? (
-                                      userAromas.map((aroma, idx) => (
-                                        <div key={idx} className="verdict-aroma-row">
-                                          <span className="aroma-icon">{getAromaIcon(aroma)}</span>
-                                          <span className="aroma-text">{aroma.toUpperCase()}</span>
+                    <div className="palate-pillar-item">
+                      <div className="pillar-header-row">
+                        <span className="pillar-label"><EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" /></span>
+                        <span className="pillar-icon">↗️</span>
+                      </div>
+                      <span className="pillar-val">{cleanIntensity(alcoholLevelVal.split(' ')[0]).toUpperCase()}</span>
+                    </div>
+
+                    <div className="palate-pillar-item">
+                      <div className="pillar-header-row">
+                        <span className="pillar-label"><EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" /></span>
+                        <span className="pillar-icon">🍄</span>
+                      </div>
+                      <span className="pillar-val">{flavorIntensityVal.toUpperCase()}</span>
+                    </div>
+
+                    <div className="palate-pillar-item">
+                      <div className="pillar-header-row">
+                        <span className="pillar-label"><EditableText textKey="verdict.finishTitle" defaultText="FINISH:" /></span>
+                        <span className="pillar-icon">⏱️</span>
+                      </div>
+                      <span className="pillar-val">{formatFinishDisplay().toUpperCase()}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          };
+
+          const renderLeftColumn = () => (
+            <div className="verdict-left-column">
+              {!layout.hidden?.bottle && renderBottleElement()}
+              {isKeyAttrLeft && renderKeyAttributesBlock()}
+            </div>
+          );
+
+          if (!hasLeftContent && layout.hidden?.profileNotes && layout.hidden?.palate) {
+            return null;
+          }
+
+          return (
+            <div
+              className="verdict-body-grid"
+              style={{
+                gridTemplateColumns: !hasLeftContent
+                  ? '1fr'
+                  : layout.bottlePosition === 'right'
+                    ? `1fr ${leftColWidth}`
+                    : `${leftColWidth} 1fr`
+              }}
+            >
+              {/* Left Column (when bottlePosition is left) */}
+              {layout.bottlePosition !== 'right' && hasLeftContent && renderLeftColumn()}
+
+              {/* Right Column: Tasting Data & Sections */}
+              {(!layout.hidden?.profileNotes || !layout.hidden?.palate || !isKeyAttrLeft) && (
+                <div className="verdict-tasting-content">
+                  {(layout.tastingSectionsOrder || ['profileNotes', 'palate']).map((sectionKey, sIdx, allSecs) => {
+                    if (sectionKey === 'profileNotes') {
+                      if (layout.hidden?.profileNotes) return null;
+                      const hideProfile = layout.hidden?.profile;
+                      const hideNose = layout.hidden?.nose;
+                      if (hideProfile && hideNose) return null;
+
+                      const pNotesOrder = layout.profileNotesOrder || ['profile', 'nose'];
+
+                      return (
+                        <React.Fragment key="profileNotes">
+                          <div
+                            className={getItemClass('profileNotes', 'verdict-profile-notes-row')}
+                            style={getItemStyle('profileNotes', {
+                              gridTemplateColumns: (hideProfile || hideNose) ? '1fr' : '1fr 1fr'
+                            })}
+                            onClick={(e) => handleItemClick(e, 'profileNotes')}
+                            title={isEditMode ? "Click to edit Profile & Notes Section" : undefined}
+                          >
+                            {pNotesOrder.map(itemKey => {
+                              if (itemKey === 'profile' && !hideProfile) {
+                                return (
+                                  <div
+                                    key="profile"
+                                    className={getItemClass('profile', 'verdict-profile-col font-serif')}
+                                    style={getItemStyle('profile')}
+                                    onClick={(e) => handleItemClick(e, 'profile')}
+                                    title={isEditMode ? "Click to edit Profile" : undefined}
+                                  >
+                                    <h3 className="verdict-section-heading">
+                                      <EditableText textKey="verdict.profileTitle" defaultText="PROFILE" />
+                                    </h3>
+                                    <div className="verdict-profile-list">
+                                      <div className="profile-item">
+                                        <span className="profile-icon">📅</span>
+                                        <div className="profile-text">
+                                          <span className="profile-label"><EditableText textKey="verdict.vintageLabel" defaultText="VINTAGE:" /></span>
+                                          <strong className="profile-val">{vintage}</strong>
                                         </div>
-                                      ))
-                                    ) : (
-                                      <div className="verdict-aroma-row verdict-aroma-empty">
-                                        <span className="aroma-icon">🍇</span>
-                                        <span className="aroma-text">NO SPECIFIC AROMAS</span>
                                       </div>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            }
-                            return null;
-                          })}
-                        </div>
-                        {sIdx < allSecs.length - 1 && <div className="verdict-inner-divider" />}
-                      </React.Fragment>
-                    );
-                  }
-
-                  if (sectionKey === 'palate') {
-                    if (layout.hidden?.palate) return null;
-                    const gaugesOrder = layout.palateGaugesOrder || ['body', 'acidity', 'tannins'];
-
-                    return (
-                      <React.Fragment key="palate">
-                        <div
-                          className={getItemClass('palate', 'verdict-palate-block font-serif')}
-                          style={getItemStyle('palate')}
-                          onClick={(e) => handleItemClick(e, 'palate')}
-                          title={isEditMode ? "Click to edit Palate Block" : undefined}
-                        >
-                          <h3 className="verdict-section-heading" style={{ marginBottom: '6px' }}>
-                            <EditableText textKey="palate.title" defaultText="PALATE & STRUCTURE" />
-                          </h3>
-
-                          {gaugesOrder.map(gaugeId => {
-                            if (gaugeId === 'body' && !layout.hidden?.body) {
-                              return (
-                                <div
-                                  key="body"
-                                  className={getItemClass('body', 'verdict-gauge-row')}
-                                  style={getItemStyle('body')}
-                                  onClick={(e) => handleItemClick(e, 'body')}
-                                  title={isEditMode ? "Click to edit Body Gauge" : undefined}
-                                >
-                                  <div className="gauge-icon-label">
-                                    <span className="gauge-icon">🍷</span>
-                                    <span className="gauge-title"><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
-                                  </div>
-                                  <div className="gauge-control-wrap">
-                                    <div className="gauge-track-container">
-                                      <span
-                                        className="gauge-pointer"
-                                        style={{ left: `${getGaugePercent(bodyVal)}%` }}
-                                      >
-                                        ▼
-                                      </span>
-                                      <div className="verdict-gauge-track">
-                                        <div
-                                          className="verdict-gauge-fill"
-                                          style={{ width: `${getGaugePercent(bodyVal)}%` }}
-                                        />
-                                      </div>
-                                    </div>
-                                    <div className="gauge-tickers-row">
-                                      <span>Light</span>
-                                      <span>Full</span>
-                                    </div>
-                                    <div className="gauge-desc-line">
-                                      <strong>{bodyClean.toUpperCase()}</strong> • <span>{getStructureSubtitle('body', bodyVal).toUpperCase()}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            }
-
-                            if (gaugeId === 'acidity' && !layout.hidden?.acidity) {
-                              return (
-                                <div
-                                  key="acidity"
-                                  className={getItemClass('acidity', 'verdict-gauge-row')}
-                                  style={getItemStyle('acidity')}
-                                  onClick={(e) => handleItemClick(e, 'acidity')}
-                                  title={isEditMode ? "Click to edit Acidity Gauge" : undefined}
-                                >
-                                  <div className="gauge-icon-label">
-                                    <span className="gauge-icon">🍋</span>
-                                    <span className="gauge-title"><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
-                                  </div>
-                                  <div className="gauge-control-wrap">
-                                    <div className="gauge-track-container">
-                                      <span
-                                        className="gauge-pointer"
-                                        style={{ left: `${getGaugePercent(acidityVal)}%` }}
-                                      >
-                                        ▼
-                                      </span>
-                                      <div className="verdict-gauge-track">
-                                        <div
-                                          className="verdict-gauge-fill"
-                                          style={{ width: `${getGaugePercent(acidityVal)}%` }}
-                                        />
-                                      </div>
-                                    </div>
-                                    <div className="gauge-tickers-row">
-                                      <span>Low</span>
-                                      <span>High</span>
-                                    </div>
-                                    <div className="gauge-desc-line">
-                                      <strong>{acidityClean.toUpperCase()}</strong> • <span>{getStructureSubtitle('acidity', acidityVal).toUpperCase()}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            }
-
-                            if (gaugeId === 'tannins' && !layout.hidden?.tannins) {
-                              return (
-                                <div
-                                  key="tannins"
-                                  className={getItemClass('tannins', 'verdict-gauge-row')}
-                                  style={getItemStyle('tannins')}
-                                  onClick={(e) => handleItemClick(e, 'tannins')}
-                                  title={isEditMode ? "Click to edit Tannins Gauge" : undefined}
-                                >
-                                  <div className="gauge-icon-label">
-                                    <span className="gauge-icon">🍇</span>
-                                    <span className="gauge-title"><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
-                                  </div>
-                                  <div className="gauge-control-wrap">
-                                    <div className="gauge-track-container">
-                                      <span
-                                        className="gauge-pointer"
-                                        style={{ left: `${getGaugePercent(tanninVal)}%` }}
-                                      >
-                                        ▼
-                                      </span>
-                                      <div className="verdict-gauge-track">
-                                        <div
-                                          className="verdict-gauge-fill"
-                                          style={{ width: `${getGaugePercent(tanninVal)}%` }}
-                                        />
-                                      </div>
-                                    </div>
-                                    <div className="gauge-tickers-row">
-                                      <span>Low</span>
-                                      <span>High</span>
-                                    </div>
-                                    <div className="gauge-desc-line">
-                                      <strong>{tanninClean.toUpperCase()}</strong> • <span>{getStructureSubtitle('tannin', tanninVal, tanninTextureClean).toUpperCase()}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              );
-                            }
-                            return null;
-                          })}
-                        </div>
-                        {sIdx < allSecs.length - 1 && <div className="verdict-inner-divider" />}
-                      </React.Fragment>
-                    );
-                  }
-
-                  if (sectionKey === 'keyAttributes') {
-                    if (layout.hidden?.keyAttributes) return null;
-                    const hidePillars = layout.hidden?.pillars;
-                    const hidePairings = layout.hidden?.pairings;
-                    const keyAttrOrder = layout.keyAttributesOrder || ['pillars', 'pairings'];
-
-                    return (
-                      <React.Fragment key="keyAttributes">
-                        <div
-                          className={getItemClass('keyAttributes', 'verdict-key-attributes-block font-serif')}
-                          style={getItemStyle('keyAttributes')}
-                          onClick={(e) => handleItemClick(e, 'keyAttributes')}
-                          title={isEditMode ? "Click to edit Key Attributes Block" : undefined}
-                        >
-                          <h3 className="verdict-section-heading" style={{ marginBottom: '6px' }}>
-                            <EditableText textKey="verdict.keyAttributesTitle" defaultText="KEY ATTRIBUTES" />
-                          </h3>
-
-                          {/* 4-Segment Colored Bar */}
-                          {!layout.hidden?.attrBar && (
-                            <div
-                              className={getItemClass('attrBar', 'verdict-attributes-color-bar')}
-                              style={getItemStyle('attrBar')}
-                              onClick={(e) => handleItemClick(e, 'attrBar')}
-                              title={isEditMode ? "Click to edit Attributes Color Bar" : undefined}
-                            >
-                              <div className="attr-color-segment attr-seg-sweetness" title={`Sweetness: ${sweetnessVal}`}>
-                                <span className="attr-seg-icon">💧</span>
-                              </div>
-                              <div className="attr-color-segment attr-seg-alcohol" title={`Alcohol: ${alcoholLevelVal}`}>
-                                <span className="attr-seg-icon">🌡️</span>
-                              </div>
-                              <div 
-                                className="attr-color-segment attr-seg-flavor" 
-                                style={{ backgroundColor: colorHex }} 
-                                title={`Color: ${displayColorName} | Flavor: ${flavorIntensityVal}`}
-                              >
-                                <span className="attr-seg-icon">☀️</span>
-                              </div>
-                              <div className="attr-color-segment attr-seg-finish" title={`Finish: ${formatFinishDisplay()}`}>
-                                <span className="attr-seg-icon">⏱️</span>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Bottom 2 Sub-Columns: 2x2 Pillars + Pairs Well With */}
-                          {(!hidePillars || !hidePairings) && (
-                            <div
-                              className="verdict-attributes-details-row"
-                              style={{
-                                gridTemplateColumns: (hidePillars || hidePairings) ? '1fr' : '1.15fr 1fr'
-                              }}
-                            >
-                              {keyAttrOrder.map(itemKey => {
-                                if (itemKey === 'pillars' && !hidePillars) {
-                                  return (
-                                    <div
-                                      key="pillars"
-                                      className={getItemClass('pillars', 'verdict-palate-pillars-grid')}
-                                      style={getItemStyle('pillars')}
-                                      onClick={(e) => handleItemClick(e, 'pillars')}
-                                      title={isEditMode ? "Click to edit Palate Pillars" : undefined}
-                                    >
-                                      <div className="palate-pillar-item">
-                                        <div className="pillar-header-row">
-                                          <span className="pillar-label"><EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" /></span>
-                                          <span className="pillar-icon">💧</span>
+                                      <div className="profile-item">
+                                        <span className="profile-icon">📍</span>
+                                        <div className="profile-text">
+                                          <span className="profile-label"><EditableText textKey="verdict.appellationLabel" defaultText="APPELLATION:" /></span>
+                                          <strong className="profile-val">{originStr.toUpperCase()}</strong>
                                         </div>
-                                        <span className="pillar-val">{sweetnessVal.toUpperCase()}</span>
                                       </div>
-
-                                      <div className="palate-pillar-item">
-                                        <div className="pillar-header-row">
-                                          <span className="pillar-label"><EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" /></span>
-                                          <span className="pillar-icon">↗️</span>
+                                      <div className="profile-item">
+                                        <span className="profile-icon">🏞️</span>
+                                        <div className="profile-text">
+                                          <span className="profile-label"><EditableText textKey="verdict.styleLabel" defaultText="STYLE:" /></span>
+                                          <strong className="profile-val">{grape.toUpperCase()}</strong>
                                         </div>
-                                        <span className="pillar-val">{cleanIntensity(alcoholLevelVal.split(' ')[0]).toUpperCase()}</span>
                                       </div>
-
-                                      <div className="palate-pillar-item">
-                                        <div className="pillar-header-row">
-                                          <span className="pillar-label"><EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" /></span>
-                                          <span className="pillar-icon">🍄</span>
+                                      <div className="profile-item">
+                                        <span className="profile-icon">🍷</span>
+                                        <div className="profile-text">
+                                          <span className="profile-label"><EditableText textKey="verdict.alcoholLabel" defaultText="ALCOHOL:" /></span>
+                                          <strong className="profile-val">{alcohol.includes('%') ? alcohol : `${alcohol}%`}</strong>
                                         </div>
-                                        <span className="pillar-val">{flavorIntensityVal.toUpperCase()}</span>
                                       </div>
-
-                                      <div className="palate-pillar-item">
-                                        <div className="pillar-header-row">
-                                          <span className="pillar-label"><EditableText textKey="verdict.finishTitle" defaultText="FINISH:" /></span>
-                                          <span className="pillar-icon">⏱️</span>
+                                      <div className="profile-item">
+                                        <span className="profile-icon">🏷️</span>
+                                        <div className="profile-text">
+                                          <span className="profile-label"><EditableText textKey="verdict.priceLabel" defaultText="PRICE:" /></span>
+                                          <strong className="profile-val">{price}</strong>
                                         </div>
-                                        <span className="pillar-val">{formatFinishDisplay().toUpperCase()}</span>
                                       </div>
                                     </div>
-                                  );
-                                }
+                                  </div>
+                                );
+                              }
 
-                                if (itemKey === 'pairings' && !hidePairings) {
-                                  return (
-                                    <div
-                                      key="pairings"
-                                      className={getItemClass('pairings', 'verdict-pairings-col font-serif')}
-                                      style={getItemStyle('pairings')}
-                                      onClick={(e) => handleItemClick(e, 'pairings')}
-                                      title={isEditMode ? "Click to edit Pairings" : undefined}
-                                    >
-                                      <div className="pairings-title">
-                                        <EditableText textKey="verdict.pairsWellWith" defaultText="PAIRS WELL WITH:" />
+                              if (itemKey === 'nose' && !hideNose) {
+                                return (
+                                  <div
+                                    key="nose"
+                                    className={getItemClass('nose', 'verdict-nose-col font-serif')}
+                                    style={getItemStyle('nose')}
+                                    onClick={(e) => handleItemClick(e, 'nose')}
+                                    title={isEditMode ? "Click to edit Nose & Aromas" : undefined}
+                                  >
+                                    <h3 className="verdict-section-heading">
+                                      <EditableText textKey="verdict.tastingNotesTitle" defaultText="TASTING NOTES" />
+                                    </h3>
+                                    <div className="verdict-nose-subheading">
+                                      <EditableText textKey="verdict.noseTitle" defaultText="NOSE & AROMAS" />
+                                    </div>
+                                    
+                                    <div className="verdict-nose-meta">
+                                      <div className="meta-line">
+                                        <span className="meta-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>{' '}
+                                        <strong className="meta-val">{noseIntensityClean.toUpperCase()}</strong>
                                       </div>
-                                      <div className="pairings-list">
-                                        {pairingsList.map((item, pIdx) => (
-                                          <div key={pIdx} className="pairing-row">
-                                            <span className="pairing-icon">{item.icon}</span>
-                                            <span className="pairing-name">{item.label}</span>
+                                      <div className="meta-line">
+                                        <span className="meta-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>{' '}
+                                        <strong className="meta-val">{cleanIntensity(noseDevelopment).toUpperCase()}</strong>
+                                      </div>
+                                    </div>
+
+                                    <div className="verdict-aromas-list font-serif">
+                                      {userAromas.length > 0 ? (
+                                        userAromas.map((aroma, idx) => (
+                                          <div key={idx} className="verdict-aroma-row">
+                                            <span className="aroma-icon">{getAromaIcon(aroma)}</span>
+                                            <span className="aroma-text">{aroma.toUpperCase()}</span>
                                           </div>
-                                        ))}
+                                        ))
+                                      ) : (
+                                        <div className="verdict-aroma-row verdict-aroma-empty">
+                                          <span className="aroma-icon">🍇</span>
+                                          <span className="aroma-text">NO SPECIFIC AROMAS</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })}
+                          </div>
+                          {sIdx < allSecs.length - 1 && <div className="verdict-inner-divider" />}
+                        </React.Fragment>
+                      );
+                    }
+
+                    if (sectionKey === 'palate') {
+                      if (layout.hidden?.palate) return null;
+                      const gaugesOrder = layout.palateGaugesOrder || ['body', 'acidity', 'tannins'];
+
+                      return (
+                        <React.Fragment key="palate">
+                          <div
+                            className={getItemClass('palate', 'verdict-palate-block font-serif')}
+                            style={getItemStyle('palate')}
+                            onClick={(e) => handleItemClick(e, 'palate')}
+                            title={isEditMode ? "Click to edit Palate Block" : undefined}
+                          >
+                            <h3 className="verdict-section-heading" style={{ marginBottom: '6px' }}>
+                              <EditableText textKey="palate.title" defaultText="PALATE & STRUCTURE" />
+                            </h3>
+
+                            {gaugesOrder.map(gaugeId => {
+                              if (gaugeId === 'body' && !layout.hidden?.body) {
+                                return (
+                                  <div
+                                    key="body"
+                                    className={getItemClass('body', 'verdict-gauge-row')}
+                                    style={getItemStyle('body')}
+                                    onClick={(e) => handleItemClick(e, 'body')}
+                                    title={isEditMode ? "Click to edit Body Gauge" : undefined}
+                                  >
+                                    <div className="gauge-icon-label">
+                                      <span className="gauge-icon">🍷</span>
+                                      <span className="gauge-title"><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
+                                    </div>
+                                    <div className="gauge-control-wrap">
+                                      <div className="gauge-track-container">
+                                        <span
+                                          className="gauge-pointer"
+                                          style={{ left: `${getGaugePercent(bodyVal)}%` }}
+                                        >
+                                          ▼
+                                        </span>
+                                        <div className="verdict-gauge-track">
+                                          <div
+                                            className="verdict-gauge-fill"
+                                            style={{ width: `${getGaugePercent(bodyVal)}%` }}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="gauge-tickers-row">
+                                        <span>Light</span>
+                                        <span>Full</span>
+                                      </div>
+                                      <div className="gauge-desc-line">
+                                        <strong>{bodyClean.toUpperCase()}</strong> • <span>{getStructureSubtitle('body', bodyVal).toUpperCase()}</span>
                                       </div>
                                     </div>
-                                  );
-                                }
-                                return null;
-                              })}
-                            </div>
-                          )}
+                                  </div>
+                                );
+                              }
 
+                              if (gaugeId === 'acidity' && !layout.hidden?.acidity) {
+                                return (
+                                  <div
+                                    key="acidity"
+                                    className={getItemClass('acidity', 'verdict-gauge-row')}
+                                    style={getItemStyle('acidity')}
+                                    onClick={(e) => handleItemClick(e, 'acidity')}
+                                    title={isEditMode ? "Click to edit Acidity Gauge" : undefined}
+                                  >
+                                    <div className="gauge-icon-label">
+                                      <span className="gauge-icon">🍋</span>
+                                      <span className="gauge-title"><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
+                                    </div>
+                                    <div className="gauge-control-wrap">
+                                      <div className="gauge-track-container">
+                                        <span
+                                          className="gauge-pointer"
+                                          style={{ left: `${getGaugePercent(acidityVal)}%` }}
+                                        >
+                                          ▼
+                                        </span>
+                                        <div className="verdict-gauge-track">
+                                          <div
+                                            className="verdict-gauge-fill"
+                                            style={{ width: `${getGaugePercent(acidityVal)}%` }}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="gauge-tickers-row">
+                                        <span>Low</span>
+                                        <span>High</span>
+                                      </div>
+                                      <div className="gauge-desc-line">
+                                        <strong>{acidityClean.toUpperCase()}</strong> • <span>{getStructureSubtitle('acidity', acidityVal).toUpperCase()}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              }
+
+                              if (gaugeId === 'tannins' && !layout.hidden?.tannins) {
+                                return (
+                                  <div
+                                    key="tannins"
+                                    className={getItemClass('tannins', 'verdict-gauge-row')}
+                                    style={getItemStyle('tannins')}
+                                    onClick={(e) => handleItemClick(e, 'tannins')}
+                                    title={isEditMode ? "Click to edit Tannins Gauge" : undefined}
+                                  >
+                                    <div className="gauge-icon-label">
+                                      <span className="gauge-icon">🍇</span>
+                                      <span className="gauge-title"><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
+                                    </div>
+                                    <div className="gauge-control-wrap">
+                                      <div className="gauge-track-container">
+                                        <span
+                                          className="gauge-pointer"
+                                          style={{ left: `${getGaugePercent(tanninVal)}%` }}
+                                        >
+                                          ▼
+                                        </span>
+                                        <div className="verdict-gauge-track">
+                                          <div
+                                            className="verdict-gauge-fill"
+                                            style={{ width: `${getGaugePercent(tanninVal)}%` }}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div className="gauge-tickers-row">
+                                        <span>Low</span>
+                                        <span>High</span>
+                                      </div>
+                                      <div className="gauge-desc-line">
+                                        <strong>{tanninClean.toUpperCase()}</strong> • <span>{getStructureSubtitle('tannin', tanninVal, tanninTextureClean).toUpperCase()}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })}
+                          </div>
+                          {sIdx < allSecs.length - 1 && <div className="verdict-inner-divider" />}
+                        </React.Fragment>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  {/* If Key Attributes was relocated to right tasting content */}
+                  {!isKeyAttrLeft && !layout.hidden?.keyAttributes && (
+                    <>
+                      <div className="verdict-inner-divider" />
+                      {renderKeyAttributesBlock()}
+                    </>
+                  )}
+
+                  {/* Food Pairings if enabled */}
+                  {!layout.hidden?.pairings && (
+                    <>
+                      <div className="verdict-inner-divider" />
+                      <div
+                        className={getItemClass('pairings', 'verdict-pairings-col font-serif')}
+                        style={getItemStyle('pairings')}
+                        onClick={(e) => handleItemClick(e, 'pairings')}
+                        title={isEditMode ? "Click to edit Pairings" : undefined}
+                      >
+                        <div className="pairings-title">
+                          <EditableText textKey="verdict.pairsWellWith" defaultText="PAIRS WELL WITH:" />
                         </div>
-                        {sIdx < allSecs.length - 1 && <div className="verdict-inner-divider" />}
-                      </React.Fragment>
-                    );
-                  }
-                  return null;
-                })}
-              </div>
-            )}
-
-            {/* Render Bottle Second if bottlePosition is right */}
-            {layout.bottlePosition === 'right' && !layout.hidden?.bottle && (
-              <div
-                className={getItemClass('bottle', 'verdict-bottle-column')}
-                style={getItemStyle('bottle')}
-                onClick={(e) => handleItemClick(e, 'bottle')}
-                title={isEditMode ? "Click to edit Bottle" : undefined}
-              >
-                <div className="verdict-bottle-frame">
-                  {bottleImage ? (
-                    <div className="custom-bottle-img-wrap">
-                      <img
-                        src={bottleImage}
-                        alt={wineName}
-                        className="custom-bottle-img"
-                      />
-                    </div>
-                  ) : (
-                    <GenericWineBottle
-                      wineName={wineName}
-                      grape={grape}
-                      vintage={vintage}
-                      region={originStr}
-                      alcohol={alcohol}
-                      wineColorHex={colorHex}
-                    />
+                        <div className="pairings-list-horizontal">
+                          {pairingsList.map((item, pIdx) => (
+                            <div key={pIdx} className="pairing-row">
+                              <span className="pairing-icon">{item.icon}</span>
+                              <span className="pairing-name">{item.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </>
                   )}
                 </div>
-              </div>
-            )}
+              )}
 
-          </div>
-        )}
+              {/* Left Column (when bottlePosition is right) */}
+              {layout.bottlePosition === 'right' && hasLeftContent && renderLeftColumn()}
+            </div>
+          );
+        })()}
 
         {/* Thin Divider Line */}
         {(!layout.hidden?.bottle || !layout.hidden?.profileNotes || !layout.hidden?.palate || !layout.hidden?.keyAttributes) && 

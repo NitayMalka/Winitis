@@ -1661,11 +1661,70 @@ input[type="range"]::-webkit-slider-thumb:hover {
 /* Main Body 2-Column Grid (Bottle Left, Tasting Right) */
 .verdict-body-grid {
   display: grid;
-  grid-template-columns: 140px 1fr;
+  grid-template-columns: 180px 1fr;
   gap: 18px;
   align-items: stretch;
   flex: 1;
   min-height: 0;
+}
+
+/* Left Column: holds Bottle + Key Attributes (below bottle) */
+.verdict-left-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  min-width: 0;
+  gap: 6px;
+}
+
+.verdict-left-column .verdict-bottle-column {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  width: 100%;
+}
+
+.verdict-left-column .verdict-bottle-frame {
+  max-height: 335px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.verdict-left-column .generic-wine-bottle-wrap,
+.verdict-left-column .custom-bottle-img-wrap {
+  max-height: 335px;
+  width: 100%;
+  max-width: 140px;
+}
+
+.verdict-left-column .generic-wine-bottle-wrap svg,
+.verdict-left-column .custom-bottle-img {
+  max-height: 335px;
+}
+
+.verdict-left-column .verdict-key-attributes-block {
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.verdict-left-column .verdict-palate-pillars-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  width: 100%;
+}
+
+.pairings-list-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
 }
 
 /* Bottle Column */
@@ -2221,7 +2280,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     margin: 4px 0 !important;
   }
   .verdict-body-grid {
-    grid-template-columns: 80px 1fr !important;
+    grid-template-columns: 110px 1fr !important;
     gap: 8px !important;
   }
   .generic-wine-bottle-wrap {
@@ -2232,7 +2291,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   }
   .generic-wine-bottle-wrap svg,
   .custom-bottle-img {
-    max-height: 380px !important;
+    max-height: 240px !important;
+  }
+  .verdict-left-column .verdict-bottle-frame {
+    max-height: 240px !important;
   }
   .verdict-section-heading {
     font-size: 0.68rem !important;
