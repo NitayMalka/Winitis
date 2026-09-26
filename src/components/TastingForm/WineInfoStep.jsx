@@ -28,7 +28,8 @@ export default function WineInfoStep({ wineInfo, updateWineInfo }) {
             type="text" 
             className="form-input" 
             value={wineInfo.wineName || ''} 
-            onChange={(e) => handleChange('wineName', e.target.value)} 
+            onChange={(e) => handleChange('wineName', e.target.value.slice(0, 23))} 
+            maxLength={23}
           />
         </div>
 

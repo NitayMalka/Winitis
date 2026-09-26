@@ -100,7 +100,8 @@ export default function VerdictStep({
   const [shareSuccessFlash, setShareSuccessFlash] = useState(false);
 
   // Identity & Specs
-  const wineName = wineNote.wineName || 'THE REVELATOR RED BLEND';
+  const rawWineName = wineNote.wineName || 'THE REVELATOR RED BLEND';
+  const wineName = rawWineName.slice(0, 23);
   const vintage = wineNote.vintage || '2018';
   const grape = wineNote.grape || 'Grand Vin';
   const country = wineNote.country || '';
@@ -458,7 +459,7 @@ export default function VerdictStep({
             </h1>
             <div className="verdict-wine-specs font-serif">
               <span className="spec-item spec-vintage-origin">
-                {vintage} VINTAGE | {originStr.toUpperCase()}
+                {vintage ? `${vintage} | ` : ''}{originStr.toUpperCase()}
               </span>
               <span className="spec-badge-item">
                 <span className="spec-mini-circle">%</span>
@@ -632,10 +633,7 @@ export default function VerdictStep({
                 </div>
               </div>
             </div>
-
-            {/* Inner Divider Line */}
-            <div className="verdict-inner-divider" />
-
+            
             {/* SUB-SECTION 2: Palate & Structure */}
             <div className="verdict-palate-block font-serif">
               <h3 className="verdict-section-heading" style={{ marginBottom: '6px' }}>
@@ -757,9 +755,6 @@ export default function VerdictStep({
             )}
           </div>
         </div>
-
-        {/* Thin Divider Line */}
-        <div className="verdict-divider-line" />
 
         {/* ----------------------------------------------------
             3. SOMMELIER NOTES ROW

@@ -194,7 +194,8 @@ export default function ConclusionStep({
               type="text" 
               className="compact-form-input" 
               value={wineInfo?.wineName || ''} 
-              onChange={(e) => handleWineInfoChange('wineName', e.target.value)} 
+              onChange={(e) => handleWineInfoChange('wineName', e.target.value.slice(0, 23))} 
+              maxLength={23}
             />
           </div>
 
