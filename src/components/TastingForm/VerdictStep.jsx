@@ -23,40 +23,6 @@ function getGaugePercent(levelStr = '') {
   return 55;
 }
 
-// Text formatter for structural pillar subtitles - concise and never cut off
-function getStructureSubtitle(type, levelStr = '', texture = '') {
-  const str = String(levelStr);
-  if (type === 'body') {
-    if (str.includes('Full')) return 'Full & Rich Weight';
-    if (str.includes('Light')) return 'Light & Crisp';
-    if (str.includes('+')) return 'Medium-Full Weight';
-    if (str.includes('-')) return 'Medium-Light Weight';
-    return 'Medium Weight';
-  }
-  if (type === 'acidity') {
-    if (str.includes('High')) return 'Bright & Crisp';
-    if (str.includes('Low')) return 'Soft & Mellow';
-    if (str.includes('+')) return 'Vibrant & Fresh';
-    if (str.includes('-')) return 'Mild & Supple';
-    return 'Clean & Balanced';
-  }
-  if (type === 'tannin') {
-    const cleanTex = texture ? texture.trim() : '';
-    if (cleanTex) {
-      if (str.includes('High')) return `${cleanTex} & Firm`;
-      if (str.includes('Low')) return `${cleanTex} & Soft`;
-      if (str.includes('+')) return `${cleanTex} Grip`;
-      if (str.includes('-')) return `${cleanTex} & Gentle`;
-      return `${cleanTex} Backbone`;
-    }
-    if (str.includes('High')) return 'Firm & Structured';
-    if (str.includes('Low')) return 'Silky & Soft';
-    if (str.includes('+')) return 'Velvety Grip';
-    if (str.includes('-')) return 'Soft & Gentle';
-    return 'Balanced Backbone';
-  }
-  return levelStr;
-}
 
 const getAromaIcon = (aroma) => {
   const textLower = String(aroma).toLowerCase();
@@ -665,9 +631,6 @@ export default function VerdictStep({
                     <span>Light</span>
                     <span>Full</span>
                   </div>
-                  <div className="gauge-desc-line">
-                    <strong>{bodyClean.toUpperCase()}</strong> • <span>{getStructureSubtitle('body', bodyVal).toUpperCase()}</span>
-                  </div>
                 </div>
               </div>
 
@@ -696,9 +659,6 @@ export default function VerdictStep({
                     <span>Low</span>
                     <span>High</span>
                   </div>
-                  <div className="gauge-desc-line">
-                    <strong>{cleanIntensity(acidityVal).toUpperCase()}</strong> • <span>{getStructureSubtitle('acidity', acidityVal).toUpperCase()}</span>
-                  </div>
                 </div>
               </div>
 
@@ -726,9 +686,6 @@ export default function VerdictStep({
                   <div className="gauge-tickers-row">
                     <span>Low</span>
                     <span>High</span>
-                  </div>
-                  <div className="gauge-desc-line">
-                    <strong>{cleanIntensity(tanninVal).toUpperCase()}</strong> • <span>{getStructureSubtitle('tannin', tanninVal, tanninTexture).toUpperCase()}</span>
                   </div>
                 </div>
               </div>
