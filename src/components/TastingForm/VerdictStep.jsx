@@ -1534,75 +1534,28 @@ export default function VerdictStep({
         {/* ----------------------------------------------------
             3. SOMMELIER NOTES & 5 WINE GLASSES ROW
            ---------------------------------------------------- */}
-        {!layout.hidden?.notesRow && (!layout.hidden?.notes || !layout.hidden?.glasses) && (
+        {/* ----------------------------------------------------
+            3. SOMMELIER NOTES ROW
+           ---------------------------------------------------- */}
+        {!layout.hidden?.notes && (
           <div
-            className={getItemClass('notesRow', 'verdict-notes-glasses-row font-serif')}
-            style={getItemStyle('notesRow', {
-              gridTemplateColumns: (layout.hidden?.notes || layout.hidden?.glasses) ? '1fr' : '1fr auto'
-            })}
-            onClick={(e) => handleItemClick(e, 'notesRow')}
-            title={isEditMode ? "Click to edit Notes & Glasses Row" : undefined}
+            className={getItemClass('notes', 'verdict-notes-row font-serif')}
+            style={getItemStyle('notes')}
+            onClick={(e) => handleItemClick(e, 'notes')}
+            title={isEditMode ? "Click to edit Notes" : undefined}
           >
-            {(layout.notesGlassesOrder || ['notes', 'glasses']).map(itemKey => {
-              if (itemKey === 'notes' && !layout.hidden?.notes) {
-                return (
-                  <div
-                    key="notes"
-                    className={getItemClass('notes', 'verdict-notes-left')}
-                    style={getItemStyle('notes')}
-                    onClick={(e) => handleItemClick(e, 'notes')}
-                    title={isEditMode ? "Click to edit Notes" : undefined}
-                  >
-                    <div className="notes-header">
-                      <Quote size={12} color="#9e7a24" />
-                      <EditableText textKey="verdict.notesTitle" defaultText="SOMMELIER'S NOTES & PAIRINGS:" />
-                    </div>
-                    <div className="notes-body">
-                      {displayNotes ? `"${displayNotes}"` : '"Balanced red wine evaluation displaying harmonious structure, and lingering."'}
-                    </div>
-                  </div>
-                );
-              }
-
-              if (itemKey === 'glasses' && !layout.hidden?.glasses) {
-                return (
-                  <div
-                    key="glasses"
-                    className={getItemClass('glasses', 'verdict-glasses-right')}
-                    style={getItemStyle('glasses')}
-                    onClick={(e) => handleItemClick(e, 'glasses')}
-                    title={isEditMode ? "Click to edit Glasses" : undefined}
-                  >
-                    <div className="vfm-glasses-row" title={readOnly || isEditMode ? undefined : 'Click to rate Value For Money'}>
-                      {[1, 2, 3, 4, 5].map((gIndex) => {
-                        const isFilled = gIndex <= vfmScore;
-                        return (
-                          <button
-                            key={gIndex}
-                            type="button"
-                            className={`vfm-glass-btn ${isFilled ? 'filled' : 'empty'} ${readOnly ? 'read-only' : ''}`}
-                            onClick={() => !isEditMode && setVfm(gIndex)}
-                            aria-label={`Set VFM ${gIndex} of 5`}
-                          >
-                            <svg viewBox="0 0 28 42" fill="currentColor">
-                              <path d="M 4 4 C 4 22, 24 22, 24 4 Z" />
-                              <rect x="12.5" y="21" width="3" height="15" />
-                              <ellipse cx="14" cy="37" rx="10" ry="2.5" />
-                            </svg>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              }
-              return null;
-            })}
+            <div className="notes-header">
+              <Quote size={12} color="#9e7a24" />
+              <EditableText textKey="verdict.notesTitle" defaultText="SOMMELIER'S NOTES & PAIRINGS:" />
+            </div>
+            <div className="notes-body">
+              {displayNotes ? `"${displayNotes}"` : '"Balanced red wine evaluation displaying harmonious structure, and lingering."'}
+            </div>
           </div>
         )}
 
         {/* ----------------------------------------------------
-            4. BOTTOM VFM (VALUE FOR MONEY) FOOTER BAR
+            4. BOTTOM VFM (VALUE FOR MONEY) - SHOW ONLY GLASSES
            ---------------------------------------------------- */}
         {!layout.hidden?.vfmBar && (
           <div
@@ -1613,15 +1566,33 @@ export default function VerdictStep({
           >
             <div className="vfm-footer-left">
               <span className="vfm-prefix"><EditableText textKey="verdict.vfmTitle" defaultText="VFM:" /></span>
-              <span className="vfm-footer-divider">|</span>
-              <span className="vfm-score-number">{vfmScore}/5</span>
-            </div>
-            <div className="vfm-footer-right">
-              <EditableText
-                textKey="verdict.vfmGlassesSub"
-                defaultText={`${NUMBER_WORDS[vfmScore] || vfmScore} full glasses out of five`.toUpperCase()}
-                interpolations={{ count: (NUMBER_WORDS[vfmScore] || vfmScore).toUpperCase() }}
-              />
+              {!layout.hidden?.glasses && (
+                <div
+                  className={getItemClass('glasses', 'vfm-glasses-row')}
+                  style={getItemStyle('glasses')}
+                  onClick={(e) => handleItemClick(e, 'glasses')}
+                  title={readOnly || isEditMode ? undefined : 'Click to rate Value For Money'}
+                >
+                  {[1, 2, 3, 4, 5].map((gIndex) => {
+                    const isFilled = gIndex <= vfmScore;
+                    return (
+                      <button
+                        key={gIndex}
+                        type="button"
+                        className={`vfm-glass-btn ${isFilled ? 'filled' : 'empty'} ${readOnly ? 'read-only' : ''}`}
+                        onClick={() => !isEditMode && setVfm(gIndex)}
+                        aria-label={`Set VFM ${gIndex} of 5`}
+                      >
+                        <svg viewBox="0 0 28 42" fill="currentColor">
+                          <path d="M 4 4 C 4 22, 24 22, 24 4 Z" />
+                          <rect x="12.5" y="21" width="3" height="15" />
+                          <ellipse cx="14" cy="37" rx="10" ry="2.5" />
+                        </svg>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}
