@@ -63,7 +63,10 @@ const getAromaIcon = (aroma) => {
   if (textLower.includes('oak') || textLower.includes('cedar') || textLower.includes('barrel') || textLower.includes('toast') || textLower.includes('smoke')) {
     return '🪵';
   }
-  if (textLower.includes('vanilla') || textLower.includes('spice') || textLower.includes('pepper') || textLower.includes('clove') || textLower.includes('cinnamon')) {
+  if (textLower.includes('vanilla')) {
+    return '🌸';
+  }
+  if (textLower.includes('spice') || textLower.includes('pepper') || textLower.includes('clove') || textLower.includes('cinnamon')) {
     return '✳️';
   }
   if (textLower.includes('leather') || textLower.includes('earth') || textLower.includes('forest') || textLower.includes('mushroom') || textLower.includes('tobacco') || textLower.includes('leaves')) {
@@ -72,8 +75,11 @@ const getAromaIcon = (aroma) => {
   if (textLower.includes('floral') || textLower.includes('violet') || textLower.includes('rose') || textLower.includes('lavender')) {
     return '🌸';
   }
-  if (textLower.includes('black') || textLower.includes('cassis') || textLower.includes('blackberry') || textLower.includes('blueberry') || textLower.includes('plum')) {
+  if (textLower.includes('blackberry') || textLower.includes('blueberry') || textLower.includes('plum')) {
     return '🫐';
+  }
+  if (textLower.includes('currant') || textLower.includes('cassis') || textLower.includes('cherry')) {
+    return '🍇';
   }
   return '🍇';
 };
@@ -143,18 +149,37 @@ export default function VerdictStep({
   const noseIntensity = wineNote.nose?.intensity || 'Medium(+)';
   const noseIntensityClean = cleanIntensity(noseIntensity);
   const noseDevelopment = wineNote.nose?.development || 'Youthful';
-  const rawAromas = wineNote.nose?.aromas || [
-    'Blackcurrant & Ripe Plum',
-    'Smoky Oak & Cedar Notes',
-    'Elegant Vanilla & Spice Notes',
-    'Faint Leather & Forest Floor'
+  const rawAromas = wineNote.nose?.aromas?.length ? wineNote.nose.aromas : [
+    'Blackberry',
+    'Blackcurrant',
+    'Vanilla',
+    'Cedar'
   ];
-  // Strip parentheses (e.g. "(Cassis)") and limit length for clean luxury presentation
+  // Strip parentheses and limit length for clean sommelier presentation
   const userAromas = rawAromas
     .map(a => cleanText(a))
     .filter(Boolean)
-    .slice(0, 5)
+    .slice(0, 4)
     .map(a => a.length > 28 ? a.slice(0, 28).trim() : a);
+
+  // Dynamic food pairings matching wine color/grape (or inspiration defaults)
+  const isWhiteOrRose = colorHex.toLowerCase().includes('gold') ||
+    colorHex.toLowerCase().includes('straw') ||
+    colorName.toLowerCase().includes('white') ||
+    colorName.toLowerCase().includes('rosé') ||
+    colorName.toLowerCase().includes('rose') ||
+    colorName.toLowerCase().includes('yellow') ||
+    colorName.toLowerCase().includes('green');
+
+  const pairingsList = isWhiteOrRose ? [
+    { icon: '🐟', label: 'Grilled Salmon' },
+    { icon: '🧀', label: 'Goat Cheese' },
+    { icon: '🍗', label: 'Roasted Poultry' }
+  ] : [
+    { icon: '🥩', label: 'Ribeye Steak' },
+    { icon: '🧀', label: 'Aged Cheddar' },
+    { icon: '🍖', label: 'Lamb Shanks' }
+  ];
 
   // 3. Palate & Structural Parameters (Sector 2 - all 8 attributes)
   const bodyVal = wineNote.palate?.body || 'Medium(+)';
@@ -434,37 +459,30 @@ export default function VerdictStep({
         {/* ----------------------------------------------------
             1. TOP HEADER BLOCK: IDENTITY, SPECS & ROSETTE MEDAL
            ---------------------------------------------------- */}
+        {/* ----------------------------------------------------
+            1. TOP HEADER BLOCK: IDENTITY, SPECS & ROSETTE MEDAL
+           ---------------------------------------------------- */}
         <div className="verdict-header-row">
           
-          {/* Left: Wine Title & Specs (Vintage, Origin, Alcohol, Price) */}
+          {/* Left: Wine Title & Compact Specs */}
           <div className="verdict-header-left">
             <h1 className="verdict-wine-title font-serif">
               {wineName}
             </h1>
             <div className="verdict-wine-specs font-serif">
-              <div>
-                <span className="spec-label">
-                  <EditableText textKey="verdict.vintageLabel" defaultText="VINTAGE:" />
-                </span>{' '}
-                <span className="spec-value">{vintage}</span>
-                <span className="spec-bullet"> • </span>
-                <span className="spec-value">{grape}</span>
-                <span className="spec-bullet"> • </span>
-                <span className="spec-value">{originStr}</span>
-              </div>
-              <div style={{ marginTop: '2px' }}>
-                <span className="spec-label">
-                  <EditableText textKey="verdict.alcoholLabel" defaultText="ALCOHOL:" />
-                </span>{' '}
-                <span className="spec-value">
-                  {alcohol.includes('%') ? alcohol : `${alcohol}% ${t('verdict.alcoholSuffix', 'alc./vol.')}`}
-                </span>
-                <span className="spec-bullet"> • </span>
-                <span className="spec-label">
-                  <EditableText textKey="verdict.priceLabel" defaultText="PRICE:" />
-                </span>{' '}
+              <span className="spec-item spec-vintage-origin">
+                {vintage} VINTAGE | {originStr.toUpperCase()}
+              </span>
+              <span className="spec-badge-item">
+                <span className="spec-mini-circle">%</span>
+                <span className="spec-label"><EditableText textKey="verdict.alcoholLabel" defaultText="ALCOHOL:" /></span>{' '}
+                <span className="spec-value">{alcohol.includes('%') ? alcohol : `${alcohol}%`}</span>
+              </span>
+              <span className="spec-badge-item">
+                <span className="spec-mini-circle">$</span>
+                <span className="spec-label"><EditableText textKey="verdict.priceLabel" defaultText="PRICE:" /></span>{' '}
                 <span className="spec-value verdict-price-tag">{price}</span>
-              </div>
+              </span>
             </div>
           </div>
 
@@ -494,11 +512,11 @@ export default function VerdictStep({
         <div className="verdict-divider-line" />
 
         {/* ----------------------------------------------------
-            2. CORE 3-COLUMN SECTIONS (BOTTLE | COLOR & NOSE | PALATE)
+            2. MAIN BODY GRID: BOTTLE (LEFT) + TASTING DATA (RIGHT)
            ---------------------------------------------------- */}
         <div className="verdict-body-grid">
           
-          {/* COLUMN 1 (LEFT): WINE BOTTLE PRESENTATION */}
+          {/* COLUMN 1 (LEFT): TALL WINE BOTTLE PRESENTATION */}
           <div className="verdict-bottle-column">
             <div className="verdict-bottle-frame">
               {bottleImage ? (
@@ -522,239 +540,347 @@ export default function VerdictStep({
             </div>
           </div>
 
-          {/* COLUMN 2 (CENTER): SIGHT & PALATE STRUCTURE */}
-          <div className="verdict-center-column">
+          {/* COLUMN 2 (RIGHT): TASTING DATA & SECTIONS */}
+          <div className="verdict-tasting-content">
             
-            {/* COLOR & CLARITY SECTION (SECTOR 1 RANKINGS) */}
-            <div className="verdict-section-block">
-              <h3 className="verdict-section-heading font-serif">
-                <EditableText textKey="verdict.colorTitle" defaultText="COLOR & CLARITY:" />
-              </h3>
-
-              {/* Rounded Rectangle Color Swatch */}
-              <div
-                className="verdict-color-swatch"
-                style={{
-                  backgroundColor: colorHex,
-                  background: `linear-gradient(135deg, ${colorHex} 0%, rgba(20, 5, 12, 0.95) 100%)`
-                }}
-              >
-                <div className="color-swatch-sheen" />
+            {/* SUB-SECTION 1: PROFILE (LEFT) & TASTING NOTES (RIGHT) */}
+            <div className="verdict-profile-notes-row">
+              
+              {/* Profile Block */}
+              <div className="verdict-profile-col font-serif">
+                <h3 className="verdict-section-heading">
+                  <EditableText textKey="verdict.profileTitle" defaultText="PROFILE" />
+                </h3>
+                <div className="verdict-profile-list">
+                  <div className="profile-item">
+                    <span className="profile-icon">📅</span>
+                    <div className="profile-text">
+                      <span className="profile-label"><EditableText textKey="verdict.vintageLabel" defaultText="VINTAGE:" /></span>
+                      <strong className="profile-val">{vintage}</strong>
+                    </div>
+                  </div>
+                  <div className="profile-item">
+                    <span className="profile-icon">📍</span>
+                    <div className="profile-text">
+                      <span className="profile-label"><EditableText textKey="verdict.appellationLabel" defaultText="APPELLATION:" /></span>
+                      <strong className="profile-val">{originStr.toUpperCase()}</strong>
+                    </div>
+                  </div>
+                  <div className="profile-item">
+                    <span className="profile-icon">🏞️</span>
+                    <div className="profile-text">
+                      <span className="profile-label"><EditableText textKey="verdict.styleLabel" defaultText="STYLE:" /></span>
+                      <strong className="profile-val">{grape.toUpperCase()}</strong>
+                    </div>
+                  </div>
+                  <div className="profile-item">
+                    <span className="profile-icon">🍷</span>
+                    <div className="profile-text">
+                      <span className="profile-label"><EditableText textKey="verdict.alcoholLabel" defaultText="ALCOHOL:" /></span>
+                      <strong className="profile-val">{alcohol.includes('%') ? alcohol : `${alcohol}%`}</strong>
+                    </div>
+                  </div>
+                  <div className="profile-item">
+                    <span className="profile-icon">🏷️</span>
+                    <div className="profile-text">
+                      <span className="profile-label"><EditableText textKey="verdict.priceLabel" defaultText="PRICE:" /></span>
+                      <strong className="profile-val">{price}</strong>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="verdict-color-desc font-serif">
-                <strong>{displayColorName}</strong>
-                {(cleanRim || clarity) && (
-                  <span className="verdict-subtext"> • {[cleanRim, clarity].filter(Boolean).join(' • ')}</span>
-                )}
+              {/* Tasting Notes (Nose & Aromas) */}
+              <div className="verdict-nose-col font-serif">
+                <h3 className="verdict-section-heading">
+                  <EditableText textKey="verdict.tastingNotesTitle" defaultText="TASTING NOTES" />
+                </h3>
+                <div className="verdict-nose-subheading">
+                  <EditableText textKey="verdict.noseTitle" defaultText="NOSE & AROMAS" />
+                </div>
+                
+                <div className="verdict-nose-meta">
+                  <div className="meta-line">
+                    <span className="meta-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>{' '}
+                    <strong className="meta-val">{noseIntensityClean.toUpperCase()}</strong>
+                  </div>
+                  <div className="meta-line">
+                    <span className="meta-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>{' '}
+                    <strong className="meta-val">{cleanIntensity(noseDevelopment).toUpperCase()}</strong>
+                  </div>
+                </div>
+
+                <div className="verdict-aromas-list font-serif">
+                  {userAromas.length > 0 ? (
+                    userAromas.map((aroma, idx) => (
+                      <div key={idx} className="verdict-aroma-row">
+                        <span className="aroma-icon">{getAromaIcon(aroma)}</span>
+                        <span className="aroma-text">{aroma.toUpperCase()}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="verdict-aroma-row verdict-aroma-empty">
+                      <span className="aroma-icon">🍇</span>
+                      <span className="aroma-text">NO SPECIFIC AROMAS</span>
+                    </div>
+                  )}
+                </div>
               </div>
+
             </div>
 
             {/* Separator Line */}
             <div className="verdict-inner-divider" />
 
-            {/* PALATE & STRUCTURAL SECTION (SECTOR 2 PALATE ATTRIBUTES) */}
-            <div className="verdict-section-block verdict-palate-block">
-              <h3 className="verdict-section-heading font-serif" style={{ marginBottom: '4px' }}>
-                <EditableText textKey="palate.title" defaultText="PALATE & STRUCTURAL" />:
+            {/* SUB-SECTION 2: PALATE & STRUCTURE (3 GAUGES WITH INVERTED TRIANGLES) */}
+            <div className="verdict-palate-block font-serif">
+              <h3 className="verdict-section-heading" style={{ marginBottom: '6px' }}>
+                <EditableText textKey="palate.title" defaultText="PALATE & STRUCTURE" />
               </h3>
 
               {/* 1. BODY GAUGE */}
-              <div className="verdict-gauge-group">
-                <div className="verdict-gauge-label font-serif">
-                  <span><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
-                  <span className="gauge-val">{bodyClean}</span>
+              <div className="verdict-gauge-row">
+                <div className="gauge-icon-label">
+                  <span className="gauge-icon">🍷</span>
+                  <span className="gauge-title"><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
                 </div>
-                <div className="verdict-gauge-track">
-                  <div
-                    className="verdict-gauge-fill"
-                    style={{ width: `${getGaugePercent(bodyVal)}%` }}
-                  />
-                </div>
-                <div className="verdict-gauge-subtitle font-serif">
-                  {getStructureSubtitle('body', bodyVal)}
+                <div className="gauge-control-wrap">
+                  <div className="gauge-track-container">
+                    <span
+                      className="gauge-pointer"
+                      style={{ left: `${getGaugePercent(bodyVal)}%` }}
+                    >
+                      ▼
+                    </span>
+                    <div className="verdict-gauge-track">
+                      <div
+                        className="verdict-gauge-fill"
+                        style={{ width: `${getGaugePercent(bodyVal)}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="gauge-tickers-row">
+                    <span>Light</span>
+                    <span>Full</span>
+                  </div>
+                  <div className="gauge-desc-line">
+                    <strong>{bodyClean.toUpperCase()}</strong> • <span>{getStructureSubtitle('body', bodyVal).toUpperCase()}</span>
+                  </div>
                 </div>
               </div>
 
               {/* 2. ACIDITY GAUGE */}
-              <div className="verdict-gauge-group">
-                <div className="verdict-gauge-label font-serif">
-                  <span><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
-                  <span className="gauge-val">{acidityClean}</span>
+              <div className="verdict-gauge-row">
+                <div className="gauge-icon-label">
+                  <span className="gauge-icon">🍋</span>
+                  <span className="gauge-title"><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
                 </div>
-                <div className="verdict-gauge-track">
-                  <div
-                    className="verdict-gauge-fill"
-                    style={{ width: `${getGaugePercent(acidityVal)}%` }}
-                  />
-                </div>
-                <div className="verdict-gauge-subtitle font-serif">
-                  {getStructureSubtitle('acidity', acidityVal)}
-                </div>
-              </div>
-
-              {/* 3. TANNINS GAUGE (LEVEL & TEXTURE) */}
-              <div className="verdict-gauge-group">
-                <div className="verdict-gauge-label font-serif">
-                  <span><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
-                  <span className="gauge-val">{tanninClean}</span>
-                </div>
-                <div className="verdict-gauge-track">
-                  <div
-                    className="verdict-gauge-fill"
-                    style={{ width: `${getGaugePercent(tanninVal)}%` }}
-                  />
-                </div>
-                <div className="verdict-gauge-subtitle font-serif">
-                  {getStructureSubtitle('tannin', tanninVal, tanninTextureClean)}
+                <div className="gauge-control-wrap">
+                  <div className="gauge-track-container">
+                    <span
+                      className="gauge-pointer"
+                      style={{ left: `${getGaugePercent(acidityVal)}%` }}
+                    >
+                      ▼
+                    </span>
+                    <div className="verdict-gauge-track">
+                      <div
+                        className="verdict-gauge-fill"
+                        style={{ width: `${getGaugePercent(acidityVal)}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="gauge-tickers-row">
+                    <span>Low</span>
+                    <span>High</span>
+                  </div>
+                  <div className="gauge-desc-line">
+                    <strong>{acidityClean.toUpperCase()}</strong> • <span>{getStructureSubtitle('acidity', acidityVal).toUpperCase()}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* 4. PALATE ATTRIBUTES PILLARS (SWEETNESS, ALCOHOL, FLAVOR, FINISH) */}
-              <div className="verdict-palate-pillars-grid">
-                
-                <div className="palate-pillar-item font-serif">
-                  <span className="pillar-label">
-                    <EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" />
-                  </span>
-                  <span className="pillar-val">{sweetnessVal}</span>
+              {/* 3. TANNINS GAUGE */}
+              <div className="verdict-gauge-row">
+                <div className="gauge-icon-label">
+                  <span className="gauge-icon">🍇</span>
+                  <span className="gauge-title"><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
                 </div>
-
-                <div className="palate-pillar-item font-serif">
-                  <span className="pillar-label">
-                    <EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" />
-                  </span>
-                  <span className="pillar-val">{cleanIntensity(alcoholLevelVal.split(' ')[0])}</span>
+                <div className="gauge-control-wrap">
+                  <div className="gauge-track-container">
+                    <span
+                      className="gauge-pointer"
+                      style={{ left: `${getGaugePercent(tanninVal)}%` }}
+                    >
+                      ▼
+                    </span>
+                    <div className="verdict-gauge-track">
+                      <div
+                        className="verdict-gauge-fill"
+                        style={{ width: `${getGaugePercent(tanninVal)}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div className="gauge-tickers-row">
+                    <span>Low</span>
+                    <span>High</span>
+                  </div>
+                  <div className="gauge-desc-line">
+                    <strong>{tanninClean.toUpperCase()}</strong> • <span>{getStructureSubtitle('tannin', tanninVal, tanninTextureClean).toUpperCase()}</span>
+                  </div>
                 </div>
-
-                <div className="palate-pillar-item font-serif">
-                  <span className="pillar-label">
-                    <EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" />
-                  </span>
-                  <span className="pillar-val">{flavorIntensityVal}</span>
-                </div>
-
-                <div className="palate-pillar-item font-serif">
-                  <span className="pillar-label">
-                    <EditableText textKey="verdict.finishTitle" defaultText="FINISH:" />
-                  </span>
-                  <span className="pillar-val">{formatFinishDisplay()}</span>
-                </div>
-
               </div>
+
             </div>
 
-          </div>
+            {/* Separator Line */}
+            <div className="verdict-inner-divider" />
 
-          {/* COLUMN 3 (RIGHT): NOSE & AROMAS SHOWCASE */}
-          <div className="verdict-aromas-column">
-            
-            <div className="verdict-section-block">
-              <h3 className="verdict-section-heading font-serif">
-                <EditableText textKey="verdict.noseTitle" defaultText="NOSE & AROMAS:" />
+            {/* SUB-SECTION 3: KEY ATTRIBUTES & PAIRINGS */}
+            <div className="verdict-key-attributes-block font-serif">
+              <h3 className="verdict-section-heading" style={{ marginBottom: '6px' }}>
+                <EditableText textKey="verdict.keyAttributesTitle" defaultText="KEY ATTRIBUTES" />
               </h3>
 
-              {/* Nose Intensity & Development Badges */}
-              <div className="verdict-nose-badges">
-                <span className="verdict-pill-badge">
-                  <EditableText textKey="verdict.intensityLabel" defaultText="Intensity:" /> <strong>{noseIntensityClean}</strong>
-                </span>
-                <span className="verdict-pill-badge">
-                  <EditableText textKey="verdict.developmentLabel" defaultText="Development:" /> <strong>{cleanIntensity(noseDevelopment)}</strong>
-                </span>
-              </div>
-
-              {/* Selected Aromas Showcase */}
-              <div className="verdict-aromas-list font-serif">
-                {userAromas.length > 0 ? (
-                  userAromas.map((aroma, idx) => (
-                    <div key={idx} className="verdict-aroma-row">
-                      <span className="aroma-icon">{getAromaIcon(aroma)}</span>
-                      <span className="aroma-text">{aroma}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="verdict-aroma-row" style={{ fontStyle: 'italic', opacity: 0.7 }}>
-                    <span className="aroma-icon">🍇</span>
-                    <span className="aroma-text">No specific aromas selected</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* ----------------------------------------------------
-            3. SOMMELIER NOTES & FOOD PAIRINGS CARTOUCHE
-           ---------------------------------------------------- */}
-        <div className="verdict-notes-cartouche font-serif">
-          <div className="notes-cartouche-header">
-            <Quote size={11} color="#d4af37" />
-            <EditableText textKey="verdict.notesTitle" defaultText="SOMMELIER NOTES & PAIRINGS:" />
-          </div>
-          <div className="notes-cartouche-text">
-            {displayNotes ? `"${displayNotes}"` : '"Balanced red wine evaluation displaying expressive terroir, harmonious structure, and lingering finish."'}
-          </div>
-        </div>
-
-        {/* ----------------------------------------------------
-            4. BOTTOM VFM (VALUE FOR MONEY) CARTOUCHE
-           ---------------------------------------------------- */}
-        <div className="verdict-vfm-cartouche font-serif">
-          <div className="vfm-inner-box">
-            
-            {/* VFM: Prefix */}
-            <div className="vfm-prefix font-serif">
-              <EditableText textKey="verdict.vfmTitle" defaultText="VFM:" />
-            </div>
-
-            {/* Hairline Divider */}
-            <div className="vfm-v-divider" />
-
-            {/* Score & 5 Wine Glasses */}
-            <div className="vfm-content-area">
-              <div className="vfm-score-row">
-                <span className="vfm-score-number">{vfmScore}/5</span>
-                
-                {/* 5 Interactive Wine Glass Silhouettes */}
-                <div className="vfm-glasses-row" title={readOnly ? undefined : 'Click to rate Value For Money'}>
-                  {[1, 2, 3, 4, 5].map((gIndex) => {
-                    const isFilled = gIndex <= vfmScore;
-                    return (
-                      <button
-                        key={gIndex}
-                        type="button"
-                        className={`vfm-glass-btn ${isFilled ? 'filled' : 'empty'} ${readOnly ? 'read-only' : ''}`}
-                        onClick={() => setVfm(gIndex)}
-                        aria-label={`Set VFM ${gIndex} of 5`}
-                      >
-                        {/* Wine Glass Silhouette SVG */}
-                        <svg viewBox="0 0 28 42" fill="currentColor">
-                          {/* Bowl with Liquid */}
-                          <path d="M 4 4 C 4 22, 24 22, 24 4 Z" />
-                          {/* Stem */}
-                          <rect x="12.5" y="21" width="3" height="15" />
-                          {/* Base */}
-                          <ellipse cx="14" cy="37" rx="10" ry="2.5" />
-                        </svg>
-                      </button>
-                    );
-                  })}
+              {/* 4-Segment Colored Bar */}
+              <div className="verdict-attributes-color-bar">
+                <div className="attr-color-segment attr-seg-sweetness" title={`Sweetness: ${sweetnessVal}`}>
+                  <span className="attr-seg-icon">💧</span>
+                </div>
+                <div className="attr-color-segment attr-seg-alcohol" title={`Alcohol: ${alcoholLevelVal}`}>
+                  <span className="attr-seg-icon">🌡️</span>
+                </div>
+                <div 
+                  className="attr-color-segment attr-seg-flavor" 
+                  style={{ backgroundColor: colorHex }} 
+                  title={`Color: ${displayColorName} | Flavor: ${flavorIntensityVal}`}
+                >
+                  <span className="attr-seg-icon">☀️</span>
+                </div>
+                <div className="attr-color-segment attr-seg-finish" title={`Finish: ${formatFinishDisplay()}`}>
+                  <span className="attr-seg-icon">⏱️</span>
                 </div>
               </div>
 
-              {/* Verbal Subtitle */}
-              <div className="vfm-subtitle font-serif">
-                <EditableText
-                  textKey="verdict.vfmGlassesSub"
-                  defaultText={`[${NUMBER_WORDS[vfmScore] || vfmScore} full glasses out of five]`}
-                  interpolations={{ count: NUMBER_WORDS[vfmScore] || vfmScore }}
-                />
+              {/* Bottom 2 Sub-Columns: 2x2 Pillars + Pairs Well With */}
+              <div className="verdict-attributes-details-row">
+                
+                {/* 2x2 Palate Pillars */}
+                <div className="verdict-palate-pillars-grid">
+                  <div className="palate-pillar-item">
+                    <div className="pillar-header-row">
+                      <span className="pillar-label"><EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" /></span>
+                      <span className="pillar-icon">💧</span>
+                    </div>
+                    <span className="pillar-val">{sweetnessVal.toUpperCase()}</span>
+                  </div>
+
+                  <div className="palate-pillar-item">
+                    <div className="pillar-header-row">
+                      <span className="pillar-label"><EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" /></span>
+                      <span className="pillar-icon">↗️</span>
+                    </div>
+                    <span className="pillar-val">{cleanIntensity(alcoholLevelVal.split(' ')[0]).toUpperCase()}</span>
+                  </div>
+
+                  <div className="palate-pillar-item">
+                    <div className="pillar-header-row">
+                      <span className="pillar-label"><EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" /></span>
+                      <span className="pillar-icon">🍄</span>
+                    </div>
+                    <span className="pillar-val">{flavorIntensityVal.toUpperCase()}</span>
+                  </div>
+
+                  <div className="palate-pillar-item">
+                    <div className="pillar-header-row">
+                      <span className="pillar-label"><EditableText textKey="verdict.finishTitle" defaultText="FINISH:" /></span>
+                      <span className="pillar-icon">⏱️</span>
+                    </div>
+                    <span className="pillar-val">{formatFinishDisplay().toUpperCase()}</span>
+                  </div>
+                </div>
+
+                {/* Pairs Well With & Color Info */}
+                <div className="verdict-pairings-col font-serif">
+                  <div className="pairings-title">
+                    <EditableText textKey="verdict.pairsWellWith" defaultText="PAIRS WELL WITH:" />
+                  </div>
+                  <div className="pairings-list">
+                    {pairingsList.map((item, pIdx) => (
+                      <div key={pIdx} className="pairing-row">
+                        <span className="pairing-icon">{item.icon}</span>
+                        <span className="pairing-name">{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
               </div>
+
             </div>
 
+          </div>
+
+        </div>
+
+        {/* Thin Divider Line */}
+        <div className="verdict-divider-line" />
+
+        {/* ----------------------------------------------------
+            3. SOMMELIER NOTES & 5 WINE GLASSES ROW
+           ---------------------------------------------------- */}
+        <div className="verdict-notes-glasses-row font-serif">
+          
+          <div className="verdict-notes-left">
+            <div className="notes-header">
+              <Quote size={12} color="#9e7a24" />
+              <EditableText textKey="verdict.notesTitle" defaultText="SOMMELIER'S NOTES & PAIRINGS:" />
+            </div>
+            <div className="notes-body">
+              {displayNotes ? `"${displayNotes}"` : '"Balanced red wine evaluation displaying harmonious structure, and lingering."'}
+            </div>
+          </div>
+
+          <div className="verdict-glasses-right">
+            <div className="vfm-glasses-row" title={readOnly ? undefined : 'Click to rate Value For Money'}>
+              {[1, 2, 3, 4, 5].map((gIndex) => {
+                const isFilled = gIndex <= vfmScore;
+                return (
+                  <button
+                    key={gIndex}
+                    type="button"
+                    className={`vfm-glass-btn ${isFilled ? 'filled' : 'empty'} ${readOnly ? 'read-only' : ''}`}
+                    onClick={() => setVfm(gIndex)}
+                    aria-label={`Set VFM ${gIndex} of 5`}
+                  >
+                    <svg viewBox="0 0 28 42" fill="currentColor">
+                      <path d="M 4 4 C 4 22, 24 22, 24 4 Z" />
+                      <rect x="12.5" y="21" width="3" height="15" />
+                      <ellipse cx="14" cy="37" rx="10" ry="2.5" />
+                    </svg>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+
+        {/* ----------------------------------------------------
+            4. BOTTOM VFM (VALUE FOR MONEY) FOOTER BAR
+           ---------------------------------------------------- */}
+        <div className="verdict-vfm-footer-bar font-serif">
+          <div className="vfm-footer-left">
+            <span className="vfm-prefix"><EditableText textKey="verdict.vfmTitle" defaultText="VFM:" /></span>
+            <span className="vfm-footer-divider">|</span>
+            <span className="vfm-score-number">{vfmScore}/5</span>
+          </div>
+          <div className="vfm-footer-right">
+            <EditableText
+              textKey="verdict.vfmGlassesSub"
+              defaultText={`${NUMBER_WORDS[vfmScore] || vfmScore} full glasses out of five`.toUpperCase()}
+              interpolations={{ count: (NUMBER_WORDS[vfmScore] || vfmScore).toUpperCase() }}
+            />
           </div>
         </div>
 

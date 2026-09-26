@@ -1360,14 +1360,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
   transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
-/* Editorial Parchment Theme (Matching Reference Image) */
+/* Editorial Parchment Theme (Matching Inspiration Example) */
 .verdict-card.theme-parchment {
-  background-color: #f7f3e8;
+  background-color: #fbf8f0;
   background-image: 
-    radial-gradient(circle at 10% 10%, rgba(255,255,255,0.7) 0%, transparent 60%),
-    radial-gradient(circle at 90% 90%, rgba(220,210,195,0.4) 0%, transparent 70%);
-  color: #1a1216;
-  border: 2px solid #3c322b;
+    radial-gradient(circle at 15% 15%, rgba(255,255,255,0.75) 0%, transparent 60%),
+    radial-gradient(circle at 85% 85%, rgba(226,216,200,0.45) 0%, transparent 70%);
+  color: #1a1116;
+  border: 2px solid #2e241d;
   outline: 1px solid #c8bcad;
   outline-offset: -6px;
 }
@@ -1375,234 +1375,147 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-card.theme-parchment .verdict-wine-title {
   color: #12090e;
 }
-
-.verdict-card.theme-parchment .spec-label {
-  color: #63544a;
-  font-weight: 700;
+.verdict-card.theme-parchment .spec-item {
+  color: #5c4d42;
 }
-
-.verdict-card.theme-parchment .spec-value {
-  color: #2b1f25;
-  font-weight: 600;
-}
-
-.verdict-card.theme-parchment .spec-bullet {
-  color: #8c7d70;
-}
-
-.verdict-card.theme-parchment .verdict-price-tag {
+.verdict-card.theme-parchment .spec-badge-item {
   color: #1b1116;
 }
-
+.verdict-card.theme-parchment .spec-mini-circle {
+  border-color: #7a6a5d;
+  color: #5c4d42;
+}
 .verdict-card.theme-parchment .verdict-divider-line,
 .verdict-card.theme-parchment .verdict-inner-divider {
   background: #beb2a2;
 }
-
 .verdict-card.theme-parchment .verdict-section-heading {
-  color: #1f141b;
+  color: #180f15;
 }
-
-.verdict-card.theme-parchment .verdict-color-desc,
-.verdict-card.theme-parchment .verdict-gauge-subtitle,
-.verdict-card.theme-parchment .vfm-subtitle {
-  color: #2b1e25;
-}
-
-.verdict-card.theme-parchment .verdict-subtext {
+.verdict-card.theme-parchment .profile-label,
+.verdict-card.theme-parchment .meta-label,
+.verdict-card.theme-parchment .pillar-label,
+.verdict-card.theme-parchment .gauge-tickers-row,
+.verdict-card.theme-parchment .notes-header {
   color: #63544a;
 }
-
-.verdict-card.theme-parchment .verdict-pill-badge {
-  background: rgba(60, 48, 55, 0.08);
-  border: 1px solid #beb2a2;
-  color: #1f141b;
+.verdict-card.theme-parchment .profile-val,
+.verdict-card.theme-parchment .meta-val,
+.verdict-card.theme-parchment .pillar-val,
+.verdict-card.theme-parchment .gauge-desc-line,
+.verdict-card.theme-parchment .verdict-aroma-row,
+.verdict-card.theme-parchment .pairing-row {
+  color: #181116;
 }
-
-.verdict-card.theme-parchment .verdict-aroma-row {
-  color: #1a1117;
+.verdict-card.theme-parchment .gauge-pointer {
+  color: #181116;
 }
-
-.verdict-card.theme-parchment .verdict-gauge-label {
-  color: #1a1216;
-}
-
 .verdict-card.theme-parchment .verdict-gauge-track {
-  background: rgba(0, 0, 0, 0.08);
+  background: #e2d9cc;
   border-color: #5c4e44;
 }
-
 .verdict-card.theme-parchment .verdict-gauge-fill {
-  background: linear-gradient(90deg, #786457 0%, #4a3c33 100%);
+  background: linear-gradient(90deg, #786457 0%, #3e1622 100%);
 }
-
 .verdict-card.theme-parchment .palate-pillar-item {
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.7);
   border: 1px solid #d4c8b8;
-  color: #1a1216;
 }
-
-.verdict-card.theme-parchment .palate-pillar-item .pillar-label {
-  color: #63544a;
-}
-
-.verdict-card.theme-parchment .palate-pillar-item .pillar-val {
-  color: #12090e;
-}
-
-.verdict-card.theme-parchment .verdict-notes-cartouche {
-  background: rgba(255, 255, 255, 0.45);
+.verdict-card.theme-parchment .verdict-notes-glasses-row {
+  background: rgba(255, 255, 255, 0.5);
   border: 1px solid #beb2a2;
 }
-
-.verdict-card.theme-parchment .notes-cartouche-header {
-  color: #63544a;
-}
-
-.verdict-card.theme-parchment .notes-cartouche-text {
+.verdict-card.theme-parchment .notes-body {
   color: #1a1216;
 }
-
-.verdict-card.theme-parchment .verdict-vfm-cartouche {
-  border-color: #2e231c;
-  background: rgba(255, 255, 255, 0.25);
+.verdict-card.theme-parchment .vfm-glass-btn.filled {
+  color: #721626;
 }
-
-.verdict-card.theme-parchment .vfm-v-divider {
-  background: #3e3229;
+.verdict-card.theme-parchment .vfm-glass-btn.empty {
+  color: rgba(60, 48, 55, 0.22);
 }
-
-.verdict-card.theme-parchment .vfm-prefix,
-.verdict-card.theme-parchment .vfm-score-number {
+.verdict-card.theme-parchment .verdict-vfm-footer-bar {
   color: #160c12;
 }
-
-.verdict-card.theme-parchment .vfm-glass-btn.filled {
-  color: #1e1319;
-}
-
-.verdict-card.theme-parchment .vfm-glass-btn.empty {
-  color: rgba(60, 48, 55, 0.25);
+.verdict-card.theme-parchment .vfm-footer-right {
+  color: #63544a;
 }
 
 /* Dark Sommelier Theme */
 .verdict-card.theme-dark {
-  background: linear-gradient(135deg, #150918 0%, #0a040b 100%);
-  color: #f3ede2;
+  background: linear-gradient(135deg, #160918 0%, #0a040b 100%);
+  color: #f5eedf;
   border: 1.5px solid var(--gold-primary);
   outline: 1px solid rgba(212, 175, 55, 0.2);
   outline-offset: -6px;
 }
-
 .verdict-card.theme-dark .verdict-wine-title {
   color: var(--gold-light);
 }
-
-.verdict-card.theme-dark .spec-label {
+.verdict-card.theme-dark .spec-item {
   color: var(--text-gold);
 }
-
-.verdict-card.theme-dark .spec-value {
+.verdict-card.theme-dark .spec-badge-item {
   color: #ffffff;
 }
-
-.verdict-card.theme-dark .spec-bullet {
-  color: rgba(212, 175, 55, 0.5);
+.verdict-card.theme-dark .spec-mini-circle {
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
 }
-
-.verdict-card.theme-dark .verdict-price-tag {
-  color: var(--gold-primary);
-}
-
 .verdict-card.theme-dark .verdict-divider-line,
 .verdict-card.theme-dark .verdict-inner-divider {
   background: rgba(212, 175, 55, 0.25);
 }
-
 .verdict-card.theme-dark .verdict-section-heading {
   color: var(--gold-light);
 }
-
-.verdict-card.theme-dark .verdict-color-desc,
-.verdict-card.theme-dark .verdict-gauge-subtitle,
-.verdict-card.theme-dark .vfm-subtitle {
-  color: var(--text-muted);
+.verdict-card.theme-dark .profile-label,
+.verdict-card.theme-dark .meta-label,
+.verdict-card.theme-dark .pillar-label,
+.verdict-card.theme-dark .gauge-tickers-row,
+.verdict-card.theme-dark .notes-header {
+  color: rgba(212, 175, 55, 0.7);
 }
-
-.verdict-card.theme-dark .verdict-subtext {
-  color: var(--text-muted);
+.verdict-card.theme-dark .profile-val,
+.verdict-card.theme-dark .meta-val,
+.verdict-card.theme-dark .pillar-val,
+.verdict-card.theme-dark .gauge-desc-line,
+.verdict-card.theme-dark .verdict-aroma-row,
+.verdict-card.theme-dark .pairing-row {
+  color: #ffffff;
 }
-
-.verdict-card.theme-dark .verdict-pill-badge {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+.verdict-card.theme-dark .gauge-pointer {
   color: var(--gold-light);
 }
-
-.verdict-card.theme-dark .verdict-aroma-row {
-  color: #ffffff;
-}
-
-.verdict-card.theme-dark .verdict-gauge-label {
-  color: #ffffff;
-}
-
 .verdict-card.theme-dark .verdict-gauge-track {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(212, 175, 55, 0.4);
 }
-
 .verdict-card.theme-dark .verdict-gauge-fill {
-  background: linear-gradient(90deg, #b81d40 0%, var(--gold-primary) 100%);
+  background: linear-gradient(90deg, #9b1d38 0%, var(--gold-primary) 100%);
 }
-
 .verdict-card.theme-dark .palate-pillar-item {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(212, 175, 55, 0.22);
-  color: #f3ede2;
-}
-
-.verdict-card.theme-dark .palate-pillar-item .pillar-label {
-  color: var(--gold-light);
-}
-
-.verdict-card.theme-dark .palate-pillar-item .pillar-val {
-  color: #ffffff;
-}
-
-.verdict-card.theme-dark .verdict-notes-cartouche {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(212, 175, 55, 0.25);
 }
-
-.verdict-card.theme-dark .notes-cartouche-header {
-  color: var(--gold-light);
+.verdict-card.theme-dark .verdict-notes-glasses-row {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(212, 175, 55, 0.25);
 }
-
-.verdict-card.theme-dark .notes-cartouche-text {
+.verdict-card.theme-dark .notes-body {
   color: #f3ede2;
 }
-
-.verdict-card.theme-dark .verdict-vfm-cartouche {
-  border-color: var(--gold-primary);
-  background: rgba(0, 0, 0, 0.35);
-}
-
-.verdict-card.theme-dark .vfm-v-divider {
-  background: rgba(212, 175, 55, 0.3);
-}
-
-.verdict-card.theme-dark .vfm-prefix,
-.verdict-card.theme-dark .vfm-score-number {
-  color: var(--gold-light);
-}
-
 .verdict-card.theme-dark .vfm-glass-btn.filled {
   color: var(--gold-primary);
 }
-
 .verdict-card.theme-dark .vfm-glass-btn.empty {
   color: rgba(255, 255, 255, 0.15);
+}
+.verdict-card.theme-dark .verdict-vfm-footer-bar {
+  color: var(--gold-light);
+}
+.verdict-card.theme-dark .vfm-footer-right {
+  color: rgba(212, 175, 55, 0.7);
 }
 
 /* Header Elements */
@@ -1610,37 +1523,58 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .verdict-header-left {
   flex: 1;
+  min-width: 0;
 }
 
 .verdict-wine-title {
-  font-size: 1.7rem;
+  font-size: 1.55rem;
   font-weight: 900;
   letter-spacing: 0.04em;
-  margin: 0 0 6px 0;
+  margin: 0 0 3px 0;
   line-height: 1.15;
   text-transform: uppercase;
 }
 
 .verdict-wine-specs {
-  font-size: 0.88rem;
-  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
-.verdict-header-right {
-  text-align: right;
-  min-width: 140px;
+.spec-item.spec-vintage-origin {
+  letter-spacing: 0.06em;
+}
+
+.spec-badge-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spec-mini-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  font-size: 0.65rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .verdict-price-tag {
-  font-size: 1.18rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  margin-top: 2px;
+  font-weight: 900;
 }
 
 /* Scalloped Gold Rosette Medal */
@@ -1652,16 +1586,16 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .verdict-gold-medal {
-  width: 96px;
-  height: 96px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
   background: radial-gradient(circle, #fffae8 0%, #ecd68b 35%, #c8a241 70%, #9e7a24 100%);
-  border: 3px dashed #7a5e18;
+  border: 2.5px dashed #7a5e18;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 2px 5px rgba(255, 255, 255, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 5px;
+  padding: 4px;
   position: relative;
 }
 
@@ -1684,7 +1618,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 1.5px solid #6b5215;
+  border: 1.2px solid #6b5215;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1695,16 +1629,16 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .medal-score-number {
-  font-size: 2rem;
+  font-size: 1.65rem;
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.02em;
 }
 
 .medal-score-label {
-  font-size: 0.6rem;
+  font-size: 0.50rem;
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.10em;
   line-height: 1.15;
   margin-top: 1px;
 }
@@ -1713,26 +1647,25 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-divider-line {
   height: 1px;
   width: 100%;
-  margin: 10px 0 12px 0;
+  margin: 7px 0 9px 0;
   flex-shrink: 0;
 }
 
 .verdict-inner-divider {
   height: 1px;
   width: 100%;
-  margin: 8px 0;
+  margin: 6px 0;
   flex-shrink: 0;
 }
 
-/* Core 3 Columns */
+/* Main Body 2-Column Grid (Bottle Left, Tasting Right) */
 .verdict-body-grid {
   display: grid;
-  grid-template-columns: 140px 1.2fr 1fr;
-  gap: 16px;
+  grid-template-columns: 140px 1fr;
+  gap: 18px;
   align-items: stretch;
   flex: 1;
   min-height: 0;
-  overflow: hidden;
 }
 
 /* Bottle Column */
@@ -1748,7 +1681,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-bottle-frame {
   width: 100%;
   height: 100%;
-  max-height: 420px;
+  max-height: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1758,14 +1691,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
   width: 100%;
   max-width: 140px;
   height: 100%;
-  max-height: 420px;
+  max-height: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .generic-wine-bottle-wrap svg {
-  max-height: 420px;
+  max-height: 480px;
   width: 100%;
   height: auto;
   max-width: 100%;
@@ -1777,7 +1710,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   width: 100%;
   max-width: 140px;
   height: 100%;
-  max-height: 420px;
+  max-height: 480px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1785,333 +1718,412 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .custom-bottle-img {
-  max-height: 420px;
+  max-height: 480px;
   width: auto;
   max-width: 100%;
   object-fit: contain;
   border-radius: 8px;
 }
 
-/* Column 2 (Center): Sight & Palate Structure */
-.verdict-center-column {
+/* Column 2: Tasting Content */
+.verdict-tasting-content {
   display: flex;
   flex-direction: column;
-  padding: 0 2px;
-  min-width: 0;
-  height: 100%;
   justify-content: space-between;
-}
-
-.verdict-palate-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
 }
 
 .verdict-section-heading {
   font-size: 0.88rem;
   font-weight: 900;
-  letter-spacing: 0.05em;
-  margin: 0 0 4px 0;
+  letter-spacing: 0.08em;
+  margin: 0 0 5px 0;
   text-transform: uppercase;
 }
 
-.verdict-color-swatch {
-  width: 100%;
-  height: 32px;
-  border-radius: 8px;
-  border: 1.5px solid #5a493e;
-  position: relative;
-  overflow: hidden;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+/* SUB-SECTION 1: Profile & Tasting Notes Row */
+.verdict-profile-notes-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
-.color-swatch-sheen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 45%;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.25), transparent);
-  border-radius: 8px 8px 0 0;
-}
-
-.verdict-color-desc {
-  font-size: 0.80rem;
-  font-weight: 600;
-  margin-top: 4px;
-  line-height: 1.25;
-}
-
-.verdict-subtext {
-  font-size: 0.78rem;
-  opacity: 0.85;
-}
-
-/* Column 3 (Right): Nose & Aromas Showcase */
-.verdict-aromas-column {
+.verdict-profile-col {
   display: flex;
   flex-direction: column;
-  padding-left: 4px;
-  min-width: 0;
-  height: 100%;
-  justify-content: flex-start;
 }
 
-/* Nose Badges & Aromas */
-.verdict-nose-badges {
+.verdict-profile-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
 }
 
-.verdict-pill-badge {
+.profile-icon {
+  font-size: 0.95rem;
+  width: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.profile-label {
+  font-size: 0.60rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.profile-val {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.verdict-nose-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.verdict-nose-subheading {
   font-size: 0.76rem;
-  padding: 3px 9px;
-  border-radius: 12px;
-  font-weight: 600;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.verdict-nose-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+
+.meta-line {
+  font-size: 0.64rem;
+  line-height: 1.25;
+}
+
+.meta-label {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.meta-val {
+  font-weight: 800;
   letter-spacing: 0.02em;
 }
 
 .verdict-aromas-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 240px;
-  overflow-y: auto;
+  gap: 4px;
 }
 
 .verdict-aroma-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font-size: 0.84rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  transition: all 0.2s ease;
+  gap: 7px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
 }
 
 .verdict-aroma-row .aroma-icon {
-  font-size: 1.15rem;
-  line-height: 1;
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
+  font-size: 0.95rem;
+  width: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.verdict-aroma-row .aroma-text {
-  line-height: 1.25;
-}
-
-/* Theme overrides for aroma cards */
-.verdict-card.theme-parchment .verdict-aroma-row {
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid #dcd2c4;
-  box-shadow: 0 1.5px 4px rgba(60, 48, 40, 0.05);
-  color: #1a1117;
-}
-
-.verdict-card.theme-parchment .verdict-aroma-row .aroma-icon {
-  background: rgba(212, 175, 55, 0.12);
-  border: 1px solid rgba(190, 160, 100, 0.25);
-}
-
-.verdict-card.theme-dark .verdict-aroma-row {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(212, 175, 55, 0.28);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-  color: #f5eedf;
-}
-
-.verdict-card.theme-dark .verdict-aroma-row .aroma-icon {
-  background: rgba(212, 175, 55, 0.15);
-  border: 1px solid rgba(212, 175, 55, 0.4);
-}
-
-/* Structure Gauges & Palate Pillars */
-.verdict-gauge-group {
+/* SUB-SECTION 2: Palate & Structure */
+.verdict-palate-block {
   display: flex;
   flex-direction: column;
-  margin-bottom: 2px;
+  gap: 3px;
 }
 
-.verdict-gauge-label {
+.verdict-gauge-row {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  margin-bottom: 3px;
+}
+
+.gauge-icon-label {
+  display: flex;
   align-items: center;
-  font-size: 0.78rem;
-  font-weight: 700;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   margin-bottom: 2px;
 }
 
-.verdict-gauge-label .gauge-val {
-  font-weight: 800;
-  letter-spacing: 0.02em;
+.gauge-icon {
+  font-size: 0.85rem;
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-title {
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.gauge-control-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.gauge-track-container {
+  position: relative;
+  width: 100%;
+  padding-top: 9px;
+  margin-bottom: 2px;
+}
+
+.gauge-pointer {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 8.5px;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .verdict-gauge-track {
   width: 100%;
-  height: 10px;
-  border-radius: 5px;
-  border: 1.5px solid #544439;
+  height: 7px;
+  border-radius: 4px;
+  border: 1px solid #544439;
   position: relative;
   overflow: hidden;
-  margin-bottom: 1px;
 }
 
 .verdict-gauge-fill {
   height: 100%;
-  border-radius: 4px;
+  border-radius: 3px;
   transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.verdict-gauge-subtitle {
-  font-size: 0.72rem;
-  font-weight: 600;
-  font-style: italic;
-  line-height: 1.2;
+.gauge-tickers-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.58rem;
+  font-weight: 700;
+  line-height: 1;
   margin-top: 1px;
 }
 
-/* Palate Pillars Grid (Sweetness, Alcohol, Flavor, Finish) */
+.gauge-desc-line {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  margin-top: 1px;
+}
+
+/* SUB-SECTION 3: Key Attributes */
+.verdict-key-attributes-block {
+  display: flex;
+  flex-direction: column;
+}
+
+.verdict-attributes-color-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  height: 24px;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid #3c322b;
+  margin-bottom: 6px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.attr-color-segment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.attr-seg-icon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.attr-seg-sweetness {
+  background: #48233c;
+  color: #ffffff;
+}
+
+.attr-seg-alcohol {
+  background: #2d172e;
+  color: #ffffff;
+}
+
+.attr-seg-flavor {
+  background: #a02c3e;
+  color: #ffffff;
+}
+
+.attr-seg-finish {
+  background: #8a6138;
+  color: #ffffff;
+}
+
+.verdict-attributes-details-row {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
 .verdict-palate-pillars-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  margin-top: 4px;
+  gap: 4px;
 }
 
 .palate-pillar-item {
+  border-radius: 6px;
+  padding: 4px 6px;
   display: flex;
   flex-direction: column;
-  padding: 5px 7px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
 }
 
-.palate-pillar-item .pillar-label {
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  line-height: 1.1;
+.pillar-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1px;
 }
 
-.palate-pillar-item .pillar-val {
-  font-size: 0.82rem;
+.pillar-label {
+  font-size: 0.56rem;
   font-weight: 800;
-  line-height: 1.2;
-  margin-top: 2px;
+  letter-spacing: 0.04em;
 }
 
-/* Sommelier Notes Cartouche */
-.verdict-notes-cartouche {
-  margin-top: 8px;
+.pillar-icon {
+  font-size: 0.68rem;
+  line-height: 1;
+}
+
+.pillar-val {
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.verdict-pairings-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.pairings-title {
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+
+.pairings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pairing-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.pairing-icon {
+  font-size: 0.85rem;
+  width: 16px;
+  text-align: center;
+}
+
+/* Sommelier Notes & 5 Wine Glasses Row */
+.verdict-notes-glasses-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 14px;
+  align-items: center;
+  padding: 6px 12px;
   border-radius: 6px;
-  padding: 7px 14px;
+  margin-top: 2px;
   flex-shrink: 0;
 }
 
-.notes-cartouche-header {
+.verdict-notes-left {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.notes-header {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 0.70rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 
-.notes-cartouche-text {
-  font-size: 0.80rem;
+.notes-body {
+  font-size: 0.72rem;
   font-style: italic;
-  line-height: 1.35;
+  line-height: 1.3;
   word-break: break-word;
 }
 
-/* -----------------------------------------------------------
-   BOTTOM VFM (VALUE FOR MONEY) CARTOUCHE
-   ----------------------------------------------------------- */
-.verdict-vfm-cartouche {
-  margin-top: 8px;
-  border: 1.5px solid #2d211a;
-  border-radius: 6px;
-  padding: 7px 16px;
-  position: relative;
+.verdict-glasses-right {
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
-}
-
-.verdict-vfm-cartouche::before,
-.verdict-vfm-cartouche::after {
-  content: '';
-  position: absolute;
-  width: 12px;
-  height: 12px;
-  border: 1.5px solid inherit;
-  pointer-events: none;
-}
-
-.vfm-inner-box {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  justify-content: center;
-}
-
-.vfm-prefix {
-  font-size: 1.4rem;
-  font-weight: 900;
-  letter-spacing: 0.05em;
-  line-height: 1;
-}
-
-.vfm-v-divider {
-  width: 1.5px;
-  height: 32px;
-  flex-shrink: 0;
-}
-
-.vfm-content-area {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.vfm-score-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.vfm-score-number {
-  font-size: 1.35rem;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: 0.02em;
 }
 
 .vfm-glasses-row {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 
 .vfm-glass-btn {
   background: none;
   border: none;
   padding: 0;
-  width: 18px;
-  height: 26px;
+  width: 20px;
+  height: 30px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2120,366 +2132,215 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .vfm-glass-btn:not(.read-only):hover {
-  transform: scale(1.2);
+  transform: scale(1.18);
 }
 
-.vfm-subtitle {
-  font-size: 0.78rem;
-  font-style: italic;
-  font-weight: 600;
+.vfm-glass-btn svg {
+  width: 100%;
+  height: 100%;
 }
 
-/* Responsive Styles for Mobile / Tablet: Single Screen Compact Cockpit */
+/* Bottom VFM Footer Bar */
+.verdict-vfm-footer-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 4px;
+  flex-shrink: 0;
+}
+
+.vfm-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vfm-prefix {
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.vfm-footer-divider {
+  font-size: 1.15rem;
+  margin: 0 2px;
+  opacity: 0.6;
+}
+
+.vfm-score-number {
+  font-size: 1.15rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.vfm-footer-right {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Responsive Styles for Mobile / Tablet */
 @media (max-width: 768px) {
   .verdict-wrapper {
     gap: 6px !important;
   }
-  .verdict-toolbar {
-    gap: 4px !important;
-  }
-  .verdict-toolbar .btn {
-    font-size: 0.68rem !important;
-    padding: 3px 6px !important;
-  }
   .verdict-card {
-    height: 700px !important;
     min-height: 700px !important;
-    max-height: 700px !important;
-    padding: 8px 10px !important;
+    padding: 10px 12px !important;
     border-radius: 12px !important;
     outline-offset: -4px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    overflow: hidden !important;
-    box-sizing: border-box !important;
   }
   .verdict-header-row {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    text-align: left !important;
     gap: 8px !important;
-    flex-shrink: 0 !important;
-  }
-  .verdict-header-left {
-    flex: 1;
-    min-width: 0;
   }
   .verdict-wine-title {
-    font-size: 0.95rem !important;
-    font-weight: 800 !important;
+    font-size: 1.05rem !important;
     margin: 0 0 2px 0 !important;
-    line-height: 1.15 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
   }
   .verdict-wine-specs {
-    font-size: 0.68rem !important;
-    line-height: 1.2 !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 2px 6px !important;
-  }
-  .verdict-wine-specs div {
-    margin-top: 0 !important;
-  }
-  .verdict-medal-wrap {
-    flex-shrink: 0;
+    font-size: 0.65rem !important;
+    gap: 6px !important;
   }
   .verdict-gold-medal {
-    width: 52px !important;
-    height: 52px !important;
+    width: 54px !important;
+    height: 54px !important;
     padding: 2px !important;
     border-width: 2px !important;
-  }
-  .verdict-medal-inner {
-    border-width: 1px !important;
-    padding: 1px !important;
   }
   .medal-score-number {
     font-size: 1.25rem !important;
   }
   .medal-score-label {
     font-size: 0.42rem !important;
-    letter-spacing: 0.05em !important;
-  }
-  .verdict-header-right {
-    min-width: auto !important;
-    text-align: right !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-end !important;
-  }
-  .verdict-header-right .spec-label {
-    font-size: 0.62rem !important;
-  }
-  .verdict-price-tag {
-    font-size: 0.82rem !important;
-    margin-top: 0 !important;
   }
   .verdict-divider-line {
-    margin: 6px 0 !important;
-    flex-shrink: 0 !important;
+    margin: 5px 0 !important;
   }
   .verdict-inner-divider {
     margin: 4px 0 !important;
-    flex-shrink: 0 !important;
   }
-
-  /* 3 Columns stay side-by-side on mobile! */
   .verdict-body-grid {
-    display: grid !important;
-    grid-template-columns: 74px 1.22fr 1fr !important;
+    grid-template-columns: 80px 1fr !important;
     gap: 8px !important;
-    align-items: start !important;
-    flex: 1 !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-  }
-  .verdict-bottle-column {
-    order: unset !important;
-    height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    min-width: 0 !important;
-  }
-  .verdict-bottle-frame {
-    min-height: unset !important;
-    height: 100% !important;
-    max-height: 380px !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
   }
   .generic-wine-bottle-wrap {
-    max-width: 74px !important;
-    max-height: 380px !important;
-    height: 100% !important;
-    width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-  .generic-wine-bottle-wrap svg {
-    max-height: 380px !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    height: auto !important;
-    object-fit: contain !important;
-    display: block !important;
+    max-width: 80px !important;
   }
   .custom-bottle-img-wrap {
-    max-width: 74px !important;
-    max-height: 380px !important;
-    height: 100% !important;
-    width: 100% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+    max-width: 80px !important;
   }
+  .generic-wine-bottle-wrap svg,
   .custom-bottle-img {
     max-height: 380px !important;
-    max-width: 100% !important;
-    width: auto !important;
-    height: auto !important;
-    object-fit: contain !important;
-  }
-
-  /* Column 2 (Center): Sight & Palate on Mobile */
-  .verdict-center-column {
-    order: unset !important;
-    padding: 0 1px !important;
-    min-width: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
-    justify-content: space-between !important;
-    gap: 3px !important;
   }
   .verdict-section-heading {
     font-size: 0.68rem !important;
-    margin: 0 0 2px 0 !important;
-    letter-spacing: 0.04em !important;
+    margin: 0 0 3px 0 !important;
   }
-  .verdict-color-swatch {
-    height: 22px !important;
-    border-radius: 4px !important;
+  .verdict-profile-notes-row {
+    gap: 6px !important;
   }
-  .verdict-color-desc {
-    font-size: 0.62rem !important;
-    margin-top: 2px !important;
-    line-height: 1.15 !important;
+  .profile-icon {
+    font-size: 0.75rem !important;
+    width: 14px !important;
   }
-  .verdict-palate-block {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 2px !important;
-  }
-  .verdict-gauge-group {
-    display: flex !important;
-    flex-direction: column !important;
-    margin-bottom: 1px !important;
-  }
-  .verdict-gauge-label {
-    display: flex !important;
-    justify-content: space-between !important;
-    font-size: 0.60rem !important;
-    font-weight: 700 !important;
-    margin-bottom: 1px !important;
-  }
-  .verdict-gauge-track {
-    height: 7px !important;
-    border-radius: 3px !important;
-    margin-bottom: 1px !important;
-  }
-  .verdict-gauge-subtitle {
-    font-size: 0.56rem !important;
-    line-height: 1.15 !important;
-    margin-top: 1px !important;
-  }
-
-  /* 4 Pillars Grid on mobile */
-  .verdict-palate-pillars-grid {
-    display: grid !important;
-    grid-template-columns: 1fr 1fr !important;
-    gap: 3px !important;
-    margin-top: 2px !important;
-  }
-  .palate-pillar-item {
-    padding: 3px 4px !important;
-    border-radius: 4px !important;
-  }
-  .palate-pillar-item .pillar-label {
+  .profile-label {
     font-size: 0.52rem !important;
   }
-  .palate-pillar-item .pillar-val {
+  .profile-val {
     font-size: 0.62rem !important;
   }
-
-  /* Column 3 (Right): Nose & Aromas on Mobile */
-  .verdict-aromas-column {
-    order: unset !important;
-    padding-left: 2px !important;
-    min-width: 0 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    height: 100% !important;
-    justify-content: flex-start !important;
+  .verdict-nose-subheading {
+    font-size: 0.60rem !important;
+    margin-bottom: 2px !important;
   }
-  .verdict-nose-badges {
-    display: flex !important;
-    gap: 3px !important;
-    margin: 2px 0 6px 0 !important;
-    flex-wrap: wrap !important;
-  }
-  .verdict-pill-badge {
-    font-size: 0.58rem !important;
-    padding: 1px 5px !important;
-    border-radius: 6px !important;
-  }
-  .verdict-aromas-list {
-    gap: 4px !important;
-    max-height: 220px !important;
-    overflow-y: auto !important;
-    scrollbar-width: none !important;
-    margin-top: 2px !important;
-  }
-  .verdict-aromas-list::-webkit-scrollbar {
-    display: none !important;
+  .meta-line {
+    font-size: 0.54rem !important;
   }
   .verdict-aroma-row {
-    font-size: 0.64rem !important;
-    padding: 4px 6px !important;
-    gap: 5px !important;
-    border-radius: 6px !important;
-    line-height: 1.2 !important;
+    font-size: 0.62rem !important;
+    gap: 4px !important;
   }
   .verdict-aroma-row .aroma-icon {
-    font-size: 0.80rem !important;
-    width: 18px !important;
-    height: 18px !important;
-    border-radius: 4px !important;
+    font-size: 0.75rem !important;
+    width: 14px !important;
   }
-  .verdict-aroma-row .aroma-text {
-    line-height: 1.2 !important;
+  .gauge-icon-label {
+    font-size: 0.60rem !important;
   }
-
-  /* Notes Cartouche on Mobile */
-  .verdict-notes-cartouche {
-    margin-top: 5px !important;
-    padding: 3px 8px !important;
-    border-radius: 5px !important;
-    flex-shrink: 0 !important;
+  .gauge-icon {
+    font-size: 0.70rem !important;
+    width: 13px !important;
   }
-  .notes-cartouche-header {
+  .gauge-pointer {
+    font-size: 7px !important;
+  }
+  .verdict-gauge-track {
+    height: 5px !important;
+  }
+  .gauge-tickers-row {
+    font-size: 0.50rem !important;
+  }
+  .gauge-desc-line {
     font-size: 0.58rem !important;
-    gap: 3px !important;
-    margin-bottom: 1px !important;
   }
-  .notes-cartouche-text {
-    font-size: 0.64rem !important;
-    line-height: 1.25 !important;
-    word-break: break-word !important;
+  .verdict-attributes-color-bar {
+    height: 18px !important;
+    margin-bottom: 4px !important;
   }
-
-  /* Bottom VFM Cartouche */
-  .verdict-vfm-cartouche {
-    margin-top: 5px !important;
-    padding: 3px 8px !important;
-    border-width: 1px !important;
-    border-radius: 5px !important;
-    flex-shrink: 0 !important;
+  .attr-seg-icon {
+    font-size: 0.70rem !important;
   }
-  .vfm-inner-box {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
+  .verdict-attributes-details-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+  .palate-pillar-item {
+    padding: 2px 4px !important;
+  }
+  .pillar-label {
+    font-size: 0.48rem !important;
+  }
+  .pillar-icon {
+    font-size: 0.58rem !important;
+  }
+  .pillar-val {
+    font-size: 0.62rem !important;
+  }
+  .pairings-title {
+    font-size: 0.54rem !important;
+    margin-bottom: 2px !important;
+  }
+  .pairing-row {
+    font-size: 0.58rem !important;
+    gap: 4px !important;
+  }
+  .pairing-icon {
+    font-size: 0.70rem !important;
+    width: 13px !important;
+  }
+  .verdict-notes-glasses-row {
+    padding: 4px 8px !important;
     gap: 8px !important;
-    text-align: left !important;
   }
-  .vfm-prefix {
-    font-size: 1rem !important;
+  .notes-header {
+    font-size: 0.56rem !important;
   }
-  .vfm-v-divider {
-    display: block !important;
+  .notes-body {
+    font-size: 0.60rem !important;
+  }
+  .vfm-glass-btn {
+    width: 14px !important;
     height: 20px !important;
   }
-  .vfm-content-area {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    justify-content: space-between !important;
-    flex: 1 !important;
-    gap: 6px !important;
-  }
-  .vfm-score-row {
-    display: flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-  }
+  .vfm-prefix,
+  .vfm-footer-divider,
   .vfm-score-number {
     font-size: 0.95rem !important;
   }
-  .vfm-glasses-row {
-    display: flex !important;
-    align-items: center !important;
-    gap: 2px !important;
-  }
-  .vfm-glass-btn {
-    width: 13px !important;
-    height: 18px !important;
-  }
-  .vfm-subtitle {
-    font-size: 0.58rem !important;
-    margin: 0 !important;
-    white-space: nowrap !important;
-    opacity: 0.85 !important;
+  .vfm-footer-right {
+    font-size: 0.55rem !important;
   }
 }
 
