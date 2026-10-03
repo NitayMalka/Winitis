@@ -1,9 +1,63 @@
 import React, { useState, useRef } from 'react';
 import GenericWineBottle from './GenericWineBottle';
 import EditableText from '../TextEditor/EditableText';
-import { Camera, RotateCcw, Quote, Sun, Moon, Share2, Loader2, Check } from 'lucide-react';
+import {
+  Camera, RotateCcw, Quote, Sun, Moon, Share2, Loader2, Check,
+  Sliders, Move, Maximize2, Minimize2, Eye, EyeOff,
+  ChevronUp, ChevronDown, ChevronLeft, ChevronRight,
+  ArrowUpDown, ArrowLeftRight
+} from 'lucide-react';
 import { toBlob, toPng } from 'html-to-image';
 import { useTexts } from '../../context/TextContext';
+
+const STORAGE_ADVANCED_LAYOUT_KEY = 'winitis_verdict_advanced_layout_v2';
+
+const DEFAULT_ADVANCED_LAYOUT = {
+  card: { height: 700 },
+  items: {},
+  hidden: {}
+};
+
+export const EDITABLE_ITEMS = [
+  { id: 'card', label: 'Overall Summary Card', icon: '🃏', group: 'Card Container' },
+  { id: 'header', label: 'Header Row', icon: '👑', group: 'Header' },
+  { id: 'wineTitle', label: 'Wine Title', icon: '🏷️', group: 'Header' },
+  { id: 'specs', label: 'Specs Line', icon: '📋', group: 'Header' },
+  { id: 'medal', label: 'Points Rosette Medal', icon: '🏅', group: 'Header' },
+  { id: 'leftColumn', label: 'Left Column', icon: '📐', group: 'Left Column' },
+  { id: 'bottle', label: 'Wine Bottle', icon: '🍾', group: 'Left Column' },
+  { id: 'keyAttributes', label: 'Key Attributes Block', icon: '✨', group: 'Left Column' },
+  { id: 'pillars', label: '2x2 Pillars Grid', icon: '🏛️', group: 'Pillars' },
+  { id: 'pillarSweetness', label: 'Sweetness Pillar', icon: '💧', group: 'Pillars' },
+  { id: 'pillarAlcohol', label: 'Alcohol Pillar', icon: '🌡️', group: 'Pillars' },
+  { id: 'pillarFlavor', label: 'Flavor Pillar', icon: '🍄', group: 'Pillars' },
+  { id: 'pillarFinish', label: 'Finish Pillar', icon: '⏱️', group: 'Pillars' },
+  { id: 'tastingContent', label: 'Right Tasting Column', icon: '📊', group: 'Right Column' },
+  { id: 'tastingNotes', label: 'Tasting Notes Block', icon: '👃', group: 'Right Column' },
+  { id: 'noseMeta', label: 'Nose & Aromas Info', icon: '📝', group: 'Right Column' },
+  { id: 'aromasList', label: 'Aromas List', icon: '🍇', group: 'Right Column' },
+  { id: 'palate', label: 'Palate & Structure Block', icon: '🍷', group: 'Right Column' },
+  { id: 'bodyGauge', label: 'Body Gauge', icon: '🍷', group: 'Palate' },
+  { id: 'acidityGauge', label: 'Acidity Gauge', icon: '🍋', group: 'Palate' },
+  { id: 'tanninsGauge', label: 'Tannins Gauge', icon: '🍇', group: 'Palate' },
+  { id: 'sommelierNotes', label: "Sommelier's Notes Box", icon: '💬', group: 'Footer' },
+  { id: 'vfmBar', label: 'VFM Glasses Bar', icon: '🍷', group: 'Footer' }
+];
+
+const getInitialLayout = (note) => {
+  if (note?.customLayout && typeof note.customLayout === 'object' && Object.keys(note.customLayout).length > 0) {
+    return note.customLayout;
+  }
+  try {
+    const saved = localStorage.getItem(STORAGE_ADVANCED_LAYOUT_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.warn('Failed to parse saved layout:', e);
+  }
+  return DEFAULT_ADVANCED_LAYOUT;
+};
 
 // Helper to convert structural levels to gauge percentage
 function getGaugePercent(levelStr = '') {
@@ -22,7 +76,6 @@ function getGaugePercent(levelStr = '') {
   if (str.includes('-') || str.includes('(-)')) return 40;
   return 55;
 }
-
 
 const getAromaIcon = (aroma) => {
   const textLower = String(aroma).toLowerCase();
@@ -64,6 +117,243 @@ export default function VerdictStep({
   const [theme, setTheme] = useState('parchment'); // 'parchment' | 'dark'
   const [isSharingPhoto, setIsSharingPhoto] = useState(false);
   const [shareSuccessFlash, setShareSuccessFlash] = useState(false);
+
+  // Advanced Layout Editor State
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState('bottle');
+  const [nudgeStep, setNudgeStep] = useState(5); // 1, 5, or 15 px
+  const [isInspectorCollapsed, setIsInspectorCollapsed] = useState(false);
+  const [layout, setLayout] = useState(() => getInitialLayout(wineNote));
+
+  const saveLayout = (newLayout) => {
+    setLayout(newLayout);
+    try {
+      localStorage.setItem(STORAGE_ADVANCED_LAYOUT_KEY, JSON.stringify(newLayout));
+    } catch (e) {
+      console.warn('Failed to save layout:', e);
+    }
+    if (updateWineNote) {
+      updateWineNote({
+        ...wineNote,
+        customLayout: newLayout
+      });
+    }
+  };
+
+  const updateSelectedItem = (changes) => {
+    if (!selectedItemId) return;
+    const currentItem = layout.items?.[selectedItemId] || {};
+    const updated = {
+      ...layout,
+      items: {
+        ...(layout.items || {}),
+        [selectedItemId]: {
+          ...currentItem,
+          ...changes
+        }
+      }
+    };
+    saveLayout(updated);
+  };
+
+  const handleNudge = (prop, delta) => {
+    if (!selectedItemId) return;
+    const currentItem = layout.items?.[selectedItemId] || {};
+    const currentVal = currentItem[prop] || 0;
+    updateSelectedItem({ [prop]: currentVal + delta });
+  };
+
+  const handleNudgeDim = (prop, delta) => {
+    if (!selectedItemId) return;
+    const currentItem = layout.items?.[selectedItemId] || {};
+    const currentVal = currentItem[prop];
+    let nextVal;
+    if (currentVal === undefined || currentVal === 'auto') {
+      const defaultVal = prop === 'height' ? 80 : 150;
+      nextVal = Math.max(10, defaultVal + delta);
+    } else {
+      nextVal = Math.max(10, currentVal + delta);
+    }
+    updateSelectedItem({ [prop]: nextVal });
+  };
+
+  const handleNudgeMargin = (prop, delta) => {
+    if (!selectedItemId) return;
+    const currentItem = layout.items?.[selectedItemId] || {};
+    const currentVal = currentItem[prop] || 0;
+    updateSelectedItem({ [prop]: currentVal + delta });
+  };
+
+  const handleNudgeScale = (delta) => {
+    if (!selectedItemId) return;
+    const currentItem = layout.items?.[selectedItemId] || {};
+    const currentScale = currentItem.scale || 1;
+    const nextScale = Math.max(0.4, Math.min(2.0, Math.round((currentScale + delta) * 100) / 100));
+    updateSelectedItem({ scale: nextScale });
+  };
+
+  const handleNudgeFontSize = (delta) => {
+    if (!selectedItemId) return;
+    const currentItem = layout.items?.[selectedItemId] || {};
+    const currentSize = currentItem.fontSize !== undefined ? currentItem.fontSize : 1.0;
+    const nextSize = Math.max(0.4, Math.min(2.5, Math.round((currentSize + delta) * 100) / 100));
+    updateSelectedItem({ fontSize: nextSize });
+  };
+
+  const handleToggleHide = () => {
+    if (!selectedItemId) return;
+    const isHidden = !!layout.hidden?.[selectedItemId];
+    const updated = {
+      ...layout,
+      hidden: {
+        ...(layout.hidden || {}),
+        [selectedItemId]: !isHidden
+      }
+    };
+    saveLayout(updated);
+  };
+
+  const handleResetItem = () => {
+    if (!selectedItemId) return;
+    const newItems = { ...(layout.items || {}) };
+    delete newItems[selectedItemId];
+    const newHidden = { ...(layout.hidden || {}) };
+    delete newHidden[selectedItemId];
+    const updated = {
+      ...layout,
+      items: newItems,
+      hidden: newHidden
+    };
+    saveLayout(updated);
+  };
+
+  const handleResetAll = () => {
+    if (window.confirm("Reset all custom layout settings (heights, positions, sizes) to default?")) {
+      saveLayout(DEFAULT_ADVANCED_LAYOUT);
+    }
+  };
+
+  const handleNudgeCard = (prop, delta) => {
+    const cardConfig = layout.card || {};
+    let nextVal;
+    if (prop === 'height') {
+      const current = cardConfig.height || 700;
+      nextVal = Math.max(450, Math.min(1400, current + delta));
+    } else if (prop === 'padding') {
+      const current = cardConfig.padding ?? 16;
+      nextVal = Math.max(4, Math.min(40, current + delta));
+    } else if (prop === 'scale') {
+      const current = cardConfig.scale || 1;
+      nextVal = Math.max(0.5, Math.min(1.5, Math.round((current + delta) * 100) / 100));
+    }
+    const updated = {
+      ...layout,
+      card: {
+        ...(layout.card || {}),
+        [prop]: nextVal
+      }
+    };
+    saveLayout(updated);
+  };
+
+  const getItemStyle = (id, baseStyle = {}) => {
+    const isHidden = layout.hidden?.[id];
+    if (isHidden) {
+      return { ...baseStyle, display: 'none' };
+    }
+
+    const itemConfig = layout.items?.[id] || {};
+    const style = { ...baseStyle };
+
+    // Scale / Zoom
+    if (itemConfig.scale && itemConfig.scale !== 1) {
+      style.transform = `${style.transform || ''} scale(${itemConfig.scale})`.trim();
+      style.transformOrigin = itemConfig.transformOrigin || 'center center';
+    }
+
+    // Location / Nudge (X and Y offset)
+    if (itemConfig.offsetX || itemConfig.offsetY) {
+      style.position = 'relative';
+      if (itemConfig.offsetX) style.left = `${itemConfig.offsetX}px`;
+      if (itemConfig.offsetY) style.top = `${itemConfig.offsetY}px`;
+    }
+
+    // Height
+    if (itemConfig.height !== undefined && itemConfig.height !== null && itemConfig.height !== '') {
+      style.height = typeof itemConfig.height === 'number' ? `${itemConfig.height}px` : itemConfig.height;
+    }
+    if (itemConfig.maxHeight !== undefined && itemConfig.maxHeight !== null && itemConfig.maxHeight !== '') {
+      style.maxHeight = typeof itemConfig.maxHeight === 'number' ? `${itemConfig.maxHeight}px` : itemConfig.maxHeight;
+    }
+    if (itemConfig.minHeight !== undefined && itemConfig.minHeight !== null && itemConfig.minHeight !== '') {
+      style.minHeight = typeof itemConfig.minHeight === 'number' ? `${itemConfig.minHeight}px` : itemConfig.minHeight;
+    }
+
+    // Width
+    if (itemConfig.width !== undefined && itemConfig.width !== null && itemConfig.width !== '') {
+      style.width = typeof itemConfig.width === 'number' ? `${itemConfig.width}px` : itemConfig.width;
+      style.maxWidth = typeof itemConfig.width === 'number' ? `${itemConfig.width}px` : itemConfig.width;
+    }
+
+    // Margins
+    if (itemConfig.marginTop !== undefined) style.marginTop = `${itemConfig.marginTop}px`;
+    if (itemConfig.marginBottom !== undefined) style.marginBottom = `${itemConfig.marginBottom}px`;
+    if (itemConfig.marginLeft !== undefined) style.marginLeft = `${itemConfig.marginLeft}px`;
+    if (itemConfig.marginRight !== undefined) style.marginRight = `${itemConfig.marginRight}px`;
+
+    // Font size
+    if (itemConfig.fontSize !== undefined && itemConfig.fontSize !== '') {
+      style.fontSize = typeof itemConfig.fontSize === 'number' ? `${itemConfig.fontSize}rem` : itemConfig.fontSize;
+    }
+
+    return style;
+  };
+
+  const getCardStyle = () => {
+    const cardConfig = layout.card || {};
+    const style = {};
+    if (cardConfig.height) {
+      style.height = `${cardConfig.height}px`;
+      style.minHeight = `${cardConfig.height}px`;
+      style.maxHeight = `${cardConfig.height}px`;
+    }
+    if (cardConfig.padding !== undefined) {
+      style.padding = `${cardConfig.padding}px`;
+    }
+    if (cardConfig.scale && cardConfig.scale !== 1) {
+      style.transform = `scale(${cardConfig.scale})`;
+      style.transformOrigin = 'top center';
+    }
+    return style;
+  };
+
+  const getItemClass = (id, baseClass = '') => {
+    const classes = [baseClass];
+    if (isEditMode) {
+      classes.push('adv-editable-item');
+      if (selectedItemId === id) {
+        classes.push('adv-item-selected');
+      }
+    }
+    return classes.filter(Boolean).join(' ');
+  };
+
+  const handleItemClick = (e, id) => {
+    if (!isEditMode) return;
+    e.stopPropagation();
+    setSelectedItemId(id);
+  };
+
+  const renderItemBadge = (id) => {
+    if (!isEditMode || selectedItemId !== id) return null;
+    const def = EDITABLE_ITEMS.find(i => i.id === id);
+    if (!def) return null;
+    return (
+      <span className="adv-selected-badge no-print">
+        {def.icon} {def.label}
+      </span>
+    );
+  };
 
   // Identity & Specs
   const rawWineName = wineNote.wineName || 'THE REVELATOR RED BLEND';
@@ -118,7 +408,6 @@ export default function VerdictStep({
     'Vanilla',
     'Cedar'
   ];
-  // Strip parentheses and limit length for clean sommelier presentation
   const userAromas = rawAromas
     .map(a => cleanText(a))
     .filter(Boolean)
@@ -127,10 +416,8 @@ export default function VerdictStep({
 
   // 3. Palate & Structural Parameters (Sector 2 - all 8 attributes)
   const bodyVal = wineNote.palate?.body || 'Medium(+)';
-  const bodyClean = cleanIntensity(bodyVal);
   const acidityVal = wineNote.palate?.acidity || 'Medium(+)';
   const tanninVal = wineNote.palate?.tannin || 'Medium(+)';
-  const tanninTexture = wineNote.palate?.tanninTexture || (tanninVal.match(/\(([^)]+)\)/)?.[1] || '');
   const sweetnessVal = cleanIntensity(wineNote.palate?.sweetness || 'Dry');
   const alcoholLevelVal = wineNote.palate?.alcoholLevel || 'Medium (11-13.9%)';
   const flavorIntensityVal = cleanIntensity(wineNote.palate?.flavorIntensity || 'Pronounced');
@@ -283,17 +570,17 @@ export default function VerdictStep({
     }
   };
 
-  // Wine type clean for GenericBottle
   const wineTypeClean = (wineNote.type || 'red').toLowerCase();
+  const currentItem = layout.items?.[selectedItemId] || {};
 
   return (
     <div className="verdict-wrapper">
       
-      {/* Top Toolbar Controls: Theme Toggle & Bottle Photo Actions */}
+      {/* Top Toolbar Controls: Theme Toggle, Bottle Photo Actions, Share & Advanced Edit Toggle */}
       <div className="verdict-toolbar no-print">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           
-          {/* Day / Night Theme Single Toggle Button (Symbol only) */}
+          {/* Day / Night Theme Single Toggle Button */}
           <button
             type="button"
             className="btn btn-outline"
@@ -308,7 +595,7 @@ export default function VerdictStep({
           {/* Separator */}
           <div style={{ width: '1px', height: '20px', background: 'rgba(212, 175, 55, 0.25)', margin: '0 2px' }} />
 
-          {/* Bottle Photo Controls (Symbol only, no text) */}
+          {/* Bottle Photo Controls */}
           {!readOnly && (
             <>
               {bottleImage ? (
@@ -349,7 +636,7 @@ export default function VerdictStep({
             </>
           )}
 
-          {/* Share Summary as Photo Button (Symbol only) */}
+          {/* Share Summary as Photo Button */}
           <button
             type="button"
             className="btn btn-outline"
@@ -374,6 +661,40 @@ export default function VerdictStep({
               <Share2 size={18} />
             )}
           </button>
+
+          {/* Separator */}
+          {!readOnly && (
+            <div style={{ width: '1px', height: '20px', background: 'rgba(212, 175, 55, 0.25)', margin: '0 2px' }} />
+          )}
+
+          {/* Advanced Edit Mode Button */}
+          {!readOnly && (
+            <button
+              type="button"
+              className={`btn ${isEditMode ? 'btn-primary' : 'btn-outline'}`}
+              style={{
+                padding: '8px 12px',
+                height: '36px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontWeight: 700,
+                fontSize: '0.8rem',
+                borderColor: isEditMode ? 'var(--gold-primary)' : undefined
+              }}
+              onClick={() => {
+                setIsEditMode(prev => !prev);
+                if (!isEditMode && !selectedItemId) {
+                  setSelectedItemId('bottle');
+                }
+              }}
+              title={isEditMode ? "Finish Layout Editing" : "Advanced Layout Editor (Heights, Locations, Sizes)"}
+            >
+              <Sliders size={16} />
+              <span>{isEditMode ? "Exit Edit" : "Advanced Edit"}</span>
+            </button>
+          )}
+
         </div>
       </div>
 
@@ -382,8 +703,12 @@ export default function VerdictStep({
          ========================================================== */}
       <div
         ref={cardRef}
-        className={`verdict-card ${theme === 'dark' ? 'theme-dark' : 'theme-parchment'}`}
+        className={`verdict-card ${theme === 'dark' ? 'theme-dark' : 'theme-parchment'} ${getItemClass('card')}`}
+        style={{ ...getCardStyle(), ...getItemStyle('card') }}
+        onClick={(e) => handleItemClick(e, 'card')}
       >
+        {renderItemBadge('card')}
+
         {/* Hidden File Input for Custom Bottle Photo Upload */}
         <input
           type="file"
@@ -397,14 +722,29 @@ export default function VerdictStep({
         {/* ----------------------------------------------------
             1. TOP HEADER BLOCK: IDENTITY, SPECS & ROSETTE MEDAL
            ---------------------------------------------------- */}
-        <div className="verdict-header-row">
+        <div
+          className={getItemClass('header', 'verdict-header-row')}
+          style={getItemStyle('header')}
+          onClick={(e) => handleItemClick(e, 'header')}
+        >
+          {renderItemBadge('header')}
           
           {/* Left: Wine Title & Compact Specs */}
           <div className="verdict-header-left">
-            <h1 className="verdict-wine-title font-serif">
+            <h1
+              className={getItemClass('wineTitle', 'verdict-wine-title font-serif')}
+              style={getItemStyle('wineTitle')}
+              onClick={(e) => handleItemClick(e, 'wineTitle')}
+            >
+              {renderItemBadge('wineTitle')}
               {wineName}
             </h1>
-            <div className="verdict-wine-specs font-serif">
+            <div
+              className={getItemClass('specs', 'verdict-wine-specs font-serif')}
+              style={getItemStyle('specs')}
+              onClick={(e) => handleItemClick(e, 'specs')}
+            >
+              {renderItemBadge('specs')}
               <span className="spec-item spec-vintage-origin">
                 {vintage ? `${vintage} | ` : ''}{originStr.toUpperCase()}
               </span>
@@ -422,7 +762,12 @@ export default function VerdictStep({
           </div>
 
           {/* Center/Right: Rosette Gold Medal Stamp (Points Score) */}
-          <div className="verdict-medal-wrap">
+          <div
+            className={getItemClass('medal', 'verdict-medal-wrap')}
+            style={getItemStyle('medal')}
+            onClick={(e) => handleItemClick(e, 'medal')}
+          >
+            {renderItemBadge('medal')}
             <div className={`verdict-gold-medal ${score === 0 ? 'unworthy-medal' : ''}`}>
               <div className="verdict-medal-inner">
                 <span className="medal-score-number font-serif">{score}</span>
@@ -451,9 +796,20 @@ export default function VerdictStep({
                Right Column: Tasting Notes (Nose & Aromas) + Palate
            ---------------------------------------------------- */}
         <div className="verdict-body-grid">
+          
           {/* Left Column: holds Bottle + Key Attributes (below bottle) */}
-          <div className="verdict-left-column">
-            <div className="verdict-bottle-column">
+          <div
+            className={getItemClass('leftColumn', 'verdict-left-column')}
+            style={getItemStyle('leftColumn')}
+            onClick={(e) => handleItemClick(e, 'leftColumn')}
+          >
+            {renderItemBadge('leftColumn')}
+            <div
+              className={getItemClass('bottle', 'verdict-bottle-column')}
+              style={getItemStyle('bottle')}
+              onClick={(e) => handleItemClick(e, 'bottle')}
+            >
+              {renderItemBadge('bottle')}
               <div className="verdict-bottle-frame">
                 {bottleImage ? (
                   <div className="custom-bottle-img-wrap">
@@ -474,15 +830,32 @@ export default function VerdictStep({
               </div>
             </div>
 
-            {/* Key Attributes Block (Pillars & Color Bar) placed below bottle */}
-            <div className="verdict-key-attributes-block font-serif">
+            {/* Key Attributes Block (Pillars) placed below bottle */}
+            <div
+              className={getItemClass('keyAttributes', 'verdict-key-attributes-block font-serif')}
+              style={getItemStyle('keyAttributes')}
+              onClick={(e) => handleItemClick(e, 'keyAttributes')}
+            >
+              {renderItemBadge('keyAttributes')}
               <div className="verdict-section-heading" style={{ marginBottom: '4px', textAlign: 'center' }}>
                 <EditableText textKey="verdict.keyAttributesTitle" defaultText="KEY ATTRIBUTES" />
               </div>
 
               {/* 2x2 Palate Pillars */}
-              <div className="verdict-palate-pillars-grid">
-                <div className="palate-pillar-item">
+              <div
+                className={getItemClass('pillars', 'verdict-palate-pillars-grid')}
+                style={getItemStyle('pillars')}
+                onClick={(e) => handleItemClick(e, 'pillars')}
+              >
+                {renderItemBadge('pillars')}
+                
+                {/* Sweetness */}
+                <div
+                  className={getItemClass('pillarSweetness', 'palate-pillar-item')}
+                  style={getItemStyle('pillarSweetness')}
+                  onClick={(e) => handleItemClick(e, 'pillarSweetness')}
+                >
+                  {renderItemBadge('pillarSweetness')}
                   <div className="pillar-header-row">
                     <span className="pillar-label"><EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" /></span>
                     <span className="pillar-icon">💧</span>
@@ -490,7 +863,13 @@ export default function VerdictStep({
                   <span className="pillar-val">{sweetnessVal.toUpperCase()}</span>
                 </div>
 
-                <div className="palate-pillar-item">
+                {/* Alcohol */}
+                <div
+                  className={getItemClass('pillarAlcohol', 'palate-pillar-item')}
+                  style={getItemStyle('pillarAlcohol')}
+                  onClick={(e) => handleItemClick(e, 'pillarAlcohol')}
+                >
+                  {renderItemBadge('pillarAlcohol')}
                   <div className="pillar-header-row">
                     <span className="pillar-label"><EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" /></span>
                     <span className="pillar-icon">↗️</span>
@@ -498,7 +877,13 @@ export default function VerdictStep({
                   <span className="pillar-val">{cleanIntensity(alcoholLevelVal.split(' ')[0]).toUpperCase()}</span>
                 </div>
 
-                <div className="palate-pillar-item">
+                {/* Flavor */}
+                <div
+                  className={getItemClass('pillarFlavor', 'palate-pillar-item')}
+                  style={getItemStyle('pillarFlavor')}
+                  onClick={(e) => handleItemClick(e, 'pillarFlavor')}
+                >
+                  {renderItemBadge('pillarFlavor')}
                   <div className="pillar-header-row">
                     <span className="pillar-label"><EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" /></span>
                     <span className="pillar-icon">🍄</span>
@@ -506,7 +891,13 @@ export default function VerdictStep({
                   <span className="pillar-val">{flavorIntensityVal.toUpperCase()}</span>
                 </div>
 
-                <div className="palate-pillar-item">
+                {/* Finish */}
+                <div
+                  className={getItemClass('pillarFinish', 'palate-pillar-item')}
+                  style={getItemStyle('pillarFinish')}
+                  onClick={(e) => handleItemClick(e, 'pillarFinish')}
+                >
+                  {renderItemBadge('pillarFinish')}
                   <div className="pillar-header-row">
                     <span className="pillar-label"><EditableText textKey="verdict.finishTitle" defaultText="FINISH:" /></span>
                     <span className="pillar-icon">⏱️</span>
@@ -518,16 +909,31 @@ export default function VerdictStep({
           </div>
 
           {/* Right Column: Tasting Data & Sections (Tasting Notes + Palate) */}
-          <div className="verdict-tasting-content">
-            
-            {/* SUB-SECTION 1: Tasting Notes (Nose & Aromas) - Profile is removed */}
-            <div className="verdict-tasting-notes-block font-serif">
+          <div
+            className={getItemClass('tastingContent', 'verdict-tasting-content')}
+            style={getItemStyle('tastingContent')}
+            onClick={(e) => handleItemClick(e, 'tastingContent')}
+          >
+            {renderItemBadge('tastingContent')}
+
+            {/* SUB-SECTION 1: Tasting Notes (Nose & Aromas) */}
+            <div
+              className={getItemClass('tastingNotes', 'verdict-tasting-notes-block font-serif')}
+              style={getItemStyle('tastingNotes')}
+              onClick={(e) => handleItemClick(e, 'tastingNotes')}
+            >
+              {renderItemBadge('tastingNotes')}
               <h3 className="verdict-section-heading">
                 <EditableText textKey="verdict.tastingNotesTitle" defaultText="TASTING NOTES" />
               </h3>
 
               <div className="verdict-nose-content-row">
-                <div className="verdict-nose-meta-wrap">
+                <div
+                  className={getItemClass('noseMeta', 'verdict-nose-meta-wrap')}
+                  style={getItemStyle('noseMeta')}
+                  onClick={(e) => handleItemClick(e, 'noseMeta')}
+                >
+                  {renderItemBadge('noseMeta')}
                   <div className="verdict-nose-subheading">
                     <EditableText textKey="verdict.noseTitle" defaultText="NOSE & AROMAS" />
                   </div>
@@ -543,7 +949,12 @@ export default function VerdictStep({
                   </div>
                 </div>
 
-                <div className="verdict-aromas-list font-serif">
+                <div
+                  className={getItemClass('aromasList', 'verdict-aromas-list font-serif')}
+                  style={getItemStyle('aromasList')}
+                  onClick={(e) => handleItemClick(e, 'aromasList')}
+                >
+                  {renderItemBadge('aromasList')}
                   {userAromas.length > 0 ? (
                     userAromas.map((aroma, idx) => (
                       <div key={idx} className="verdict-aroma-row">
@@ -562,13 +973,23 @@ export default function VerdictStep({
             </div>
             
             {/* SUB-SECTION 2: Palate & Structure */}
-            <div className="verdict-palate-block font-serif">
+            <div
+              className={getItemClass('palate', 'verdict-palate-block font-serif')}
+              style={getItemStyle('palate')}
+              onClick={(e) => handleItemClick(e, 'palate')}
+            >
+              {renderItemBadge('palate')}
               <h3 className="verdict-section-heading" style={{ marginBottom: '6px' }}>
                 <EditableText textKey="palate.title" defaultText="PALATE & STRUCTURE" />
               </h3>
 
               {/* Body Gauge */}
-              <div className="verdict-gauge-row">
+              <div
+                className={getItemClass('bodyGauge', 'verdict-gauge-row')}
+                style={getItemStyle('bodyGauge')}
+                onClick={(e) => handleItemClick(e, 'bodyGauge')}
+              >
+                {renderItemBadge('bodyGauge')}
                 <div className="gauge-icon-label">
                   <span className="gauge-icon">🍷</span>
                   <span className="gauge-title"><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
@@ -596,7 +1017,12 @@ export default function VerdictStep({
               </div>
 
               {/* Acidity Gauge */}
-              <div className="verdict-gauge-row">
+              <div
+                className={getItemClass('acidityGauge', 'verdict-gauge-row')}
+                style={getItemStyle('acidityGauge')}
+                onClick={(e) => handleItemClick(e, 'acidityGauge')}
+              >
+                {renderItemBadge('acidityGauge')}
                 <div className="gauge-icon-label">
                   <span className="gauge-icon">🍋</span>
                   <span className="gauge-title"><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
@@ -624,7 +1050,12 @@ export default function VerdictStep({
               </div>
 
               {/* Tannins Gauge */}
-              <div className="verdict-gauge-row">
+              <div
+                className={getItemClass('tanninsGauge', 'verdict-gauge-row')}
+                style={getItemStyle('tanninsGauge')}
+                onClick={(e) => handleItemClick(e, 'tanninsGauge')}
+              >
+                {renderItemBadge('tanninsGauge')}
                 <div className="gauge-icon-label">
                   <span className="gauge-icon">🍇</span>
                   <span className="gauge-title"><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
@@ -657,7 +1088,12 @@ export default function VerdictStep({
         {/* ----------------------------------------------------
             3. SOMMELIER NOTES ROW
            ---------------------------------------------------- */}
-        <div className="verdict-notes-row font-serif">
+        <div
+          className={getItemClass('sommelierNotes', 'verdict-notes-row font-serif')}
+          style={getItemStyle('sommelierNotes')}
+          onClick={(e) => handleItemClick(e, 'sommelierNotes')}
+        >
+          {renderItemBadge('sommelierNotes')}
           <div className="notes-header">
             <Quote size={12} color="#9e7a24" />
             <EditableText textKey="verdict.notesTitle" defaultText="SOMMELIER'S NOTES & PAIRINGS:" />
@@ -670,7 +1106,12 @@ export default function VerdictStep({
         {/* ----------------------------------------------------
             4. BOTTOM VFM (VALUE FOR MONEY) - SHOW ONLY GLASSES
            ---------------------------------------------------- */}
-        <div className="verdict-vfm-footer-bar font-serif">
+        <div
+          className={getItemClass('vfmBar', 'verdict-vfm-footer-bar font-serif')}
+          style={getItemStyle('vfmBar')}
+          onClick={(e) => handleItemClick(e, 'vfmBar')}
+        >
+          {renderItemBadge('vfmBar')}
           <div className="vfm-footer-left">
             <span className="vfm-prefix"><EditableText textKey="verdict.vfmTitle" defaultText="VFM:" /></span>
             <div
@@ -700,6 +1141,328 @@ export default function VerdictStep({
         </div>
 
       </div>
+
+      {/* ==========================================================
+          ADVANCED LAYOUT EDITOR INSPECTOR PANEL
+         ========================================================== */}
+      {isEditMode && (
+        <div className="adv-inspector-panel no-print">
+          
+          {/* Top Bar Header */}
+          <div className="adv-inspector-header">
+            <div className="adv-header-left">
+              <Sliders size={16} color="#d4af37" />
+              <span className="adv-header-title">Inspector</span>
+              
+              {/* Item Selector Dropdown */}
+              <select
+                className="adv-item-select"
+                value={selectedItemId || ''}
+                onChange={(e) => setSelectedItemId(e.target.value)}
+              >
+                {Array.from(new Set(EDITABLE_ITEMS.map(i => i.group))).map(groupName => (
+                  <optgroup key={groupName} label={groupName}>
+                    {EDITABLE_ITEMS.filter(i => i.group === groupName).map(item => (
+                      <option key={item.id} value={item.id}>
+                        {item.icon} {item.label} {layout.hidden?.[item.id] ? '(Hidden)' : ''}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </div>
+
+            <div className="adv-header-right">
+              {/* Hide / Show Toggle */}
+              {selectedItemId !== 'card' && (
+                <button
+                  type="button"
+                  className={`adv-tool-btn ${layout.hidden?.[selectedItemId] ? 'btn-danger' : ''}`}
+                  onClick={handleToggleHide}
+                  title={layout.hidden?.[selectedItemId] ? "Show element" : "Hide element"}
+                >
+                  {layout.hidden?.[selectedItemId] ? <EyeOff size={14} /> : <Eye size={14} />}
+                  <span>{layout.hidden?.[selectedItemId] ? 'Hidden' : 'Visible'}</span>
+                </button>
+              )}
+
+              {/* Reset Selected Item */}
+              <button
+                type="button"
+                className="adv-tool-btn"
+                onClick={handleResetItem}
+                title="Reset selected element to default"
+              >
+                <RotateCcw size={13} />
+                <span>Reset Item</span>
+              </button>
+
+              {/* Minimize / Expand Toggle */}
+              <button
+                type="button"
+                className="adv-tool-btn adv-btn-icon"
+                onClick={() => setIsInspectorCollapsed(prev => !prev)}
+                title={isInspectorCollapsed ? "Expand Inspector Panel" : "Minimize Inspector Panel"}
+              >
+                {isInspectorCollapsed ? <Maximize2 size={14} /> : <Minimize2 size={14} />}
+              </button>
+
+              {/* Done Button */}
+              <button
+                type="button"
+                className="adv-tool-btn adv-btn-done"
+                onClick={() => setIsEditMode(false)}
+                title="Exit Edit Mode"
+              >
+                <Check size={15} />
+                <span>Done</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Inspector Body (Hidden if Collapsed) */}
+          {!isInspectorCollapsed && (
+            <div className="adv-inspector-body">
+              <div className="adv-controls-grid">
+
+                {/* Overall Card Controls */}
+                {selectedItemId === 'card' ? (
+                  <div className="adv-card-controls-row">
+                    <div className="adv-control-box">
+                      <span className="adv-box-label">Card Height</span>
+                      <div className="adv-btn-stepper">
+                        <button type="button" onClick={() => handleNudgeCard('height', -10)}>-10</button>
+                        <span className="adv-value-pill">{layout.card?.height || 700}px</span>
+                        <button type="button" onClick={() => handleNudgeCard('height', 10)}>+10</button>
+                      </div>
+                    </div>
+                    <div className="adv-control-box">
+                      <span className="adv-box-label">Card Padding</span>
+                      <div className="adv-btn-stepper">
+                        <button type="button" onClick={() => handleNudgeCard('padding', -2)}>-2</button>
+                        <span className="adv-value-pill">{layout.card?.padding ?? 16}px</span>
+                        <button type="button" onClick={() => handleNudgeCard('padding', 2)}>+2</button>
+                      </div>
+                    </div>
+                    <div className="adv-control-box">
+                      <span className="adv-box-label">Overall Scale</span>
+                      <div className="adv-btn-stepper">
+                        <button type="button" onClick={() => handleNudgeCard('scale', -0.05)}>-</button>
+                        <span className="adv-value-pill">{Math.round((layout.card?.scale || 1) * 100)}%</span>
+                        <button type="button" onClick={() => handleNudgeCard('scale', 0.05)}>+</button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* 1. LOCATION (Nudge X & Y) */}
+                    <div className="adv-control-column">
+                      <div className="adv-col-header">
+                        <Move size={14} color="#d4af37" />
+                        <span>Location (Position)</span>
+                        <div className="adv-step-chips">
+                          {[1, 5, 15].map(s => (
+                            <button
+                              key={s}
+                              type="button"
+                              className={`adv-chip ${nudgeStep === s ? 'active' : ''}`}
+                              onClick={() => setNudgeStep(s)}
+                            >
+                              {s}px
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="adv-dpad-container">
+                        <div className="adv-dpad-row">
+                          <button
+                            type="button"
+                            className="adv-dpad-btn"
+                            onClick={() => handleNudge('offsetY', -nudgeStep)}
+                            title={`Nudge Up by ${nudgeStep}px`}
+                          >
+                            <ChevronUp size={16} />
+                          </button>
+                        </div>
+                        <div className="adv-dpad-row adv-dpad-middle">
+                          <button
+                            type="button"
+                            className="adv-dpad-btn"
+                            onClick={() => handleNudge('offsetX', -nudgeStep)}
+                            title={`Nudge Left by ${nudgeStep}px`}
+                          >
+                            <ChevronLeft size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            className="adv-dpad-center"
+                            onClick={() => updateSelectedItem({ offsetX: 0, offsetY: 0 })}
+                            title="Reset position offset to (0, 0)"
+                          >
+                            <span>X:{currentItem.offsetX || 0}, Y:{currentItem.offsetY || 0}</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="adv-dpad-btn"
+                            onClick={() => handleNudge('offsetX', nudgeStep)}
+                            title={`Nudge Right by ${nudgeStep}px`}
+                          >
+                            <ChevronRight size={16} />
+                          </button>
+                        </div>
+                        <div className="adv-dpad-row">
+                          <button
+                            type="button"
+                            className="adv-dpad-btn"
+                            onClick={() => handleNudge('offsetY', nudgeStep)}
+                            title={`Nudge Down by ${nudgeStep}px`}
+                          >
+                            <ChevronDown size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 2. HEIGHTS & DIMENSIONS */}
+                    <div className="adv-control-column">
+                      <div className="adv-col-header">
+                        <ArrowUpDown size={14} color="#d4af37" />
+                        <span>Heights & Spacing</span>
+                      </div>
+
+                      <div className="adv-dimension-fields">
+                        {/* Custom Height */}
+                        <div className="adv-field-row">
+                          <span className="adv-field-label">Height:</span>
+                          <div className="adv-btn-stepper">
+                            <button type="button" onClick={() => handleNudgeDim('height', -nudgeStep)}>-{nudgeStep}</button>
+                            <span className="adv-value-pill">
+                              {currentItem.height !== undefined ? `${currentItem.height}px` : 'Auto'}
+                            </span>
+                            <button type="button" onClick={() => handleNudgeDim('height', nudgeStep)}>+{nudgeStep}</button>
+                            {currentItem.height !== undefined && (
+                              <button type="button" className="adv-btn-tiny" onClick={() => updateSelectedItem({ height: undefined })}>✕</button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Custom Width */}
+                        <div className="adv-field-row">
+                          <span className="adv-field-label">Width:</span>
+                          <div className="adv-btn-stepper">
+                            <button type="button" onClick={() => handleNudgeDim('width', -nudgeStep)}>-{nudgeStep}</button>
+                            <span className="adv-value-pill">
+                              {currentItem.width !== undefined ? `${currentItem.width}px` : 'Auto'}
+                            </span>
+                            <button type="button" onClick={() => handleNudgeDim('width', nudgeStep)}>+{nudgeStep}</button>
+                            {currentItem.width !== undefined && (
+                              <button type="button" className="adv-btn-tiny" onClick={() => updateSelectedItem({ width: undefined })}>✕</button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Margin Top */}
+                        <div className="adv-field-row">
+                          <span className="adv-field-label">Margin Top:</span>
+                          <div className="adv-btn-stepper">
+                            <button type="button" onClick={() => handleNudgeMargin('marginTop', -2)}>-2</button>
+                            <span className="adv-value-pill">
+                              {currentItem.marginTop ?? 0}px
+                            </span>
+                            <button type="button" onClick={() => handleNudgeMargin('marginTop', 2)}>+2</button>
+                          </div>
+                        </div>
+
+                        {/* Margin Bottom */}
+                        <div className="adv-field-row">
+                          <span className="adv-field-label">Margin Bottom:</span>
+                          <div className="adv-btn-stepper">
+                            <button type="button" onClick={() => handleNudgeMargin('marginBottom', -2)}>-2</button>
+                            <span className="adv-value-pill">
+                              {currentItem.marginBottom ?? 0}px
+                            </span>
+                            <button type="button" onClick={() => handleNudgeMargin('marginBottom', 2)}>+2</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 3. SIZE & SCALE */}
+                    <div className="adv-control-column">
+                      <div className="adv-col-header">
+                        <Maximize2 size={14} color="#d4af37" />
+                        <span>Size & Scale</span>
+                      </div>
+
+                      <div className="adv-dimension-fields">
+                        {/* Scale Factor */}
+                        <div className="adv-field-row">
+                          <span className="adv-field-label">Scale:</span>
+                          <div className="adv-btn-stepper">
+                            <button type="button" onClick={() => handleNudgeScale(-0.05)}>-5%</button>
+                            <span className="adv-value-pill">
+                              {Math.round((currentItem.scale || 1) * 100)}%
+                            </span>
+                            <button type="button" onClick={() => handleNudgeScale(0.05)}>+5%</button>
+                          </div>
+                        </div>
+
+                        {/* Scale Slider */}
+                        <div className="adv-slider-row">
+                          <input
+                            type="range"
+                            min="0.5"
+                            max="1.8"
+                            step="0.05"
+                            value={currentItem.scale || 1}
+                            onChange={(e) => updateSelectedItem({ scale: parseFloat(e.target.value) })}
+                            className="adv-range-slider"
+                          />
+                        </div>
+
+                        {/* Font Size */}
+                        <div className="adv-field-row">
+                          <span className="adv-field-label">Text Size:</span>
+                          <div className="adv-btn-stepper">
+                            <button type="button" onClick={() => handleNudgeFontSize(-0.05)}>A-</button>
+                            <span className="adv-value-pill">
+                              {currentItem.fontSize !== undefined ? `${currentItem.fontSize}rem` : 'Default'}
+                            </span>
+                            <button type="button" onClick={() => handleNudgeFontSize(0.05)}>A+</button>
+                            {currentItem.fontSize !== undefined && (
+                              <button type="button" className="adv-btn-tiny" onClick={() => updateSelectedItem({ fontSize: undefined })}>✕</button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+              </div>
+
+              {/* Inspector Footer Bar */}
+              <div className="adv-inspector-footer">
+                <button
+                  type="button"
+                  className="adv-footer-btn-reset-all"
+                  onClick={handleResetAll}
+                  title="Reset all customized positions, heights and sizes back to default"
+                >
+                  <RotateCcw size={13} />
+                  <span>Reset All Elements</span>
+                </button>
+                <span className="adv-hint">
+                  💡 Tip: Click any element directly on the card to inspect and adjust it.
+                </span>
+              </div>
+            </div>
+          )}
+
+        </div>
+      )}
+
     </div>
   );
 }
