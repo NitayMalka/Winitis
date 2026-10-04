@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import GenericWineBottle from './GenericWineBottle';
 import EditableText from '../TextEditor/EditableText';
-import { Camera, RotateCcw } from 'lucide-react';
+import { Camera, RotateCcw, X, Quote } from 'lucide-react';
 import { useTexts } from '../../context/TextContext';
 
 // Helper to convert structural levels to gauge percentage
@@ -59,6 +59,7 @@ export default function VerdictStep({
   const { t } = useTexts();
   const fileInputRef = useRef(null);
   const cardRef = useRef(null);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
 
   // Identity & Specs
   const rawWineName = wineNote.wineName || 'THE REVELATOR RED BLEND';
@@ -219,49 +220,6 @@ export default function VerdictStep({
   return (
     <div className="verdict-wrapper">
       
-      {/* Top Toolbar Controls: Bottle Photo Actions */}
-      {!readOnly && (
-        <div className="verdict-toolbar no-print">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            {bottleImage ? (
-              <>
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
-                  onClick={() => fileInputRef.current?.click()}
-                  title="Change Bottle Photo"
-                  aria-label="Change Bottle Photo"
-                >
-                  <Camera size={18} />
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
-                  onClick={handleRemovePhoto}
-                  title="Use Generic Bottle"
-                  aria-label="Use Generic Bottle"
-                >
-                  <RotateCcw size={18} />
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-outline"
-                style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
-                onClick={() => fileInputRef.current?.click()}
-                title="Upload Bottle Photo"
-                aria-label="Upload Bottle Photo"
-              >
-                <Camera size={18} />
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* ==========================================================
           THE 700PX ONE-SCREEN VERDICT SUMMARY CARD
          ========================================================== */}
@@ -345,11 +303,25 @@ export default function VerdictStep({
           <div className="verdict-col verdict-col-bottle">
             <div className="verdict-bottle-frame">
               {bottleImage ? (
-                <div className="custom-bottle-img-wrap">
+                <div 
+                  className="custom-bottle-img-wrap"
+                  onClick={() => {
+                    if (!readOnly) setShowPhotoOptions(true);
+                  }}
+                  style={{ cursor: readOnly ? 'default' : 'pointer', width: '100%', height: '100%' }}
+                  title={readOnly ? undefined : "Click to change photo or switch to default bottle"}
+                >
                   <img src={bottleImage} alt="Wine Bottle" className="custom-bottle-img" />
                 </div>
               ) : (
-                <div className="generic-wine-bottle-wrap">
+                <div 
+                  className="generic-wine-bottle-wrap"
+                  onClick={() => {
+                    if (!readOnly) fileInputRef.current?.click();
+                  }}
+                  style={{ cursor: readOnly ? 'default' : 'pointer', position: 'relative', width: '100%', height: '100%' }}
+                  title={readOnly ? undefined : "Click to take or upload bottle photo"}
+                >
                   <GenericWineBottle
                     wineType={wineTypeClean}
                     wineColorHex={colorHex}
@@ -358,6 +330,11 @@ export default function VerdictStep({
                     appellation={originStr}
                     alcohol={alcohol}
                   />
+                  {!readOnly && (
+                    <div className="default-bottle-photo-badge no-print" title="Upload Bottle Photo">
+                      <Camera size={18} color="#d4af37" />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -578,6 +555,111 @@ export default function VerdictStep({
         </div>
 
       </div>
+
+      {/* Photo Options Modal: Choose if retake photo or switch to default bottle */}
+      {showPhotoOptions && (
+        <div 
+          className="modal-overlay no-print"
+          style={{
+            zIndex: 9999,
+            background: 'rgba(5, 2, 8, 0.85)',
+            backdropFilter: 'blur(8px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '16px'
+          }}
+          onClick={() => setShowPhotoOptions(false)}
+        >
+          <div 
+            className="modal-content"
+            style={{
+              maxWidth: '340px',
+              width: '100%',
+              background: '#160d18',
+              border: '1px solid rgba(212, 175, 55, 0.4)',
+              borderRadius: '16px',
+              padding: '22px 20px',
+              boxShadow: '0 16px 40px rgba(0,0,0,0.85)',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px',
+              textAlign: 'center'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(212,175,55,0.2)', paddingBottom: '10px' }}>
+              <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--gold-primary)', fontFamily: 'Cinzel, serif', fontWeight: 700 }}>
+                Bottle Photo
+              </h3>
+              <button 
+                type="button" 
+                className="btn btn-outline"
+                style={{ padding: '4px', minWidth: '28px', height: '28px', borderRadius: '50%', justifyContent: 'center' }}
+                onClick={() => setShowPhotoOptions(false)}
+                title="Close"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{
+                  padding: '12px 14px',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  fontSize: '0.9rem',
+                  borderColor: 'var(--gold-primary)',
+                  color: 'var(--gold-light)'
+                }}
+                onClick={() => {
+                  setShowPhotoOptions(false);
+                  fileInputRef.current?.click();
+                }}
+              >
+                <Camera size={19} color="#d4af37" />
+                <span>Retake / Change Photo</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{
+                  padding: '12px 14px',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  fontSize: '0.9rem'
+                }}
+                onClick={() => {
+                  setShowPhotoOptions(false);
+                  handleRemovePhoto();
+                }}
+              >
+                <RotateCcw size={18} />
+                <span>Switch to Default Bottle</span>
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{
+                  padding: '8px 14px',
+                  justifyContent: 'center',
+                  fontSize: '0.85rem',
+                  opacity: 0.75,
+                  marginTop: '4px'
+                }}
+                onClick={() => setShowPhotoOptions(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

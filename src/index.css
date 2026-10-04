@@ -3818,6 +3818,43 @@ input[type="range"]::-webkit-slider-thumb:hover {
   border-radius: 6px;
 }
 
+/* Badge overlay on top of default bottle */
+.default-bottle-photo-badge {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 9, 16, 0.78);
+  border: 1px solid var(--border-gold, #d4af37);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.65);
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.generic-wine-bottle-wrap:hover .default-bottle-photo-badge {
+  transform: translateX(-50%) scale(1.12);
+  background: rgba(35, 18, 38, 0.95);
+  border-color: #ffd700;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+}
+
+.custom-bottle-img-wrap {
+  transition: filter 0.2s ease;
+}
+
+.custom-bottle-img-wrap:hover {
+  filter: brightness(1.06);
+}
+
 /* Column 2: Aromas List (just list, no headline, panned to top, no trim) */
 .verdict-col-aromas {
   display: flex;
