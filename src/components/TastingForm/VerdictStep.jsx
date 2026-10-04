@@ -610,13 +610,12 @@ export default function VerdictStep({
           {/* COLUMN 3 (RIGHT): INTENSITY, DEVELOPMENT, PALATE BARS (NO HEADLINE), KEY ATTRIBUTES (NO HEADLINE) */}
           <div className="verdict-col verdict-col-details font-serif">
             
-            {/* 1. Intensity & Development Strip */}
-            <div className="verdict-nose-meta-strip font-serif">
+            {/* 1. Intensity & Development (Stacked vertically, no container) */}
+            <div className="verdict-nose-meta-stack font-serif">
               <div className="meta-line">
                 <span className="meta-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>{' '}
                 <strong className="meta-val">{noseIntensityClean.toUpperCase()}</strong>
               </div>
-              <div className="meta-divider-bullet">•</div>
               <div className="meta-line">
                 <span className="meta-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>{' '}
                 <strong className="meta-val">{cleanIntensity(noseDevelopment).toUpperCase()}</strong>
