@@ -91,19 +91,49 @@ export default function App() {
   useEffect(() => {
     const loaded = getSavedNotes();
     setSavedNotes(loaded);
+
+    // If reloaded with cache buster query (?v=...), clean up address bar
+    if (window.location.search.includes('v=')) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
   }, []);
 
   // Day / Night Theme State (Default: 'dark')
   const [theme, setTheme] = useState(getActiveTheme);
+  const [isRefreshingTheme, setIsRefreshingTheme] = useState(false);
   const [isSharingPhoto, setIsSharingPhoto] = useState(false);
   const [isSharePhotoSuccess, setIsSharePhotoSuccess] = useState(false);
 
-  const handleToggleTheme = () => {
-    setTheme(prev => {
-      const next = prev === 'dark' ? 'parchment' : 'dark';
-      saveActiveTheme(next);
-      return next;
-    });
+  const handleToggleTheme = async () => {
+    if (isRefreshingTheme) return;
+    setIsRefreshingTheme(true);
+
+    const next = theme === 'dark' ? 'parchment' : 'dark';
+    saveActiveTheme(next);
+    setTheme(next);
+
+    // Clear caches & update service worker to guarantee latest changes are fetched
+    try {
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map((name) => caches.delete(name)));
+      }
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        for (const registration of registrations) {
+          await registration.update();
+        }
+      }
+    } catch (e) {
+      console.warn('Cache clearing during theme refresh:', e);
+    }
+
+    // Force hard reload with timestamp cache-buster so iOS PWA gets the latest bundle immediately
+    setTimeout(() => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('v', Date.now().toString());
+      window.location.href = url.toString();
+    }, 120);
   };
 
   const handleSharePhoto = async () => {
@@ -257,6 +287,7 @@ export default function App() {
           onPrint={() => window.print()}
           theme={theme}
           onToggleTheme={handleToggleTheme}
+          isRefreshingTheme={isRefreshingTheme}
           isSharingPhoto={isSharingPhoto}
           isSharePhotoSuccess={isSharePhotoSuccess}
         />

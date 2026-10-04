@@ -13,6 +13,7 @@ export default function Header({
   onPrint,
   theme = 'dark',
   onToggleTheme,
+  isRefreshingTheme = false,
   isSharingPhoto = false,
   isSharePhotoSuccess = false
 }) {
@@ -80,11 +81,18 @@ export default function Header({
               type="button"
               className="btn btn-outline"
               onClick={onToggleTheme}
-              title={theme === 'dark' ? 'Night Mode (click for Day)' : 'Day Mode (click for Night)'}
-              aria-label="Toggle Night/Day mode"
+              disabled={isRefreshingTheme}
+              title={theme === 'dark' ? 'Night Mode (click to switch & refresh latest changes)' : 'Day Mode (click to switch & refresh latest changes)'}
+              aria-label="Toggle Night/Day mode and refresh"
               style={{ padding: '8px 10px', minWidth: '38px', height: '38px', justifyContent: 'center' }}
             >
-              {theme === 'dark' ? <Moon size={18} color="#d4af37" /> : <Sun size={18} color="#d4af37" />}
+              {isRefreshingTheme ? (
+                <Loader2 size={18} color="#d4af37" className="animate-spin" />
+              ) : theme === 'dark' ? (
+                <Moon size={18} color="#d4af37" />
+              ) : (
+                <Sun size={18} color="#d4af37" />
+              )}
             </button>
           )}
 
