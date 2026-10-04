@@ -294,9 +294,9 @@ export default function VerdictStep({
 
         {/* ----------------------------------------------------
             2. MAIN BODY: 3 COLUMNS
-               Left (Col 1): Wine Bottle [0 - x]
-               Middle (Col 2): Aromas List (just list, no headline) [x - y]
-               Right (Col 3): [intensity, development, palate bars (no headline), key attributes (no headline)] [y - z]
+               Left (Col 1): Wine Bottle
+               Middle (Col 2): Palate Bars, Intensity & Development, Key Attributes
+               Right (Col 3): Aromas List (just list, no headline)
            ---------------------------------------------------- */}
         <div 
           className="verdict-3col-body"
@@ -345,29 +345,10 @@ export default function VerdictStep({
             </div>
           </div>
 
-          {/* COLUMN 2 (MIDDLE): AROMAS LIST (Just list, no headline) */}
-          <div className="verdict-col verdict-col-aromas">
-            <div className="verdict-aromas-list-clean font-serif">
-              {userAromas.length > 0 ? (
-                userAromas.map((aroma, idx) => (
-                  <div key={idx} className="verdict-aroma-row">
-                    <span className="aroma-icon">{getAromaIcon(aroma)}</span>
-                    <span className="aroma-text">{aroma.toUpperCase()}</span>
-                  </div>
-                ))
-              ) : (
-                <div className="verdict-aroma-row verdict-aroma-empty">
-                  <span className="aroma-icon">🍇</span>
-                  <span className="aroma-text">NO SPECIFIC AROMAS</span>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* COLUMN 3 (RIGHT): PALATE BARS, INTENSITY & DEVELOPMENT, KEY ATTRIBUTES */}
+          {/* COLUMN 2 (MIDDLE): PALATE BARS, INTENSITY & DEVELOPMENT, KEY ATTRIBUTES */}
           <div className="verdict-col verdict-col-details font-serif">
             
-            {/* 1. Palate Bars (Top of column 3, without headline) */}
+            {/* 1. Palate Bars (Top of column 2, without headline) */}
             <div className="verdict-palate-bars-group">
               {/* Body Gauge */}
               <div className="verdict-gauge-row">
@@ -511,6 +492,25 @@ export default function VerdictStep({
               </div>
             </div>
 
+          </div>
+
+          {/* COLUMN 3 (RIGHT): AROMAS LIST (Just list, no headline) */}
+          <div className="verdict-col verdict-col-aromas">
+            <div className="verdict-aromas-list-clean font-serif">
+              {userAromas.length > 0 ? (
+                userAromas.map((aroma, idx) => (
+                  <div key={idx} className="verdict-aroma-row">
+                    <span className="aroma-icon">{getAromaIcon(aroma)}</span>
+                    <span className="aroma-text">{aroma.toUpperCase()}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="verdict-aroma-row verdict-aroma-empty">
+                  <span className="aroma-icon">🍇</span>
+                  <span className="aroma-text">NO SPECIFIC AROMAS</span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
