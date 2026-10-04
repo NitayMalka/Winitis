@@ -2359,6 +2359,22 @@ input[type="range"]::-webkit-slider-thumb:hover {
   .verdict-3col-body {
     grid-template-columns: 70fr 30fr !important;
     gap: 8px !important;
+    overflow: visible !important;
+  }
+  .verdict-left-main-sector {
+    overflow: visible !important;
+  }
+  .verdict-bottom-subsector {
+    grid-template-columns: 31% 69% !important;
+    overflow: visible !important;
+  }
+  .verdict-subsector-attr,
+  .verdict-attr-2col-grid {
+    overflow: visible !important;
+  }
+  .verdict-col-aromas,
+  .verdict-aromas-list-clean {
+    overflow: visible !important;
   }
   .verdict-section-heading {
     font-size: 0.68rem !important;
@@ -4037,7 +4053,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible !important;
   margin-bottom: 6px;
 }
 
@@ -4049,7 +4065,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible !important;
   gap: 8px;
 }
 
@@ -4154,7 +4170,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   width: 100%;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 35% 65%;
+  grid-template-columns: 31% 69%;
   gap: 6px;
   align-items: stretch;
   overflow: visible !important;
@@ -4241,6 +4257,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   min-width: 0;
   box-sizing: border-box;
   overflow: visible !important;
+  position: relative;
+  z-index: 5;
 }
 
 .verdict-attr-2col-grid {
@@ -4251,6 +4269,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   height: 100%;
   width: 100%;
   overflow: visible !important;
+  position: relative;
+  z-index: 5;
 }
 
 .verdict-attr-2col-grid .palate-pillar-item,
@@ -4265,6 +4285,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: none !important;
   min-width: 0;
   overflow: visible !important;
+  position: relative;
+  z-index: 5;
 }
 
 .verdict-attr-2col-grid .pillar-header-row {
@@ -4276,6 +4298,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   margin-bottom: 2px;
   white-space: nowrap !important;
   overflow: visible !important;
+  position: relative;
+  z-index: 5;
 }
 
 .verdict-attr-2col-grid .pillar-icon {
@@ -4291,6 +4315,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   white-space: nowrap !important;
   overflow: visible !important;
   text-overflow: clip !important;
+  display: inline-block !important;
 }
 
 .verdict-attr-2col-grid .pillar-val {
@@ -4302,6 +4327,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   white-space: nowrap !important;
   overflow: visible !important;
   text-overflow: clip !important;
+  display: inline-block !important;
 }
 
 /* Right Column (30% width): Aromas List (as is, no change) */
@@ -4314,9 +4340,11 @@ input[type="range"]::-webkit-slider-thumb:hover {
   max-width: 100%;
   padding: 4px 6px;
   box-sizing: border-box;
-  overflow: visible;
+  overflow: visible !important;
   border-left: none;
   border-right: none;
+  position: relative;
+  z-index: 1;
 }
 
 .verdict-card.theme-dark .verdict-col-aromas {
@@ -4330,7 +4358,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   gap: clamp(2px, 0.9vh, 5px);
   width: 100%;
   box-sizing: border-box;
-  overflow: visible;
+  overflow: visible !important;
 }
 
 .verdict-aromas-list-clean .verdict-aroma-row {
@@ -4346,7 +4374,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: none !important;
   width: 100%;
   box-sizing: border-box;
-  overflow: visible;
+  overflow: visible !important;
+  white-space: nowrap !important;
   line-height: 1.15;
 }
 
@@ -4360,8 +4389,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .verdict-aromas-list-clean .verdict-aroma-row .aroma-text {
-  overflow: visible;
-  text-overflow: clip;
-  white-space: nowrap;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
   flex: 1;
 }
