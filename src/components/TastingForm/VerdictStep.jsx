@@ -1,33 +1,8 @@
 import React, { useState, useRef } from 'react';
 import GenericWineBottle from './GenericWineBottle';
 import EditableText from '../TextEditor/EditableText';
-import { Camera, RotateCcw, X, Quote, Sliders } from 'lucide-react';
+import { Camera, RotateCcw, X, Quote } from 'lucide-react';
 import { useTexts } from '../../context/TextContext';
-
-const DEFAULT_LABEL_SIZE = 0.54;
-const DEFAULT_VAL_SIZE = 0.58;
-
-const getSavedLabelSize = () => {
-  try {
-    const val = localStorage.getItem('winitis_attr_label_size');
-    if (val) {
-      const parsed = parseFloat(val);
-      if (!isNaN(parsed) && parsed >= 0.36 && parsed <= 0.85) return parsed;
-    }
-  } catch (e) {}
-  return DEFAULT_LABEL_SIZE;
-};
-
-const getSavedValSize = () => {
-  try {
-    const val = localStorage.getItem('winitis_attr_val_size');
-    if (val) {
-      const parsed = parseFloat(val);
-      if (!isNaN(parsed) && parsed >= 0.36 && parsed <= 0.95) return parsed;
-    }
-  } catch (e) {}
-  return DEFAULT_VAL_SIZE;
-};
 
 // Helper to convert structural levels to gauge percentage
 function getGaugePercent(levelStr = '') {
@@ -245,30 +220,6 @@ export default function VerdictStep({
     updateWineNote(updated);
   };
 
-  const [attrLabelSize, setAttrLabelSize] = useState(getSavedLabelSize);
-  const [attrValSize, setAttrValSize] = useState(getSavedValSize);
-
-  const updateAttrLabelSize = (newSize) => {
-    const rounded = Math.round(newSize * 100) / 100;
-    setAttrLabelSize(rounded);
-    try {
-      localStorage.setItem('winitis_attr_label_size', String(rounded));
-    } catch (e) {}
-  };
-
-  const updateAttrValSize = (newSize) => {
-    const rounded = Math.round(newSize * 100) / 100;
-    setAttrValSize(rounded);
-    try {
-      localStorage.setItem('winitis_attr_val_size', String(rounded));
-    } catch (e) {}
-  };
-
-  const handleResetSizes = () => {
-    updateAttrLabelSize(DEFAULT_LABEL_SIZE);
-    updateAttrValSize(DEFAULT_VAL_SIZE);
-  };
-
   const wineTypeClean = (wineNote.type || 'red').toLowerCase();
 
   return (
@@ -280,10 +231,6 @@ export default function VerdictStep({
       <div
         ref={cardRef}
         className={`verdict-card ${theme === 'dark' ? 'theme-dark' : 'theme-parchment'}`}
-        style={{
-          '--attr-label-size': `${attrLabelSize}rem`,
-          '--attr-val-size': `${attrValSize}rem`
-        }}
       >
         {/* Hidden File Input for Custom Bottle Photo Upload */}
         <input
@@ -609,101 +556,6 @@ export default function VerdictStep({
         </div>
 
       </div>
-
-      {/* Attribute Typography Size Controls (No-Print) */}
-      {!readOnly && (
-        <div className="attr-size-controller-wrap no-print font-serif">
-          <div className="controller-header">
-            <div className="controller-header-title">
-              <Sliders size={14} color="#d4af37" />
-              <span>Attribute Text Sizes</span>
-            </div>
-            <button 
-              type="button" 
-              className="controller-reset-btn" 
-              onClick={handleResetSizes}
-              title="Reset to default text sizes"
-            >
-              <RotateCcw size={12} />
-              <span>Reset</span>
-            </button>
-          </div>
-
-          <div className="controller-controls-grid">
-            {/* Label (Name) Size */}
-            <div className="control-slider-group">
-              <div className="control-label-row">
-                <span className="ctrl-name">Names Size:</span>
-                <span className="ctrl-val-badge">{(attrLabelSize * 16).toFixed(1)}px</span>
-              </div>
-              <div className="ctrl-slider-row">
-                <button 
-                  type="button" 
-                  className="ctrl-step-btn" 
-                  onClick={() => updateAttrLabelSize(Math.max(0.36, attrLabelSize - 0.02))}
-                  aria-label="Decrease names size"
-                >
-                  -
-                </button>
-                <input 
-                  type="range" 
-                  min="0.36" 
-                  max="0.80" 
-                  step="0.02" 
-                  value={attrLabelSize} 
-                  onChange={(e) => updateAttrLabelSize(parseFloat(e.target.value))}
-                  className="ctrl-range-input"
-                  aria-label="Attribute names text size"
-                />
-                <button 
-                  type="button" 
-                  className="ctrl-step-btn" 
-                  onClick={() => updateAttrLabelSize(Math.min(0.80, attrLabelSize + 0.02))}
-                  aria-label="Increase names size"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            {/* Value Size */}
-            <div className="control-slider-group">
-              <div className="control-label-row">
-                <span className="ctrl-name">Values Size:</span>
-                <span className="ctrl-val-badge">{(attrValSize * 16).toFixed(1)}px</span>
-              </div>
-              <div className="ctrl-slider-row">
-                <button 
-                  type="button" 
-                  className="ctrl-step-btn" 
-                  onClick={() => updateAttrValSize(Math.max(0.36, attrValSize - 0.02))}
-                  aria-label="Decrease values size"
-                >
-                  -
-                </button>
-                <input 
-                  type="range" 
-                  min="0.36" 
-                  max="0.90" 
-                  step="0.02" 
-                  value={attrValSize} 
-                  onChange={(e) => updateAttrValSize(parseFloat(e.target.value))}
-                  className="ctrl-range-input"
-                  aria-label="Attribute values text size"
-                />
-                <button 
-                  type="button" 
-                  className="ctrl-step-btn" 
-                  onClick={() => updateAttrValSize(Math.min(0.90, attrValSize + 0.02))}
-                  aria-label="Increase values size"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Photo Options Modal: Choose if retake photo or switch to default bottle */}
       {showPhotoOptions && (

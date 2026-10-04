@@ -1,4 +1,4 @@
-const CACHE_NAME = 'winitis-v12';
+const CACHE_NAME = 'winitis-v13';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
