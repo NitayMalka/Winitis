@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { RED_WINE_AROMAS } from '../../data/wineData';
-import { Wind, Sparkles, Check, Info, Trash2, Sliders } from 'lucide-react';
+import { Wind, Sparkles, Check, Info, Trash2, Sliders, Search, Plus, X } from 'lucide-react';
 import EditableText from '../TextEditor/EditableText';
 import { useTexts } from '../../context/TextContext';
 import PalateStep from './PalateStep';
@@ -27,6 +27,24 @@ const CATEGORY_MAP = [
 
 // Strips any parenthetical text e.g. "Butter/Cream (MLF)" -> "Butter/Cream"
 const cleanAromaText = (text) => (text ? text.replace(/\s*\([^)]*\)/g, '').trim() : '');
+
+// Master list of all predefined aromas across categories and wheel
+const ALL_MASTER_AROMAS = Array.from(
+  new Set([
+    ...CATEGORY_MAP.flatMap(c => c.items),
+    ...Object.values(RED_WINE_AROMAS).flatMap(cats => cats.flatMap(c => c.items))
+  ].map(cleanAromaText))
+).sort((a, b) => a.localeCompare(b));
+
+function getAromaCategoryName(aromaName) {
+  const clean = cleanAromaText(aromaName).toLowerCase();
+  for (const cat of CATEGORY_MAP) {
+    if (cat.items.some(i => cleanAromaText(i).toLowerCase() === clean)) {
+      return cat.name;
+    }
+  }
+  return 'Aroma';
+}
 
 // Generates an SVG stroke arc for textPath along a circular ring.
 // When isFlipped is true (bottom half slices), the path runs counter-clockwise (smile curve)
@@ -141,6 +159,89 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
     const clean = cleanAromaText(aroma);
     return selectedAromas.some(a => cleanAromaText(a) === clean);
   };
+
+  // Free text aroma input with autocomplete
+  const [aromaInput, setAromaInput] = useState('');
+  const [isInputFocused, setIsInputFocused] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const searchContainerRef = useRef(null);
+
+  const cleanInput = aromaInput.trim().toLowerCase();
+  const filteredSuggestions = cleanInput.length > 0
+    ? ALL_MASTER_AROMAS.filter(item => 
+        item.toLowerCase().includes(cleanInput) &&
+        !selectedAromas.some(s => cleanAromaText(s).toLowerCase() === item.toLowerCase())
+      ).slice(0, 8)
+    : [];
+
+  const isExactMatch = ALL_MASTER_AROMAS.some(
+    item => item.toLowerCase() === cleanInput
+  );
+  const isAlreadySelected = selectedAromas.some(
+    s => cleanAromaText(s).toLowerCase() === cleanInput
+  );
+  const canAddCustom = cleanInput.length > 0 && !isAlreadySelected && !isExactMatch;
+
+  const handleAddAroma = (nameToAdd) => {
+    const raw = (nameToAdd || aromaInput).trim();
+    if (!raw) return;
+
+    // Capitalize words nicely
+    const formatted = raw
+      .split(' ')
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+
+    const clean = cleanAromaText(formatted);
+    if (!selectedAromas.some(a => cleanAromaText(a).toLowerCase() === clean.toLowerCase())) {
+      updateNoseData({
+        ...noseData,
+        aromas: [...selectedAromas, clean]
+      });
+    }
+
+    setAromaInput('');
+    setHighlightedIndex(-1);
+    setIsInputFocused(false);
+  };
+
+  const handleKeyDown = (e) => {
+    const totalOptions = filteredSuggestions.length + (canAddCustom ? 1 : 0);
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (totalOptions > 0) {
+        setHighlightedIndex(prev => (prev < totalOptions - 1 ? prev + 1 : 0));
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (totalOptions > 0) {
+        setHighlightedIndex(prev => (prev > 0 ? prev - 1 : totalOptions - 1));
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (highlightedIndex >= 0 && highlightedIndex < filteredSuggestions.length) {
+        handleAddAroma(filteredSuggestions[highlightedIndex]);
+      } else {
+        handleAddAroma(aromaInput);
+      }
+    } else if (e.key === 'Escape') {
+      setIsInputFocused(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setIsInputFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, []);
 
   const toggleAroma = (aroma) => {
     const clean = cleanAromaText(aroma);
@@ -545,6 +646,87 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
 
             </svg>
           </div>
+
+        {/* FREE TEXT AROMA INPUT WITH AUTOCOMPLETE */}
+        <div ref={searchContainerRef} className="aroma-search-box-wrap font-serif">
+          <div className="aroma-search-input-container">
+            <span className="aroma-search-icon">
+              <Search size={14} color="#d4af37" />
+            </span>
+            <input
+              type="text"
+              value={aromaInput}
+              onChange={(e) => {
+                setAromaInput(e.target.value);
+                setHighlightedIndex(-1);
+                setIsInputFocused(true);
+              }}
+              onFocus={() => setIsInputFocused(true)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type any aroma (or choose from list)..."
+              className="aroma-search-input font-serif"
+            />
+            {aromaInput.length > 0 && (
+              <button
+                type="button"
+                className="aroma-clear-btn"
+                onClick={() => {
+                  setAromaInput('');
+                  setHighlightedIndex(-1);
+                }}
+                title="Clear input"
+              >
+                <X size={13} />
+              </button>
+            )}
+            <button
+              type="button"
+              className="aroma-add-btn"
+              onClick={() => handleAddAroma(aromaInput)}
+              disabled={aromaInput.trim().length === 0}
+              title="Add aroma"
+            >
+              <Plus size={13} />
+              <span>Add</span>
+            </button>
+          </div>
+
+          {/* Autocomplete Dropdown List */}
+          {isInputFocused && (filteredSuggestions.length > 0 || canAddCustom) && (
+            <div className="aroma-autocomplete-dropdown font-serif">
+              {filteredSuggestions.map((item, idx) => (
+                <div
+                  key={item}
+                  className={`aroma-autocomplete-item ${idx === highlightedIndex ? 'highlighted' : ''}`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleAddAroma(item);
+                  }}
+                >
+                  <span className="aroma-item-icon">🍇</span>
+                  <span className="aroma-item-text">{item}</span>
+                  <span className="aroma-item-badge">{getAromaCategoryName(item)}</span>
+                </div>
+              ))}
+
+              {canAddCustom && (
+                <div
+                  className={`aroma-autocomplete-item custom-item ${highlightedIndex === filteredSuggestions.length ? 'highlighted' : ''}`}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleAddAroma(aromaInput);
+                  }}
+                >
+                  <Plus size={13} color="#4ade80" />
+                  <span className="aroma-item-text">
+                    Add custom: <strong>"{aromaInput.trim()}"</strong>
+                  </span>
+                  <span className="aroma-item-badge custom">Custom</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* SELECTED AROMAS (Single slideable line beneath wheel - fixed height) */}
         <div className="selected-aromas-slider">

@@ -2719,6 +2719,180 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 /* ====================================================
+   FREE TEXT AROMA INPUT & AUTOCOMPLETE
+   ==================================================== */
+.aroma-search-box-wrap {
+  width: 100%;
+  max-width: 490px;
+  margin: 6px auto 4px auto;
+  position: relative;
+  z-index: 60;
+  box-sizing: border-box;
+  padding: 0 10px;
+}
+
+.aroma-search-input-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(22, 13, 24, 0.88);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  border-radius: 24px;
+  padding: 4px 6px 4px 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), inset 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.aroma-search-input-container:focus-within {
+  border-color: var(--gold-primary);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.3), inset 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.aroma-search-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.aroma-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+  min-width: 0;
+}
+
+.aroma-search-input::placeholder {
+  color: rgba(241, 231, 208, 0.5);
+  font-style: italic;
+  font-size: 0.78rem;
+}
+
+.aroma-clear-btn {
+  background: transparent;
+  border: none;
+  color: rgba(241, 231, 208, 0.6);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: color 0.15s;
+}
+
+.aroma-clear-btn:hover {
+  color: #ffffff;
+}
+
+.aroma-add-btn {
+  background: linear-gradient(135deg, #d4af37 0%, #aa820a 100%);
+  color: #0f0910;
+  border: none;
+  border-radius: 18px;
+  padding: 5px 12px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+  flex-shrink: 0;
+}
+
+.aroma-add-btn:hover:not(:disabled) {
+  transform: scale(1.04);
+}
+
+.aroma-add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Autocomplete Dropdown List */
+.aroma-autocomplete-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 10px;
+  right: 10px;
+  background: rgba(18, 10, 20, 0.98);
+  border: 1px solid var(--gold-primary);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85), 0 0 16px rgba(212, 175, 55, 0.2);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aroma-autocomplete-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #f1e7d0;
+  font-size: 0.80rem;
+  transition: background 0.15s;
+}
+
+.aroma-autocomplete-item:hover,
+.aroma-autocomplete-item.highlighted {
+  background: rgba(212, 175, 55, 0.2);
+  color: #ffffff;
+}
+
+.aroma-autocomplete-item.custom-item {
+  border-top: 1px solid rgba(212, 175, 55, 0.2);
+  color: #4ade80;
+}
+
+.aroma-autocomplete-item.custom-item:hover,
+.aroma-autocomplete-item.custom-item.highlighted {
+  background: rgba(74, 222, 128, 0.15);
+  color: #ffffff;
+}
+
+.aroma-item-icon {
+  font-size: 0.80rem;
+}
+
+.aroma-item-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aroma-item-badge {
+  font-size: 0.62rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold-primary);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  font-weight: 700;
+}
+
+.aroma-item-badge.custom {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.3);
+}
+
+/* ====================================================
    SECTOR 2: SINGLE SLIDEABLE LINE OF SELECTED AROMAS
    ==================================================== */
 .selected-aromas-slider {
