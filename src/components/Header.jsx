@@ -56,7 +56,9 @@ export default function Header({
     if (isEditMode) return;
     e.stopPropagation();
 
-    const textToCopy = "If you like it - tell your friends.. Winitis wine taste app https://winitis.vercel.app";
+    const textToCopy = `If you like it - tell your friends
+Winitis wine taste app
+https://winitis.vercel.app`;
     let success = false;
     try {
       if (navigator.clipboard && window.isSecureContext) {
@@ -88,10 +90,10 @@ export default function Header({
       clearTimeout(toastTimeoutRef.current);
     }
     setToastKey(Date.now());
-    setCopiedToast(textToCopy);
+    setCopiedToast(true);
 
     toastTimeoutRef.current = setTimeout(() => {
-      setCopiedToast(null);
+      setCopiedToast(false);
     }, 3000);
   };
 
@@ -267,7 +269,7 @@ export default function Header({
         <div 
           key={toastKey}
           className="copied-toast-window font-serif"
-          onClick={() => setCopiedToast(null)}
+          onClick={() => setCopiedToast(false)}
           title="Click to dismiss"
         >
           <div className="copied-toast-badge">
@@ -275,7 +277,9 @@ export default function Header({
             <span>COPIED!</span>
           </div>
           <div className="copied-toast-text">
-            {copiedToast}
+            <div className="toast-headline">If you like it - tell your friends</div>
+            <div className="toast-subline">Winitis wine taste app</div>
+            <div className="toast-link">https://winitis.vercel.app</div>
           </div>
         </div>
       )}

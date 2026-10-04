@@ -204,9 +204,32 @@ h1, h2, h3, .heading-serif {
   line-height: 1.4;
   word-break: break-word;
   background: rgba(255, 255, 255, 0.06);
-  padding: 8px 10px;
-  border-radius: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
   border: 1px dashed rgba(212, 175, 55, 0.45);
+}
+
+.toast-headline {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #ffd700;
+  letter-spacing: 0.02em;
+  margin-bottom: 5px;
+  line-height: 1.25;
+}
+
+.toast-subline {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #f6ecd6;
+  margin-bottom: 5px;
+}
+
+.toast-link {
+  font-size: 0.74rem;
+  color: #93c5fd;
+  text-decoration: underline;
+  word-break: break-all;
 }
 
 .nav-buttons {
