@@ -1,14 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import GenericWineBottle from './GenericWineBottle';
 import EditableText from '../TextEditor/EditableText';
 import {
   Camera, RotateCcw, Quote, Sun, Moon, Share2, Loader2, Check,
   Sliders, Move, Maximize2, Minimize2, Eye, EyeOff,
   ChevronUp, ChevronDown, ChevronLeft, ChevronRight,
-  ArrowUpDown, ArrowLeftRight
+  ArrowUpDown, ArrowLeftRight, Smartphone
 } from 'lucide-react';
 import { toBlob, toPng } from 'html-to-image';
 import { useTexts } from '../../context/TextContext';
+import { pushLiveSync, subscribeLiveSync } from '../../utils/liveSync';
 
 const STORAGE_ADVANCED_LAYOUT_KEY = 'winitis_verdict_advanced_layout_v2';
 
@@ -124,6 +125,45 @@ export default function VerdictStep({
   const [nudgeStep, setNudgeStep] = useState(5); // 1, 5, or 15 px
   const [isInspectorCollapsed, setIsInspectorCollapsed] = useState(false);
   const [layout, setLayout] = useState(() => getInitialLayout(wineNote));
+  const [lastSyncTime, setLastSyncTime] = useState(null);
+
+  // Subscribe to live sync events from iPhone or PC
+  useEffect(() => {
+    const unsubscribe = subscribeLiveSync((syncData) => {
+      if (syncData.layout) {
+        setLayout(syncData.layout);
+        try {
+          localStorage.setItem(STORAGE_ADVANCED_LAYOUT_KEY, JSON.stringify(syncData.layout));
+        } catch (e) {}
+      }
+      if (syncData.theme) {
+        setTheme(syncData.theme);
+      }
+      if (syncData.wineNote && updateWineNote) {
+        updateWineNote(prev => ({
+          ...prev,
+          ...syncData.wineNote
+        }));
+      }
+      setLastSyncTime(new Date());
+    });
+    return unsubscribe;
+  }, []);
+
+  // Broadcast current state when entering edit mode
+  useEffect(() => {
+    if (isEditMode) {
+      pushLiveSync({
+        layout,
+        wineNote: {
+          ...wineNote,
+          customLayout: layout
+        },
+        theme,
+        step: 4
+      });
+    }
+  }, [isEditMode]);
 
   const saveLayout = (newLayout) => {
     setLayout(newLayout);
@@ -132,12 +172,35 @@ export default function VerdictStep({
     } catch (e) {
       console.warn('Failed to save layout:', e);
     }
+    const updatedNote = {
+      ...wineNote,
+      customLayout: newLayout
+    };
     if (updateWineNote) {
-      updateWineNote({
-        ...wineNote,
-        customLayout: newLayout
-      });
+      updateWineNote(updatedNote);
     }
+    // Broadcast real-time change to iPhone
+    pushLiveSync({
+      layout: newLayout,
+      wineNote: updatedNote,
+      theme,
+      step: 4
+    });
+    setLastSyncTime(new Date());
+  };
+
+  const handleToggleTheme = () => {
+    const nextTheme = theme === 'parchment' ? 'dark' : 'parchment';
+    setTheme(nextTheme);
+    pushLiveSync({
+      layout,
+      wineNote: {
+        ...wineNote,
+        customLayout: layout
+      },
+      theme: nextTheme,
+      step: 4
+    });
   };
 
   const updateSelectedItem = (changes) => {
@@ -585,7 +648,7 @@ export default function VerdictStep({
             type="button"
             className="btn btn-outline"
             style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
-            onClick={() => setTheme(prev => prev === 'parchment' ? 'dark' : 'parchment')}
+            onClick={handleToggleTheme}
             title={theme === 'parchment' ? 'Switch to Dark Theme' : 'Switch to Day / Parchment Theme'}
             aria-label="Toggle Day / Night theme"
           >
@@ -694,6 +757,16 @@ export default function VerdictStep({
               <span>{isEditMode ? "Exit Edit" : "Advanced Edit"}</span>
             </button>
           )}
+
+          {/* Real-time Live Sync Indicator Badge */}
+          <div
+            className="live-sync-badge no-print"
+            title="Real-time live sync: any layout, size or position change updates immediately on iPhone"
+          >
+            <span className="live-sync-dot" />
+            <Smartphone size={13} color="#4ade80" />
+            <span className="live-sync-text">Live Sync</span>
+          </div>
 
         </div>
       </div>
@@ -1170,6 +1243,10 @@ export default function VerdictStep({
                   </optgroup>
                 ))}
               </select>
+
+              <span className="adv-live-tag" title="Connected to iPhone: real-time updates active">
+                <span className="live-sync-dot" /> iPhone Synced
+              </span>
             </div>
 
             <div className="adv-header-right">

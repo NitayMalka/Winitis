@@ -23,6 +23,7 @@ import {
 import { Wine, Check, Sparkles, Eye, Wind, Award, FileText } from 'lucide-react';
 import { useTexts } from './context/TextContext';
 import EditableText from './components/TextEditor/EditableText';
+import { subscribeLiveSync } from './utils/liveSync';
 
 const INITIAL_NOTE_STATE = {
   wineName: '',
@@ -77,6 +78,23 @@ export default function App() {
   useEffect(() => {
     const loaded = getSavedNotes();
     setSavedNotes(loaded);
+  }, []);
+
+  // Live Sync with PC during editing mode (deprecatable after editing)
+  useEffect(() => {
+    const unsubscribe = subscribeLiveSync((syncData) => {
+      if (syncData.step) {
+        setCurrentView('form');
+        setCurrentStep(syncData.step);
+      }
+      if (syncData.wineNote) {
+        setWineNote(prev => ({
+          ...prev,
+          ...syncData.wineNote
+        }));
+      }
+    });
+    return unsubscribe;
   }, []);
 
   // Persist current active step across app switches and browser sessions
