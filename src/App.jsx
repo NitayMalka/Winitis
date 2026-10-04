@@ -48,7 +48,18 @@ const INITIAL_NOTE_STATE = {
   nose: {
     intensity: 'Medium(+)',
     development: 'Youthful',
-    aromas: ['Blackberry', 'Blackcurrant (Cassis)', 'Vanilla', 'Cedar']
+    aromas: [
+      'Blackberry',
+      'Blackcurrant (Cassis)',
+      'Plum',
+      'Dark Cherry',
+      'Vanilla',
+      'Cedar',
+      'Cinnamon / Sweet Spice',
+      'Oak',
+      'Leather',
+      'Tobacco'
+    ]
   },
   palate: {
     sweetness: 'Dry',

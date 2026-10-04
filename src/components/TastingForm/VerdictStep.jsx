@@ -107,8 +107,14 @@ export default function VerdictStep({
   const rawAromas = wineNote.nose?.aromas?.length ? wineNote.nose.aromas : [
     'Blackberry',
     'Blackcurrant',
+    'Plum',
+    'Dark Cherry',
     'Vanilla',
-    'Cedar'
+    'Cedar',
+    'Cinnamon / Sweet Spice',
+    'Oak',
+    'Leather',
+    'Tobacco'
   ];
   const userAromas = rawAromas
     .map(a => cleanText(a))

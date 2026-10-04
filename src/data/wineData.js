@@ -84,7 +84,10 @@ export const SAMPLE_NOTES = [
     nose: {
       intensity: 'Pronounced',
       development: 'Developing',
-      aromas: ['Blackcurrant', 'Violet', 'Cedar', 'Cigar Box', 'Graphite/Lead Pencil', 'Vanilla']
+      aromas: [
+        'Blackcurrant', 'Violet', 'Cedar', 'Cigar Box', 'Graphite/Lead Pencil', 
+        'Vanilla', 'Blackberry', 'Dark Plum', 'Tobacco Leaf', 'Leather'
+      ]
     },
     palate: {
       sweetness: 'Dry',
@@ -123,7 +126,10 @@ export const SAMPLE_NOTES = [
     nose: {
       intensity: 'Medium(+)',
       development: 'Youthful',
-      aromas: ['Red Cherry', 'Raspberry', 'Forest Floor', 'Cinnamon', 'Toast']
+      aromas: [
+        'Red Cherry', 'Raspberry', 'Forest Floor', 'Cinnamon', 'Toast',
+        'Strawberry', 'Mushroom', 'Clove', 'Rose Petal', 'Vanilla'
+      ]
     },
     palate: {
       sweetness: 'Dry',
