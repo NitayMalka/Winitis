@@ -532,9 +532,6 @@ export default function VerdictStep({
           </div>
         </div>
 
-        {/* Thin Divider Line */}
-        <div className="verdict-divider-line" />
-
         {/* ----------------------------------------------------
             3. SOMMELIER NOTES ROW (As it is now)
            ---------------------------------------------------- */}

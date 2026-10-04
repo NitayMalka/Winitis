@@ -3760,6 +3760,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   max-width: 100%;
   box-sizing: border-box;
   overflow: hidden;
+  margin-bottom: 6px;
 }
 
 /* Column 1: Wine Bottle (Panned to top, fills container) */
@@ -3828,13 +3829,13 @@ input[type="range"]::-webkit-slider-thumb:hover {
   padding: 4px 8px;
   box-sizing: border-box;
   overflow: visible;
-  border-left: 1px solid rgba(120, 100, 87, 0.2);
-  border-right: 1px solid rgba(120, 100, 87, 0.2);
+  border-left: none;
+  border-right: none;
 }
 
 .verdict-card.theme-dark .verdict-col-aromas {
-  border-left-color: rgba(212, 175, 55, 0.2);
-  border-right-color: rgba(212, 175, 55, 0.2);
+  border-left: none;
+  border-right: none;
 }
 
 .verdict-aromas-list-clean {
