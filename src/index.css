@@ -95,6 +95,16 @@ h1, h2, h3, .heading-serif {
   gap: 12px;
   cursor: pointer;
   text-decoration: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  user-select: none;
+}
+
+.brand-logo:hover {
+  opacity: 0.92;
+}
+
+.brand-logo:active {
+  transform: scale(0.96);
 }
 
 .brand-icon {

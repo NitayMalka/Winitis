@@ -52,7 +52,7 @@ export default function Header({
     setTimeout(() => setIsSavedFlash(false), 2000);
   };
 
-  const handleSubtitleClick = async (e) => {
+  const handleBrandShareClick = async (e) => {
     if (isEditMode) return;
     e.stopPropagation();
 
@@ -98,7 +98,13 @@ export default function Header({
   return (
     <header className="app-header">
       <div className="header-content">
-        <div className="brand-logo" onClick={() => setCurrentView('new')}>
+        <div 
+          className="brand-logo" 
+          onClick={handleBrandShareClick}
+          title="Click to copy app link and share"
+          role="button"
+          tabIndex={0}
+        >
           <svg className="brand-icon" viewBox="0 0 512 512" fill="none">
             <path d="M 176 120 C 176 260, 336 260, 336 120 Z" fill="url(#wineGrad)"/>
             <path d="M 176 120 C 176 260, 336 260, 336 120 Z" stroke="#d4af37" strokeWidth="12"/>
@@ -115,13 +121,7 @@ export default function Header({
             <div className="brand-title font-serif">
               <EditableText textKey="header.brandTitle" defaultText="WINITIS" />
             </div>
-            <div 
-              className="brand-subtitle"
-              onClick={handleSubtitleClick}
-              title="Click to copy app link and share"
-              role="button"
-              tabIndex={0}
-            >
+            <div className="brand-subtitle">
               <EditableText textKey="header.brandSubtitle" defaultText="by Nitay Malka" />
             </div>
           </div>
