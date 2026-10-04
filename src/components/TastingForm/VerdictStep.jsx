@@ -293,208 +293,210 @@ export default function VerdictStep({
         <div className="verdict-divider-line" />
 
         {/* ----------------------------------------------------
-            2. MAIN BODY: 3 COLUMNS
-               Left (Col 1): Wine Bottle
-               Middle (Col 2): Palate Bars, Intensity & Development, Key Attributes
-               Right (Col 3): Aromas List (just list, no headline)
+            2. MAIN BODY: BOTTLE & SPECS (LEFT 70%) + AROMAS LIST (RIGHT 30%)
+               - Left (70% width):
+                 * Top 70% height: Bottle Picture (wider, from start to aroma column)
+                 * Bottom 30% height: Split into Bar Zone (Left) & Attributes (Right)
+               - Right (30% width): Aromas List (as is, no change)
            ---------------------------------------------------- */}
-        <div 
-          className="verdict-3col-body"
-          style={{
-            gridTemplateColumns: '40fr 30fr 30fr'
-          }}
-        >
-          {/* COLUMN 1 (LEFT): WINE BOTTLE */}
-          <div className="verdict-col verdict-col-bottle">
-            <div className="verdict-bottle-frame">
-              {bottleImage ? (
-                <div 
-                  className="custom-bottle-img-wrap"
-                  onClick={() => {
-                    if (!readOnly) setShowPhotoOptions(true);
-                  }}
-                  style={{ cursor: readOnly ? 'default' : 'pointer', width: '100%', height: '100%' }}
-                  title={readOnly ? undefined : "Click to change photo or switch to default bottle"}
-                >
-                  <img src={bottleImage} alt="Wine Bottle" className="custom-bottle-img" />
-                </div>
-              ) : (
-                <div 
-                  className="generic-wine-bottle-wrap"
-                  onClick={() => {
-                    if (!readOnly) fileInputRef.current?.click();
-                  }}
-                  style={{ cursor: readOnly ? 'default' : 'pointer', position: 'relative', width: '100%', height: '100%' }}
-                  title={readOnly ? undefined : "Click to take or upload bottle photo"}
-                >
-                  <GenericWineBottle
-                    wineType={wineTypeClean}
-                    wineColorHex={colorHex}
-                    wineName={wineName}
-                    vintage={vintage}
-                    appellation={originStr}
-                    alcohol={alcohol}
-                  />
-                  {!readOnly && (
-                    <div className="default-bottle-photo-badge no-print" title="Upload Bottle Photo">
-                      <Camera size={18} color="#d4af37" />
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* COLUMN 2 (MIDDLE): PALATE BARS, INTENSITY & DEVELOPMENT, KEY ATTRIBUTES */}
-          <div className="verdict-col verdict-col-details font-serif">
+        <div className="verdict-main-body-split">
+          
+          {/* LEFT 70% AREA: BOTTLE (TOP 70%) + BARS & ATTR (BOTTOM 30%) */}
+          <div className="verdict-left-main-sector">
             
-            {/* 1. Palate Bars (Top of column 2, without headline) */}
-            <div className="verdict-palate-bars-group">
-              {/* Body Gauge */}
-              <div className="verdict-gauge-row">
-                <div className="gauge-icon-label">
-                  <span className="gauge-icon">🍷</span>
-                  <span className="gauge-title"><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
-                </div>
-                <div className="gauge-control-wrap">
-                  <div className="gauge-track-container">
-                    <span
-                      className="gauge-pointer"
-                      style={{ left: `${Math.min(96, Math.max(4, getGaugePercent(bodyVal)))}%` }}
-                    >
-                      ▼
-                    </span>
-                    <div className="verdict-gauge-track">
-                      <div
-                        className="verdict-gauge-fill"
-                        style={{ width: `${getGaugePercent(bodyVal)}%` }}
-                      />
-                    </div>
+            {/* Top 70% Height: Bottle Picture (Wider & shorter, takes 70% height) */}
+            <div className="verdict-bottle-top-sector">
+              <div className="verdict-bottle-frame">
+                {bottleImage ? (
+                  <div 
+                    className="custom-bottle-img-wrap"
+                    onClick={() => {
+                      if (!readOnly) setShowPhotoOptions(true);
+                    }}
+                    style={{ cursor: readOnly ? 'default' : 'pointer', width: '100%', height: '100%' }}
+                    title={readOnly ? undefined : "Click to change photo or switch to default bottle"}
+                  >
+                    <img src={bottleImage} alt="Wine Bottle" className="custom-bottle-img" />
                   </div>
-                  <div className="gauge-tickers-row">
-                    <span>Light</span>
-                    <span>Full</span>
+                ) : (
+                  <div 
+                    className="generic-wine-bottle-wrap"
+                    onClick={() => {
+                      if (!readOnly) fileInputRef.current?.click();
+                    }}
+                    style={{ cursor: readOnly ? 'default' : 'pointer', position: 'relative', width: '100%', height: '100%' }}
+                    title={readOnly ? undefined : "Click to take or upload bottle photo"}
+                  >
+                    <GenericWineBottle
+                      wineType={wineTypeClean}
+                      wineColorHex={colorHex}
+                      wineName={wineName}
+                      vintage={vintage}
+                      appellation={originStr}
+                      alcohol={alcohol}
+                    />
+                    {!readOnly && (
+                      <div className="default-bottle-photo-badge no-print" title="Upload Bottle Photo">
+                        <Camera size={18} color="#d4af37" />
+                      </div>
+                    )}
                   </div>
-                </div>
-              </div>
-
-              {/* Acidity Gauge */}
-              <div className="verdict-gauge-row">
-                <div className="gauge-icon-label">
-                  <span className="gauge-icon">🍋</span>
-                  <span className="gauge-title"><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
-                </div>
-                <div className="gauge-control-wrap">
-                  <div className="gauge-track-container">
-                    <span
-                      className="gauge-pointer"
-                      style={{ left: `${Math.min(96, Math.max(4, getGaugePercent(acidityVal)))}%` }}
-                    >
-                      ▼
-                    </span>
-                    <div className="verdict-gauge-track">
-                      <div
-                        className="verdict-gauge-fill"
-                        style={{ width: `${getGaugePercent(acidityVal)}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="gauge-tickers-row">
-                    <span>Low</span>
-                    <span>High</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tannins Gauge */}
-              <div className="verdict-gauge-row">
-                <div className="gauge-icon-label">
-                  <span className="gauge-icon">🍇</span>
-                  <span className="gauge-title"><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
-                </div>
-                <div className="gauge-control-wrap">
-                  <div className="gauge-track-container">
-                    <span
-                      className="gauge-pointer"
-                      style={{ left: `${Math.min(96, Math.max(4, getGaugePercent(tanninVal)))}%` }}
-                    >
-                      ▼
-                    </span>
-                    <div className="verdict-gauge-track">
-                      <div
-                        className="verdict-gauge-fill"
-                        style={{ width: `${getGaugePercent(tanninVal)}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="gauge-tickers-row">
-                    <span>Low</span>
-                    <span>High</span>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
-            {/* 2. Intensity & Development (Below the bars, 1 in a row - development under intensity) */}
-            <div className="verdict-palate-pillars-grid verdict-nose-pillars-grid">
-              <div className="palate-pillar-item">
-                <div className="pillar-header-row">
-                  <span className="pillar-icon">👃</span>
-                  <span className="pillar-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>
+            {/* Bottom 30% Height: Bar Zone (Left) & Attributes (Right) */}
+            <div className="verdict-bottom-subsector">
+              
+              {/* Left Zone: Palate Bars (Body, Acidity, Tannins) */}
+              <div className="verdict-subsector-bars">
+                <div className="verdict-palate-bars-group font-serif">
+                  {/* Body Gauge */}
+                  <div className="verdict-gauge-row">
+                    <div className="gauge-icon-label">
+                      <span className="gauge-icon">🍷</span>
+                      <span className="gauge-title"><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
+                    </div>
+                    <div className="gauge-control-wrap">
+                      <div className="gauge-track-container">
+                        <span
+                          className="gauge-pointer"
+                          style={{ left: `${Math.min(96, Math.max(4, getGaugePercent(bodyVal)))}%` }}
+                        >
+                          ▼
+                        </span>
+                        <div className="verdict-gauge-track">
+                          <div
+                            className="verdict-gauge-fill"
+                            style={{ width: `${getGaugePercent(bodyVal)}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div className="gauge-tickers-row">
+                        <span>Light</span>
+                        <span>Full</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Acidity Gauge */}
+                  <div className="verdict-gauge-row">
+                    <div className="gauge-icon-label">
+                      <span className="gauge-icon">🍋</span>
+                      <span className="gauge-title"><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
+                    </div>
+                    <div className="gauge-control-wrap">
+                      <div className="gauge-track-container">
+                        <span
+                          className="gauge-pointer"
+                          style={{ left: `${Math.min(96, Math.max(4, getGaugePercent(acidityVal)))}%` }}
+                        >
+                          ▼
+                        </span>
+                        <div className="verdict-gauge-track">
+                          <div
+                            className="verdict-gauge-fill"
+                            style={{ width: `${getGaugePercent(acidityVal)}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div className="gauge-tickers-row">
+                        <span>Low</span>
+                        <span>High</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tannins Gauge */}
+                  <div className="verdict-gauge-row">
+                    <div className="gauge-icon-label">
+                      <span className="gauge-icon">🍇</span>
+                      <span className="gauge-title"><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
+                    </div>
+                    <div className="gauge-control-wrap">
+                      <div className="gauge-track-container">
+                        <span
+                          className="gauge-pointer"
+                          style={{ left: `${Math.min(96, Math.max(4, getGaugePercent(tanninVal)))}%` }}
+                        >
+                          ▼
+                        </span>
+                        <div className="verdict-gauge-track">
+                          <div
+                            className="verdict-gauge-fill"
+                            style={{ width: `${getGaugePercent(tanninVal)}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div className="gauge-tickers-row">
+                        <span>Low</span>
+                        <span>High</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <span className="pillar-val">{noseIntensityClean.toUpperCase()}</span>
               </div>
-              <div className="palate-pillar-item">
-                <div className="pillar-header-row">
-                  <span className="pillar-icon">🌱</span>
-                  <span className="pillar-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>
+
+              {/* Right Zone: Attributes (Intensity, Development, Key Attributes) */}
+              <div className="verdict-subsector-attr font-serif">
+                <div className="verdict-attr-2col-grid">
+                  {/* Row 1: Intensity & Development */}
+                  <div className="palate-pillar-item">
+                    <div className="pillar-header-row">
+                      <span className="pillar-icon">👃</span>
+                      <span className="pillar-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>
+                    </div>
+                    <span className="pillar-val">{noseIntensityClean.toUpperCase()}</span>
+                  </div>
+
+                  <div className="palate-pillar-item">
+                    <div className="pillar-header-row">
+                      <span className="pillar-icon">🌱</span>
+                      <span className="pillar-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>
+                    </div>
+                    <span className="pillar-val">{cleanIntensity(noseDevelopment).toUpperCase()}</span>
+                  </div>
+
+                  {/* Row 2: Sweetness & Alcohol */}
+                  <div className="palate-pillar-item">
+                    <div className="pillar-header-row">
+                      <span className="pillar-icon">💧</span>
+                      <span className="pillar-label"><EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" /></span>
+                    </div>
+                    <span className="pillar-val">{sweetnessVal.toUpperCase()}</span>
+                  </div>
+
+                  <div className="palate-pillar-item">
+                    <div className="pillar-header-row">
+                      <span className="pillar-icon">↗️</span>
+                      <span className="pillar-label"><EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" /></span>
+                    </div>
+                    <span className="pillar-val">{cleanIntensity(alcoholLevelVal.split(' ')[0]).toUpperCase()}</span>
+                  </div>
+
+                  {/* Row 3: Flavor & Finish */}
+                  <div className="palate-pillar-item">
+                    <div className="pillar-header-row">
+                      <span className="pillar-icon">🍄</span>
+                      <span className="pillar-label"><EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" /></span>
+                    </div>
+                    <span className="pillar-val">{flavorIntensityVal.toUpperCase()}</span>
+                  </div>
+
+                  <div className="palate-pillar-item">
+                    <div className="pillar-header-row">
+                      <span className="pillar-icon">⏱️</span>
+                      <span className="pillar-label"><EditableText textKey="verdict.finishTitle" defaultText="FINISH:" /></span>
+                    </div>
+                    <span className="pillar-val">{formatFinishDisplay().toUpperCase()}</span>
+                  </div>
                 </div>
-                <span className="pillar-val">{cleanIntensity(noseDevelopment).toUpperCase()}</span>
               </div>
+
             </div>
-
-            {/* 3. Key Attributes (Below intensity & development, 1 in a row) */}
-            <div className="verdict-palate-pillars-grid verdict-key-pillars-grid">
-              {/* Sweetness */}
-              <div className="palate-pillar-item">
-                <div className="pillar-header-row">
-                  <span className="pillar-icon">💧</span>
-                  <span className="pillar-label"><EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" /></span>
-                </div>
-                <span className="pillar-val">{sweetnessVal.toUpperCase()}</span>
-              </div>
-
-              {/* Alcohol */}
-              <div className="palate-pillar-item">
-                <div className="pillar-header-row">
-                  <span className="pillar-icon">↗️</span>
-                  <span className="pillar-label"><EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" /></span>
-                </div>
-                <span className="pillar-val">{cleanIntensity(alcoholLevelVal.split(' ')[0]).toUpperCase()}</span>
-              </div>
-
-              {/* Flavor */}
-              <div className="palate-pillar-item">
-                <div className="pillar-header-row">
-                  <span className="pillar-icon">🍄</span>
-                  <span className="pillar-label"><EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" /></span>
-                </div>
-                <span className="pillar-val">{flavorIntensityVal.toUpperCase()}</span>
-              </div>
-
-              {/* Finish */}
-              <div className="palate-pillar-item">
-                <div className="pillar-header-row">
-                  <span className="pillar-icon">⏱️</span>
-                  <span className="pillar-label"><EditableText textKey="verdict.finishTitle" defaultText="FINISH:" /></span>
-                </div>
-                <span className="pillar-val">{formatFinishDisplay().toUpperCase()}</span>
-              </div>
-            </div>
-
           </div>
 
-          {/* COLUMN 3 (RIGHT): AROMAS LIST (Just list, no headline) */}
+          {/* RIGHT 30% AREA: AROMAS LIST (as is, no change) */}
           <div className="verdict-col verdict-col-aromas">
             <div className="verdict-aromas-list-clean font-serif">
               {userAromas.length > 0 ? (

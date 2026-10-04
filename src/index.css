@@ -2241,28 +2241,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   .verdict-inner-divider {
     margin: 4px 0 !important;
   }
-  .verdict-body-grid {
-    grid-template-columns: 110px 1fr !important;
+  .verdict-main-body-split,
+  .verdict-3col-body {
+    grid-template-columns: 70fr 30fr !important;
     gap: 8px !important;
-  }
-  .verdict-tasting-content {
-    max-width: 100% !important;
-    margin-left: 0 !important;
-    justify-content: flex-start !important;
-    gap: 6px !important;
-  }
-  .generic-wine-bottle-wrap {
-    max-width: 80px !important;
-  }
-  .custom-bottle-img-wrap {
-    max-width: 80px !important;
-  }
-  .generic-wine-bottle-wrap svg,
-  .custom-bottle-img {
-    max-height: 240px !important;
-  }
-  .verdict-left-column .verdict-bottle-frame {
-    max-height: 240px !important;
   }
   .verdict-section-heading {
     font-size: 0.68rem !important;
@@ -3747,11 +3729,12 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 /* ==========================================================
-   3-COLUMN VERDICT BODY LAYOUT
+   2-COLUMN VERDICT BODY LAYOUT (Left 70%, Right 30%)
    ========================================================== */
+.verdict-main-body-split,
 .verdict-3col-body {
   display: grid;
-  grid-template-columns: 40fr 30fr 30fr;
+  grid-template-columns: 70fr 30fr;
   gap: 12px;
   align-items: stretch;
   flex: 1;
@@ -3763,59 +3746,80 @@ input[type="range"]::-webkit-slider-thumb:hover {
   margin-bottom: 6px;
 }
 
-/* Column 1: Wine Bottle (Panned to top, fills container) */
-.verdict-col-bottle {
+/* Left 70% Sector (Bottle on Top 70%, Bars & Attr on Bottom 30%) */
+.verdict-left-main-sector {
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
   height: 100%;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  gap: 8px;
+}
+
+/* Top 70% Height: Bottle Picture (Wider & shorter) */
+.verdict-bottle-top-sector {
+  height: 68%;
+  flex: 0 0 68%;
   width: 100%;
   min-width: 0;
   overflow: hidden;
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.verdict-col-bottle .verdict-bottle-frame {
+.verdict-bottle-top-sector .verdict-bottle-frame {
   width: 100%;
   height: 100%;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-.verdict-col-bottle .generic-wine-bottle-wrap,
-.verdict-col-bottle .custom-bottle-img-wrap {
-  height: 100%;
+.verdict-bottle-top-sector .custom-bottle-img-wrap {
   width: 100%;
-  max-width: 100% !important;
-  max-height: 100% !important;
+  height: 100%;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
   box-sizing: border-box;
   overflow: hidden;
+  border-radius: 8px;
+  transition: filter 0.2s ease;
 }
 
-.verdict-col-bottle .generic-wine-bottle-wrap svg {
-  height: 100%;
-  width: 100%;
-  max-height: 100%;
-  max-width: 100%;
-  object-fit: contain;
-  transform: scale(1.1);
-  transform-origin: top center;
+.verdict-bottle-top-sector .custom-bottle-img-wrap:hover {
+  filter: brightness(1.06);
 }
 
-.verdict-col-bottle .custom-bottle-img {
-  height: 100%;
+.verdict-bottle-top-sector .custom-bottle-img {
   width: 100%;
-  max-height: 100%;
-  max-width: 100%;
+  height: 100%;
   object-fit: cover;
-  object-position: top center;
-  border-radius: 6px;
+  object-position: center;
+  border-radius: 8px;
+}
+
+.verdict-bottle-top-sector .generic-wine-bottle-wrap {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.verdict-bottle-top-sector .generic-wine-bottle-wrap svg {
+  height: 100%;
+  max-height: 100%;
+  width: auto;
+  object-fit: contain;
 }
 
 /* Badge overlay on top of default bottle */
@@ -3847,15 +3851,151 @@ input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
 }
 
-.custom-bottle-img-wrap {
-  transition: filter 0.2s ease;
+/* Bottom 30% Height: Bar Zone (Left) & Attributes (Right) */
+.verdict-bottom-subsector {
+  height: 32%;
+  flex: 1 1 32%;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: stretch;
+  overflow: hidden;
 }
 
-.custom-bottle-img-wrap:hover {
-  filter: brightness(1.06);
+/* Left Subsector: Palate Bars */
+.verdict-subsector-bars {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-/* Column 2: Aromas List (just list, no headline, panned to top, no trim) */
+.verdict-subsector-bars .verdict-palate-bars-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  gap: 2px;
+}
+
+.verdict-subsector-bars .verdict-gauge-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.verdict-subsector-bars .gauge-icon-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.54rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+.verdict-subsector-bars .gauge-icon {
+  font-size: 0.62rem;
+  width: 12px;
+}
+
+.verdict-subsector-bars .gauge-control-wrap {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.verdict-subsector-bars .gauge-track-container {
+  position: relative;
+  width: 100%;
+  padding-top: 6px;
+  margin-bottom: 0px;
+}
+
+.verdict-subsector-bars .verdict-gauge-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.verdict-subsector-bars .gauge-tickers-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.44rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+/* Right Subsector: Attributes 2-col grid */
+.verdict-subsector-attr {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.verdict-attr-2col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 6px;
+  height: 100%;
+  width: 100%;
+  align-content: space-between;
+}
+
+.verdict-attr-2col-grid .palate-pillar-item,
+.verdict-card.theme-parchment .verdict-attr-2col-grid .palate-pillar-item,
+.verdict-card.theme-dark .verdict-attr-2col-grid .palate-pillar-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.verdict-attr-2col-grid .pillar-header-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.48rem;
+  font-weight: 800;
+  margin-bottom: 0;
+}
+
+.verdict-attr-2col-grid .pillar-icon {
+  font-size: 0.54rem;
+  width: 11px;
+}
+
+.verdict-attr-2col-grid .pillar-label {
+  font-size: 0.46rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.verdict-attr-2col-grid .pillar-val {
+  font-size: 0.52rem;
+  font-weight: 700;
+  padding-left: 14px;
+  line-height: 1.1;
+}
+
+/* Right Column (30% width): Aromas List (as is, no change) */
 .verdict-col-aromas {
   display: flex;
   flex-direction: column;
@@ -3863,7 +4003,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   height: 100%;
   min-width: 0;
   max-width: 100%;
-  padding: 4px 8px;
+  padding: 4px 6px;
   box-sizing: border-box;
   overflow: visible;
   border-left: none;
@@ -3915,165 +4055,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
   text-overflow: clip;
   white-space: nowrap;
   flex: 1;
-}
-
-/* Column 3: Right Details (Palate Bars, Intensity/Dev, Key Attr without containers or gaps) */
-.verdict-col-details {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  height: 100%;
-  min-width: 0;
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
-  gap: 4px;
-  padding: 0 2px;
-}
-
-.verdict-palate-bars-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  min-width: 0;
-  margin-bottom: 2px;
-}
-
-.verdict-nose-pillars-grid,
-.verdict-key-pillars-grid,
-.verdict-col-details .verdict-palate-pillars-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  min-width: 0;
-  margin: 0;
-}
-
-.verdict-col-details .verdict-gauge-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  min-width: 0;
-}
-
-.verdict-col-details .gauge-icon-label {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 0.58rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.verdict-col-details .gauge-icon {
-  font-size: 0.66rem;
-  width: 13px;
-  flex-shrink: 0;
-}
-
-.verdict-col-details .gauge-control-wrap {
-  position: relative;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  min-width: 0;
-}
-
-.verdict-col-details .gauge-track-container {
-  position: relative;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  padding-top: 8px;
-  margin-bottom: 1px;
-}
-
-.verdict-col-details .verdict-gauge-track {
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  height: 6px;
-  border-radius: 3px;
-  position: relative;
-  overflow: hidden;
-}
-
-.verdict-col-details .gauge-tickers-row {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  font-size: 0.48rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-/* Container removed: completely borderless, transparent, no box */
-.verdict-col-details .palate-pillar-item,
-.verdict-card.theme-parchment .verdict-col-details .palate-pillar-item,
-.verdict-card.theme-dark .verdict-col-details .palate-pillar-item {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 0 !important;
-  padding: 1px 0 !important;
-  box-sizing: border-box;
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-}
-
-.verdict-col-details .palate-pillar-item .pillar-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  min-width: 0;
-  gap: 4px;
-  margin-bottom: 0px;
-}
-
-.verdict-col-details .palate-pillar-item .pillar-icon {
-  font-size: 0.60rem;
-  flex-shrink: 0;
-  line-height: 1;
-}
-
-.verdict-col-details .palate-pillar-item .pillar-label {
-  font-size: 0.48rem;
-  letter-spacing: 0.03em;
-  font-weight: 800;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-.verdict-col-details .palate-pillar-item .pillar-val {
-  font-size: 0.60rem;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: block;
-  min-width: 0;
 }
 
 
