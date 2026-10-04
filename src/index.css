@@ -2052,19 +2052,19 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .pillar-label {
-  font-size: 0.56rem;
+  font-size: 0.60rem;
   font-weight: 800;
   letter-spacing: 0.04em;
 }
 
 .pillar-icon {
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   line-height: 1;
 }
 
 .pillar-val {
-  font-size: 0.74rem;
-  font-weight: 900;
+  font-size: 0.48rem;
+  font-weight: 800;
   letter-spacing: 0.02em;
 }
 
@@ -2312,13 +2312,13 @@ input[type="range"]::-webkit-slider-thumb:hover {
     padding: 2px 4px !important;
   }
   .pillar-label {
-    font-size: 0.48rem !important;
+    font-size: 0.54rem !important;
   }
   .pillar-icon {
-    font-size: 0.58rem !important;
+    font-size: 0.56rem !important;
   }
   .pillar-val {
-    font-size: 0.62rem !important;
+    font-size: 0.46rem !important;
   }
   .pairings-title {
     font-size: 0.54rem !important;
@@ -3859,8 +3859,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   width: 100%;
   box-sizing: border-box;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: 35% 65%;
+  gap: 6px;
   align-items: stretch;
   overflow: hidden;
 }
@@ -3869,41 +3869,42 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-subsector-bars {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
   height: 100%;
   min-width: 0;
   box-sizing: border-box;
 }
 
 .verdict-subsector-bars .verdict-palate-bars-group {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
   height: 100%;
   width: 100%;
   margin: 0;
-  gap: 2px;
+  gap: 3px;
 }
 
 .verdict-subsector-bars .verdict-gauge-row {
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
   gap: 1px;
   width: 100%;
   box-sizing: border-box;
+  min-height: 0;
 }
 
 .verdict-subsector-bars .gauge-icon-label {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   font-size: 0.54rem;
   font-weight: 800;
   letter-spacing: 0.03em;
+  height: 14px;
 }
 
 .verdict-subsector-bars .gauge-icon {
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   width: 12px;
 }
 
@@ -3916,14 +3917,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-subsector-bars .gauge-track-container {
   position: relative;
   width: 100%;
-  padding-top: 6px;
+  padding-top: 5px;
   margin-bottom: 0px;
 }
 
 .verdict-subsector-bars .verdict-gauge-track {
   width: 100%;
-  height: 5px;
-  border-radius: 3px;
+  height: 4px;
+  border-radius: 2px;
   position: relative;
   overflow: hidden;
 }
@@ -3931,7 +3932,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-subsector-bars .gauge-tickers-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.44rem;
+  font-size: 0.40rem;
   font-weight: 700;
   line-height: 1;
   margin-top: 1px;
@@ -3941,7 +3942,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-subsector-attr {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
   height: 100%;
   min-width: 0;
   box-sizing: border-box;
@@ -3950,10 +3950,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-attr-2col-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: repeat(3, 1fr);
   gap: 3px 6px;
   height: 100%;
   width: 100%;
-  align-content: space-between;
 }
 
 .verdict-attr-2col-grid .palate-pillar-item,
@@ -3961,38 +3961,47 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-card.theme-dark .verdict-attr-2col-grid .palate-pillar-item {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   padding: 0 !important;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .verdict-attr-2col-grid .pillar-header-row {
   display: flex;
   align-items: center;
-  gap: 3px;
-  font-size: 0.48rem;
-  font-weight: 800;
+  gap: 2px;
+  height: 14px;
   margin-bottom: 0;
+  white-space: nowrap;
 }
 
 .verdict-attr-2col-grid .pillar-icon {
-  font-size: 0.54rem;
+  font-size: 0.56rem;
   width: 11px;
+  flex-shrink: 0;
 }
 
 .verdict-attr-2col-grid .pillar-label {
-  font-size: 0.46rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+  font-size: 0.54rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .verdict-attr-2col-grid .pillar-val {
-  font-size: 0.52rem;
-  font-weight: 700;
-  padding-left: 14px;
+  font-size: 0.46rem !important;
+  font-weight: 700 !important;
+  padding-left: 13px;
   line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Right Column (30% width): Aromas List (as is, no change) */
