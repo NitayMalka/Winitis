@@ -2,30 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import GenericWineBottle from './GenericWineBottle';
 import EditableText from '../TextEditor/EditableText';
 import {
-  Camera, RotateCcw, Quote, Sun, Moon, Share2, Loader2, Check,
-  Sliders, Smartphone
+  Camera, RotateCcw, Quote, Sun, Moon, Share2, Loader2, Check
 } from 'lucide-react';
 import { toBlob, toPng } from 'html-to-image';
 import { useTexts } from '../../context/TextContext';
-import { pushLiveSync, subscribeLiveSync } from '../../utils/liveSync';
-
-const STORAGE_SPLIT_CONFIG_KEY = 'winitis_summary_split_config_v2';
-const DEFAULT_SPLIT_CONFIG = { x: 40, y: 67 };
-
-const getInitialSplitConfig = () => {
-  try {
-    const saved = localStorage.getItem(STORAGE_SPLIT_CONFIG_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (typeof parsed.x === 'number' && typeof parsed.y === 'number') {
-        return parsed;
-      }
-    }
-  } catch (e) {
-    console.warn('Failed to parse saved split config:', e);
-  }
-  return DEFAULT_SPLIT_CONFIG;
-};
 
 // Helper to convert structural levels to gauge percentage
 function getGaugePercent(levelStr = '') {
@@ -86,56 +66,8 @@ export default function VerdictStep({
   const [isSharingPhoto, setIsSharingPhoto] = useState(false);
   const [shareSuccessFlash, setShareSuccessFlash] = useState(false);
 
-  // 3-Column Split Configuration: x = boundary 1 (Col 1 ↔ Col 2), y = boundary 2 (Col 2 ↔ Col 3)
-  // [0 - x] = Col 1, [x - y] = Col 2, [y - z] = Col 3 where z = 100% (fixed)
-  const [splitConfig, setSplitConfig] = useState(() => getInitialSplitConfig());
-
-  // Subscribe to live sync events from iPhone or PC
-  useEffect(() => {
-    const unsubscribe = subscribeLiveSync((syncData) => {
-      if (syncData.splitConfig) {
-        setSplitConfig(syncData.splitConfig);
-        try {
-          localStorage.setItem(STORAGE_SPLIT_CONFIG_KEY, JSON.stringify(syncData.splitConfig));
-        } catch (e) {}
-      }
-      if (syncData.theme) {
-        setTheme(syncData.theme);
-      }
-      if (syncData.wineNote && updateWineNote) {
-        updateWineNote(prev => ({
-          ...prev,
-          ...syncData.wineNote
-        }));
-      }
-    });
-    return unsubscribe;
-  }, []);
-
-  const updateSplit = (newSplit) => {
-    setSplitConfig(newSplit);
-    try {
-      localStorage.setItem(STORAGE_SPLIT_CONFIG_KEY, JSON.stringify(newSplit));
-    } catch (e) {
-      console.warn('Failed to save split config:', e);
-    }
-    pushLiveSync({
-      splitConfig: newSplit,
-      wineNote,
-      theme,
-      step: 4
-    });
-  };
-
   const handleToggleTheme = () => {
-    const nextTheme = theme === 'parchment' ? 'dark' : 'parchment';
-    setTheme(nextTheme);
-    pushLiveSync({
-      splitConfig,
-      wineNote,
-      theme: nextTheme,
-      step: 4
-    });
+    setTheme(prev => prev === 'parchment' ? 'dark' : 'parchment');
   };
 
   // Identity & Specs
@@ -380,15 +312,10 @@ export default function VerdictStep({
 
   const wineTypeClean = (wineNote.type || 'red').toLowerCase();
 
-  // Column widths calculations
-  const col1Width = splitConfig.x;
-  const col2Width = splitConfig.y - splitConfig.x;
-  const col3Width = 100 - splitConfig.y;
-
   return (
     <div className="verdict-wrapper">
       
-      {/* Top Toolbar Controls: Theme Toggle, Bottle Photo Actions, Share, Live Sync */}
+      {/* Top Toolbar Controls: Theme Toggle, Bottle Photo Actions, Share */}
       <div className="verdict-toolbar no-print">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           
@@ -474,16 +401,6 @@ export default function VerdictStep({
             )}
           </button>
 
-          {/* Real-time Live Sync Indicator Badge */}
-          <div
-            className="live-sync-badge no-print"
-            title="Real-time live sync: column split adjustments reflect immediately on iPhone"
-          >
-            <span className="live-sync-dot" />
-            <Smartphone size={13} color="#4ade80" />
-            <span className="live-sync-text">Live Sync</span>
-          </div>
-
         </div>
       </div>
 
@@ -563,7 +480,7 @@ export default function VerdictStep({
         <div 
           className="verdict-3col-body"
           style={{
-            gridTemplateColumns: `${col1Width}fr ${col2Width}fr ${col3Width}fr`
+            gridTemplateColumns: '40fr 30fr 30fr'
           }}
         >
           {/* COLUMN 1 (LEFT): WINE BOTTLE */}
@@ -701,15 +618,15 @@ export default function VerdictStep({
             <div className="verdict-palate-pillars-grid verdict-nose-pillars-grid">
               <div className="palate-pillar-item">
                 <div className="pillar-header-row">
-                  <span className="pillar-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>
                   <span className="pillar-icon">👃</span>
+                  <span className="pillar-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>
                 </div>
                 <span className="pillar-val">{noseIntensityClean.toUpperCase()}</span>
               </div>
               <div className="palate-pillar-item">
                 <div className="pillar-header-row">
-                  <span className="pillar-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>
                   <span className="pillar-icon">🌱</span>
+                  <span className="pillar-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>
                 </div>
                 <span className="pillar-val">{cleanIntensity(noseDevelopment).toUpperCase()}</span>
               </div>
@@ -720,8 +637,8 @@ export default function VerdictStep({
               {/* Sweetness */}
               <div className="palate-pillar-item">
                 <div className="pillar-header-row">
-                  <span className="pillar-label"><EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" /></span>
                   <span className="pillar-icon">💧</span>
+                  <span className="pillar-label"><EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" /></span>
                 </div>
                 <span className="pillar-val">{sweetnessVal.toUpperCase()}</span>
               </div>
@@ -729,8 +646,8 @@ export default function VerdictStep({
               {/* Alcohol */}
               <div className="palate-pillar-item">
                 <div className="pillar-header-row">
-                  <span className="pillar-label"><EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" /></span>
                   <span className="pillar-icon">↗️</span>
+                  <span className="pillar-label"><EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" /></span>
                 </div>
                 <span className="pillar-val">{cleanIntensity(alcoholLevelVal.split(' ')[0]).toUpperCase()}</span>
               </div>
@@ -738,8 +655,8 @@ export default function VerdictStep({
               {/* Flavor */}
               <div className="palate-pillar-item">
                 <div className="pillar-header-row">
-                  <span className="pillar-label"><EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" /></span>
                   <span className="pillar-icon">🍄</span>
+                  <span className="pillar-label"><EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" /></span>
                 </div>
                 <span className="pillar-val">{flavorIntensityVal.toUpperCase()}</span>
               </div>
@@ -747,8 +664,8 @@ export default function VerdictStep({
               {/* Finish */}
               <div className="palate-pillar-item">
                 <div className="pillar-header-row">
-                  <span className="pillar-label"><EditableText textKey="verdict.finishTitle" defaultText="FINISH:" /></span>
                   <span className="pillar-icon">⏱️</span>
+                  <span className="pillar-label"><EditableText textKey="verdict.finishTitle" defaultText="FINISH:" /></span>
                 </div>
                 <span className="pillar-val">{formatFinishDisplay().toUpperCase()}</span>
               </div>
@@ -806,160 +723,6 @@ export default function VerdictStep({
         </div>
 
       </div>
-
-      {/* ==========================================================
-          COLUMN WIDTH SPLITTER & CONTROLLER ([0-x, x-y, y-z])
-          Expose x, y below main container (z is fixed, z-y-x=0)
-         ========================================================== */}
-      {!readOnly && (
-        <div className="column-split-controller no-print">
-          <div className="split-controller-header">
-          <div className="split-header-title-wrap">
-            <Sliders size={16} color="#d4af37" />
-            <span className="split-controller-title">Column Widths</span>
-          </div>
-
-          {/* List the width of the columns [0-x, x-y, y-z] */}
-          <div className="split-intervals-list">
-            <div className="split-interval-tag tag-col1">
-              <span className="interval-range">[0 → x]</span>
-              <span className="interval-label">Col 1 (Bottle):</span>
-              <strong className="interval-val">{splitConfig.x}%</strong>
-            </div>
-            <div className="split-interval-tag tag-col2">
-              <span className="interval-range">[x → y]</span>
-              <span className="interval-label">Col 2 (Aromas):</span>
-              <strong className="interval-val">{col2Width}%</strong>
-            </div>
-            <div className="split-interval-tag tag-col3">
-              <span className="interval-range">[y → z]</span>
-              <span className="interval-label">Col 3 (Details):</span>
-              <strong className="interval-val">{col3Width}%</strong>
-            </div>
-            <div className="split-interval-tag tag-fixed">
-              <span className="interval-range">Fixed Total</span>
-              <span className="interval-label">z = 100%</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Adjust x and y sliders */}
-        <div className="split-sliders-row">
-          {/* X Control */}
-          <div className="split-control-group">
-            <div className="split-control-header">
-              <span className="split-param-label">
-                Boundary <strong>x</strong> (Col 1 ↔ Col 2):
-              </span>
-              <span className="split-badge-num">x = {splitConfig.x}%</span>
-            </div>
-            <div className="split-slider-actions">
-              <button
-                type="button"
-                className="btn-split-step"
-                onClick={() => updateSplit({ ...splitConfig, x: Math.max(10, splitConfig.x - 1) })}
-                disabled={splitConfig.x <= 10}
-                title="Decrease x by 1%"
-              >
-                -1%
-              </button>
-              <input
-                type="range"
-                min="10"
-                max={splitConfig.y - 5}
-                step="1"
-                value={splitConfig.x}
-                onChange={(e) => updateSplit({ ...splitConfig, x: Number(e.target.value) })}
-                className="split-slider-input"
-              />
-              <button
-                type="button"
-                className="btn-split-step"
-                onClick={() => updateSplit({ ...splitConfig, x: Math.min(splitConfig.y - 5, splitConfig.x + 1) })}
-                disabled={splitConfig.x >= splitConfig.y - 5}
-                title="Increase x by 1%"
-              >
-                +1%
-              </button>
-            </div>
-          </div>
-
-          {/* Y Control */}
-          <div className="split-control-group">
-            <div className="split-control-header">
-              <span className="split-param-label">
-                Boundary <strong>y</strong> (Col 2 ↔ Col 3):
-              </span>
-              <span className="split-badge-num">y = {splitConfig.y}%</span>
-            </div>
-            <div className="split-slider-actions">
-              <button
-                type="button"
-                className="btn-split-step"
-                onClick={() => updateSplit({ ...splitConfig, y: Math.max(splitConfig.x + 5, splitConfig.y - 1) })}
-                disabled={splitConfig.y <= splitConfig.x + 5}
-                title="Decrease y by 1%"
-              >
-                -1%
-              </button>
-              <input
-                type="range"
-                min={splitConfig.x + 5}
-                max="90"
-                step="1"
-                value={splitConfig.y}
-                onChange={(e) => updateSplit({ ...splitConfig, y: Number(e.target.value) })}
-                className="split-slider-input"
-              />
-              <button
-                type="button"
-                className="btn-split-step"
-                onClick={() => updateSplit({ ...splitConfig, y: Math.min(90, splitConfig.y + 1) })}
-                disabled={splitConfig.y >= 90}
-                title="Increase y by 1%"
-              >
-                +1%
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Presets and Reset */}
-        <div className="split-presets-bar">
-          <span className="presets-title">Presets:</span>
-          <button
-            type="button"
-            className={`preset-btn ${splitConfig.x === 40 && splitConfig.y === 67 ? 'active' : ''}`}
-            onClick={() => updateSplit({ x: 40, y: 67 })}
-          >
-            Default [40% | 27% | 33%]
-          </button>
-          <button
-            type="button"
-            className={`preset-btn ${splitConfig.x === 35 && splitConfig.y === 65 ? 'active' : ''}`}
-            onClick={() => updateSplit({ x: 35, y: 65 })}
-          >
-            Balanced [35% | 30% | 35%]
-          </button>
-          <button
-            type="button"
-            className={`preset-btn ${splitConfig.x === 45 && splitConfig.y === 72 ? 'active' : ''}`}
-            onClick={() => updateSplit({ x: 45, y: 72 })}
-          >
-            Wide Bottle [45% | 27% | 28%]
-          </button>
-          <button
-            type="button"
-            className="preset-btn btn-reset-split"
-            onClick={() => updateSplit(DEFAULT_SPLIT_CONFIG)}
-            title="Reset to default x=40%, y=67%"
-          >
-            <RotateCcw size={12} />
-            <span>Reset</span>
-          </button>
-        </div>
-      </div>
-      )}
 
     </div>
   );
