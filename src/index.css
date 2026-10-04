@@ -1631,7 +1631,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .medal-score-number {
-  font-size: 1.65rem;
+  font-size: 1.85rem;
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -2230,7 +2230,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     border-width: 2px !important;
   }
   .medal-score-number {
-    font-size: 1.25rem !important;
+    font-size: 1.4rem !important;
   }
   .medal-score-label {
     font-size: 0.42rem !important;

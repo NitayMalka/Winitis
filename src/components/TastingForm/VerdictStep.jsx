@@ -268,22 +268,16 @@ export default function VerdictStep({
             </div>
           </div>
 
-          {/* Center/Right: Rosette Gold Medal Stamp (Points Score) */}
+          {/* Center/Right: Rosette Gold Medal Stamp */}
           <div className="verdict-medal-wrap">
             <div className={`verdict-gold-medal ${score === 0 ? 'unworthy-medal' : ''}`}>
               <div className="verdict-medal-inner">
                 <span className="medal-score-number font-serif">{score}</span>
-                <span className="medal-score-label font-serif">
-                  {score === 0 ? (
+                {score === 0 && (
+                  <span className="medal-score-label font-serif">
                     <span style={{ color: '#ef4444', fontWeight: 800, fontSize: '0.62rem', letterSpacing: '0.05em' }}>UNWORTHY</span>
-                  ) : (
-                    <>
-                      <EditableText textKey="verdict.scorePoints" defaultText="POINTS" />
-                      <br />
-                      <EditableText textKey="verdict.scoreScore" defaultText="SCORE" />
-                    </>
-                  )}
-                </span>
+                  </span>
+                )}
               </div>
             </div>
           </div>
