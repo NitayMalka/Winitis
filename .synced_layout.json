@@ -1,0 +1,158 @@
+{
+  "layout": {
+    "card": {
+      "height": 710
+    },
+    "items": {
+      "palate": {
+        "width": 124,
+        "offsetX": 143,
+        "offsetY": -73
+      },
+      "keyAttributes": {
+        "offsetX": 426,
+        "offsetY": -142,
+        "width": 171,
+        "height": 97
+      },
+      "tastingContent": {
+        "offsetX": -6,
+        "offsetY": -2
+      },
+      "bottle": {
+        "offsetX": 15,
+        "offsetY": -8,
+        "width": 264,
+        "height": 824
+      },
+      "noseMeta": {
+        "offsetX": -200,
+        "offsetY": -23,
+        "height": 48,
+        "width": 204
+      },
+      "aromasList": {
+        "offsetX": -560,
+        "offsetY": -23,
+        "width": 136,
+        "height": 502
+      },
+      "tastingNotes": {
+        "width": 265,
+        "height": 115,
+        "offsetX": 344,
+        "offsetY": -3
+      },
+      "leftColumn": {
+        "height": 502
+      }
+    },
+    "hidden": {}
+  },
+  "wineNote": {
+    "wineName": "",
+    "vintage": "2026",
+    "grape": "",
+    "country": "",
+    "region": "",
+    "alcohol": "14.0%",
+    "bottleImage": null,
+    "useGenericBottle": true,
+    "vfm": 4,
+    "color": {
+      "id": "ruby",
+      "name": "Deep Ruby (Matched)",
+      "hex": "#6f0b24",
+      "hue": 345,
+      "saturation": 82,
+      "lightness": 24,
+      "intensity": "Deep",
+      "rimVariation": "Ruby Edge",
+      "description": "Classic rich crimson red. Youthful to mid-age Cabernet, Merlot, and Sangiovese."
+    },
+    "nose": {
+      "intensity": "Medium(+)",
+      "development": "Youthful",
+      "aromas": [
+        "Blackberry",
+        "Blackcurrant (Cassis)",
+        "Vanilla",
+        "Cedar"
+      ]
+    },
+    "palate": {
+      "sweetness": "Dry",
+      "acidity": "Medium(+)",
+      "tannin": "Medium(+) (Grippy)",
+      "tanninTexture": "Velvety",
+      "alcoholLevel": "High (≥14%)",
+      "body": "Full-Bodied",
+      "finish": "Long (45s+)"
+    },
+    "conclusion": {
+      "score": 93,
+      "price": "",
+      "quality": "Very Good",
+      "drinkWindow": "Can drink now, but has potential for aging (5-10+ years)",
+      "notes": ""
+    },
+    "customLayout": {
+      "card": {
+        "height": 710
+      },
+      "items": {
+        "palate": {
+          "width": 124,
+          "offsetX": 143,
+          "offsetY": -73
+        },
+        "keyAttributes": {
+          "offsetX": 426,
+          "offsetY": -142,
+          "width": 171,
+          "height": 97
+        },
+        "tastingContent": {
+          "offsetX": -6,
+          "offsetY": -2
+        },
+        "bottle": {
+          "offsetX": 15,
+          "offsetY": -8,
+          "width": 264,
+          "height": 824
+        },
+        "noseMeta": {
+          "offsetX": -200,
+          "offsetY": -23,
+          "height": 48,
+          "width": 204
+        },
+        "aromasList": {
+          "offsetX": -560,
+          "offsetY": -23,
+          "width": 136,
+          "height": 502
+        },
+        "tastingNotes": {
+          "width": 265,
+          "height": 115,
+          "offsetX": 344,
+          "offsetY": -3
+        },
+        "leftColumn": {
+          "height": 502
+        }
+      },
+      "hidden": {}
+    }
+  },
+  "theme": "parchment",
+  "step": 4,
+  "updatedAt": 1791097751584,
+  "clientId": "client_gdf8lis",
+  "splitConfig": {
+    "x": 40,
+    "y": 67
+  }
+}

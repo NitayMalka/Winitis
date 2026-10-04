@@ -3751,11 +3751,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
    ========================================================== */
 .verdict-3col-body {
   display: grid;
-  gap: 16px;
+  gap: 12px;
   align-items: stretch;
   flex: 1;
   min-height: 0;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 /* Column 1: Wine Bottle */
@@ -3766,6 +3769,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   height: 100%;
   min-width: 0;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .verdict-col-bottle .verdict-bottle-frame {
@@ -3775,6 +3779,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .verdict-col-bottle .generic-wine-bottle-wrap,
@@ -3785,6 +3791,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .verdict-col-bottle .generic-wine-bottle-wrap svg {
@@ -3808,7 +3816,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
   justify-content: center;
   height: 100%;
   min-width: 0;
-  padding: 0 12px;
+  max-width: 100%;
+  padding: 0 8px;
+  box-sizing: border-box;
+  overflow: hidden;
   border-left: 1px solid rgba(120, 100, 87, 0.2);
   border-right: 1px solid rgba(120, 100, 87, 0.2);
 }
@@ -3821,30 +3832,45 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-aromas-list-clean {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .verdict-aromas-list-clean .verdict-aroma-row {
   display: flex;
   align-items: center;
-  gap: 7px;
-  font-size: 0.68rem;
+  gap: 5px;
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
-  padding: 3px 0;
+  letter-spacing: 0.02em;
+  padding: 2px 0;
   background: none !important;
   border: none !important;
   box-shadow: none !important;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .verdict-aromas-list-clean .verdict-aroma-row .aroma-icon {
-  font-size: 0.82rem;
-  width: 16px;
+  font-size: 0.76rem;
+  width: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.verdict-aromas-list-clean .verdict-aroma-row .aroma-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
 }
 
 /* Column 3: Right Details (Intensity/Development + Palate Bars + 2x2 Pillars) */
@@ -3854,64 +3880,155 @@ input[type="range"]::-webkit-slider-thumb:hover {
   justify-content: space-between;
   height: 100%;
   min-width: 0;
-  gap: 8px;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  gap: 6px;
+  padding: 0 2px;
 }
 
-.verdict-nose-meta-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  padding: 0;
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.verdict-nose-meta-stack .meta-line {
-  font-size: 0.65rem;
-  line-height: 1.25;
-}
-
-.verdict-nose-meta-stack .meta-label {
-  font-weight: 700;
-  letter-spacing: 0.04em;
-}
-
-.verdict-nose-meta-stack .meta-val {
-  font-weight: 800;
-  letter-spacing: 0.02em;
+.verdict-nose-pillars-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .verdict-palate-bars-group {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 5px;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.verdict-col-details .verdict-gauge-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.verdict-col-details .gauge-icon-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.verdict-col-details .gauge-icon {
+  font-size: 0.66rem;
+  width: 13px;
+  flex-shrink: 0;
+}
+
+.verdict-col-details .gauge-control-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.verdict-col-details .gauge-track-container {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding-top: 8px;
+  margin-bottom: 1px;
+}
+
+.verdict-col-details .verdict-gauge-track {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  height: 6px;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.verdict-col-details .gauge-tickers-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  font-size: 0.48rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .verdict-col-details .verdict-palate-pillars-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 5px;
+  gap: 4px;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
 .verdict-col-details .palate-pillar-item {
   padding: 3px 5px;
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.verdict-col-details .palate-pillar-item .pillar-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  gap: 2px;
+  margin-bottom: 1px;
 }
 
 .verdict-col-details .palate-pillar-item .pillar-label {
-  font-size: 0.50rem;
-  letter-spacing: 0.04em;
+  font-size: 0.46rem;
+  letter-spacing: 0.03em;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .verdict-col-details .palate-pillar-item .pillar-icon {
-  font-size: 0.60rem;
+  font-size: 0.58rem;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .verdict-col-details .palate-pillar-item .pillar-val {
-  font-size: 0.62rem;
+  font-size: 0.58rem;
+  font-weight: 900;
   letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  min-width: 0;
 }
 
 /* ==========================================================

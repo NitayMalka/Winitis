@@ -9,8 +9,8 @@ import { toBlob, toPng } from 'html-to-image';
 import { useTexts } from '../../context/TextContext';
 import { pushLiveSync, subscribeLiveSync } from '../../utils/liveSync';
 
-const STORAGE_SPLIT_CONFIG_KEY = 'winitis_summary_split_config_v1';
-const DEFAULT_SPLIT_CONFIG = { x: 24, y: 52 };
+const STORAGE_SPLIT_CONFIG_KEY = 'winitis_summary_split_config_v2';
+const DEFAULT_SPLIT_CONFIG = { x: 40, y: 67 };
 
 const getInitialSplitConfig = () => {
   try {
@@ -563,7 +563,7 @@ export default function VerdictStep({
         <div 
           className="verdict-3col-body"
           style={{
-            gridTemplateColumns: `${col1Width}% ${col2Width}% ${col3Width}%`
+            gridTemplateColumns: `${col1Width}fr ${col2Width}fr ${col3Width}fr`
           }}
         >
           {/* COLUMN 1 (LEFT): WINE BOTTLE */}
@@ -610,15 +610,21 @@ export default function VerdictStep({
           {/* COLUMN 3 (RIGHT): INTENSITY, DEVELOPMENT, PALATE BARS (NO HEADLINE), KEY ATTRIBUTES (NO HEADLINE) */}
           <div className="verdict-col verdict-col-details font-serif">
             
-            {/* 1. Intensity & Development (Stacked vertically, no container) */}
-            <div className="verdict-nose-meta-stack font-serif">
-              <div className="meta-line">
-                <span className="meta-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>{' '}
-                <strong className="meta-val">{noseIntensityClean.toUpperCase()}</strong>
+            {/* 1. Intensity & Development (Styled like Key Attributes pillars) */}
+            <div className="verdict-palate-pillars-grid verdict-nose-pillars-grid">
+              <div className="palate-pillar-item">
+                <div className="pillar-header-row">
+                  <span className="pillar-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>
+                  <span className="pillar-icon">👃</span>
+                </div>
+                <span className="pillar-val">{noseIntensityClean.toUpperCase()}</span>
               </div>
-              <div className="meta-line">
-                <span className="meta-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>{' '}
-                <strong className="meta-val">{cleanIntensity(noseDevelopment).toUpperCase()}</strong>
+              <div className="palate-pillar-item">
+                <div className="pillar-header-row">
+                  <span className="pillar-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>
+                  <span className="pillar-icon">🌱</span>
+                </div>
+                <span className="pillar-val">{cleanIntensity(noseDevelopment).toUpperCase()}</span>
               </div>
             </div>
 
@@ -634,7 +640,7 @@ export default function VerdictStep({
                   <div className="gauge-track-container">
                     <span
                       className="gauge-pointer"
-                      style={{ left: `${getGaugePercent(bodyVal)}%` }}
+                      style={{ left: `${Math.min(96, Math.max(4, getGaugePercent(bodyVal)))}%` }}
                     >
                       ▼
                     </span>
@@ -662,7 +668,7 @@ export default function VerdictStep({
                   <div className="gauge-track-container">
                     <span
                       className="gauge-pointer"
-                      style={{ left: `${getGaugePercent(acidityVal)}%` }}
+                      style={{ left: `${Math.min(96, Math.max(4, getGaugePercent(acidityVal)))}%` }}
                     >
                       ▼
                     </span>
@@ -690,7 +696,7 @@ export default function VerdictStep({
                   <div className="gauge-track-container">
                     <span
                       className="gauge-pointer"
-                      style={{ left: `${getGaugePercent(tanninVal)}%` }}
+                      style={{ left: `${Math.min(96, Math.max(4, getGaugePercent(tanninVal)))}%` }}
                     >
                       ▼
                     </span>
@@ -923,30 +929,30 @@ export default function VerdictStep({
           <span className="presets-title">Presets:</span>
           <button
             type="button"
-            className={`preset-btn ${splitConfig.x === 24 && splitConfig.y === 52 ? 'active' : ''}`}
-            onClick={() => updateSplit({ x: 24, y: 52 })}
+            className={`preset-btn ${splitConfig.x === 40 && splitConfig.y === 67 ? 'active' : ''}`}
+            onClick={() => updateSplit({ x: 40, y: 67 })}
           >
-            Default [24% | 28% | 48%]
+            Default [40% | 27% | 33%]
           </button>
           <button
             type="button"
-            className={`preset-btn ${splitConfig.x === 20 && splitConfig.y === 50 ? 'active' : ''}`}
-            onClick={() => updateSplit({ x: 20, y: 50 })}
+            className={`preset-btn ${splitConfig.x === 35 && splitConfig.y === 65 ? 'active' : ''}`}
+            onClick={() => updateSplit({ x: 35, y: 65 })}
           >
-            Narrow Bottle [20% | 30% | 50%]
+            Balanced [35% | 30% | 35%]
           </button>
           <button
             type="button"
-            className={`preset-btn ${splitConfig.x === 28 && splitConfig.y === 58 ? 'active' : ''}`}
-            onClick={() => updateSplit({ x: 28, y: 58 })}
+            className={`preset-btn ${splitConfig.x === 45 && splitConfig.y === 72 ? 'active' : ''}`}
+            onClick={() => updateSplit({ x: 45, y: 72 })}
           >
-            Wide Bottle [28% | 30% | 42%]
+            Wide Bottle [45% | 27% | 28%]
           </button>
           <button
             type="button"
             className="preset-btn btn-reset-split"
             onClick={() => updateSplit(DEFAULT_SPLIT_CONFIG)}
-            title="Reset to default x=24%, y=52%"
+            title="Reset to default x=40%, y=67%"
           >
             <RotateCcw size={12} />
             <span>Reset</span>
