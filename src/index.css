@@ -3887,9 +3887,11 @@ input[type="range"]::-webkit-slider-thumb:hover {
   padding: 0 2px;
 }
 
-.verdict-nose-pillars-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.verdict-nose-pillars-grid,
+.verdict-key-pillars-grid,
+.verdict-col-details .verdict-palate-pillars-grid {
+  display: flex;
+  flex-direction: column;
   gap: 4px;
   width: 100%;
   max-width: 100%;
@@ -3972,16 +3974,6 @@ input[type="range"]::-webkit-slider-thumb:hover {
   font-size: 0.48rem;
   font-weight: 700;
   line-height: 1;
-}
-
-.verdict-col-details .verdict-palate-pillars-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4px;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  min-width: 0;
 }
 
 .verdict-col-details .palate-pillar-item {

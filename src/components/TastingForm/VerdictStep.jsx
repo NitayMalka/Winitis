@@ -607,28 +607,10 @@ export default function VerdictStep({
             </div>
           </div>
 
-          {/* COLUMN 3 (RIGHT): INTENSITY, DEVELOPMENT, PALATE BARS (NO HEADLINE), KEY ATTRIBUTES (NO HEADLINE) */}
+          {/* COLUMN 3 (RIGHT): PALATE BARS, INTENSITY & DEVELOPMENT, KEY ATTRIBUTES */}
           <div className="verdict-col verdict-col-details font-serif">
             
-            {/* 1. Intensity & Development (Styled like Key Attributes pillars) */}
-            <div className="verdict-palate-pillars-grid verdict-nose-pillars-grid">
-              <div className="palate-pillar-item">
-                <div className="pillar-header-row">
-                  <span className="pillar-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>
-                  <span className="pillar-icon">👃</span>
-                </div>
-                <span className="pillar-val">{noseIntensityClean.toUpperCase()}</span>
-              </div>
-              <div className="palate-pillar-item">
-                <div className="pillar-header-row">
-                  <span className="pillar-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>
-                  <span className="pillar-icon">🌱</span>
-                </div>
-                <span className="pillar-val">{cleanIntensity(noseDevelopment).toUpperCase()}</span>
-              </div>
-            </div>
-
-            {/* 2. Palate Bars (Without headline) */}
+            {/* 1. Palate Bars (Top of column 3, without headline) */}
             <div className="verdict-palate-bars-group">
               {/* Body Gauge */}
               <div className="verdict-gauge-row">
@@ -715,8 +697,26 @@ export default function VerdictStep({
               </div>
             </div>
 
-            {/* 3. Key Attributes (Without headline) - 2x2 Pillars Grid */}
-            <div className="verdict-palate-pillars-grid">
+            {/* 2. Intensity & Development (Below the bars, 1 in a row - development under intensity) */}
+            <div className="verdict-palate-pillars-grid verdict-nose-pillars-grid">
+              <div className="palate-pillar-item">
+                <div className="pillar-header-row">
+                  <span className="pillar-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>
+                  <span className="pillar-icon">👃</span>
+                </div>
+                <span className="pillar-val">{noseIntensityClean.toUpperCase()}</span>
+              </div>
+              <div className="palate-pillar-item">
+                <div className="pillar-header-row">
+                  <span className="pillar-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>
+                  <span className="pillar-icon">🌱</span>
+                </div>
+                <span className="pillar-val">{cleanIntensity(noseDevelopment).toUpperCase()}</span>
+              </div>
+            </div>
+
+            {/* 3. Key Attributes (Below intensity & development, 1 in a row) */}
+            <div className="verdict-palate-pillars-grid verdict-key-pillars-grid">
               {/* Sweetness */}
               <div className="palate-pillar-item">
                 <div className="pillar-header-row">
