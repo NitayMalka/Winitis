@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 /**
  * Photorealistic SVG & CSS Red Wine Bottle
@@ -30,7 +30,7 @@ export default function GenericWineBottle({
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        maxWidth: '240px',
+        height: '100%',
         margin: '0 auto',
         filter: 'drop-shadow(0 20px 25px rgba(0, 0, 0, 0.35))',
         userSelect: 'none',
@@ -41,7 +41,7 @@ export default function GenericWineBottle({
         viewBox="0 0 200 680"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style={{ width: '100%', height: 'auto', display: 'block' }}
+        style={{ width: '100%', height: '100%', display: 'block' }}
       >
         <defs>
           {/* Glass & Wine Fluid Gradients */}
