@@ -165,6 +165,126 @@ export default function VerdictStep({
     }
   }, [isEditMode]);
 
+  // Mouse Drag to Move & Resize State
+  const [activeDrag, setActiveDrag] = useState(null);
+
+  // Global mousemove and mouseup listeners for drag-to-move and drag-to-resize
+  useEffect(() => {
+    if (!activeDrag) return;
+
+    let currentLayout = layout;
+    let throttleTimeout = null;
+
+    if (activeDrag.type === 'move') {
+      document.body.classList.add('adv-dragging-move');
+    } else if (activeDrag.type === 'resize') {
+      document.body.classList.add(`adv-dragging-resize-${activeDrag.handle}`);
+    }
+
+    const onMouseMove = (e) => {
+      const deltaX = Math.round(e.clientX - activeDrag.startX);
+      const deltaY = Math.round(e.clientY - activeDrag.startY);
+
+      if (activeDrag.type === 'move') {
+        const newOffsetX = activeDrag.origOffsetX + deltaX;
+        const newOffsetY = activeDrag.origOffsetY + deltaY;
+
+        setLayout(prev => {
+          const currentItem = prev.items?.[activeDrag.id] || {};
+          const next = {
+            ...prev,
+            items: {
+              ...(prev.items || {}),
+              [activeDrag.id]: {
+                ...currentItem,
+                offsetX: newOffsetX,
+                offsetY: newOffsetY
+              }
+            }
+          };
+          currentLayout = next;
+          return next;
+        });
+      } else if (activeDrag.type === 'resize') {
+        if (activeDrag.id === 'card') {
+          const nextHeight = Math.max(450, Math.min(1400, Math.round(activeDrag.cardOrigHeight + deltaY)));
+          setLayout(prev => {
+            const next = {
+              ...prev,
+              card: {
+                ...(prev.card || {}),
+                height: nextHeight
+              }
+            };
+            currentLayout = next;
+            return next;
+          });
+        } else {
+          const changes = {};
+          if (activeDrag.handle === 'se' || activeDrag.handle === 'e') {
+            changes.width = Math.max(30, Math.round(activeDrag.origWidth + deltaX));
+          }
+          if (activeDrag.handle === 'se' || activeDrag.handle === 's') {
+            changes.height = Math.max(20, Math.round(activeDrag.origHeight + deltaY));
+          }
+
+          setLayout(prev => {
+            const currentItem = prev.items?.[activeDrag.id] || {};
+            const next = {
+              ...prev,
+              items: {
+                ...(prev.items || {}),
+                [activeDrag.id]: {
+                  ...currentItem,
+                  ...changes
+                }
+              }
+            };
+            currentLayout = next;
+            return next;
+          });
+        }
+      }
+
+      // Throttled push to iPhone
+      if (!throttleTimeout) {
+        throttleTimeout = setTimeout(() => {
+          pushLiveSync({
+            layout: currentLayout,
+            wineNote: {
+              ...wineNote,
+              customLayout: currentLayout
+            },
+            theme,
+            step: 4
+          });
+          throttleTimeout = null;
+        }, 50);
+      }
+    };
+
+    const onMouseUp = () => {
+      if (throttleTimeout) clearTimeout(throttleTimeout);
+      saveLayout(currentLayout);
+      setActiveDrag(null);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+
+    return () => {
+      if (throttleTimeout) clearTimeout(throttleTimeout);
+      document.body.classList.remove(
+        'adv-dragging-move',
+        'adv-dragging-resize-se',
+        'adv-dragging-resize-s',
+        'adv-dragging-resize-e'
+      );
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [activeDrag]);
+
   const saveLayout = (newLayout) => {
     setLayout(newLayout);
     try {
@@ -390,10 +510,18 @@ export default function VerdictStep({
     return style;
   };
 
+  const getItemIdFromElement = (el) => {
+    if (!el) return null;
+    if (el.dataset?.advId) return el.dataset.advId;
+    const match = el.className?.match?.(/adv-id-([a-zA-Z0-9_-]+)/);
+    return match ? match[1] : null;
+  };
+
   const getItemClass = (id, baseClass = '') => {
     const classes = [baseClass];
     if (isEditMode) {
       classes.push('adv-editable-item');
+      classes.push(`adv-id-${id}`);
       if (selectedItemId === id) {
         classes.push('adv-item-selected');
       }
@@ -407,14 +535,145 @@ export default function VerdictStep({
     setSelectedItemId(id);
   };
 
+  const handleResizeMouseDown = (e, id, handleType) => {
+    if (!isEditMode) return;
+    e.stopPropagation();
+    e.preventDefault();
+    setSelectedItemId(id);
+
+    let origWidth = 100;
+    let origHeight = 100;
+    let cardOrigHeight = layout.card?.height || 700;
+
+    if (id === 'card') {
+      const cardEl = cardRef.current;
+      if (cardEl) {
+        cardOrigHeight = cardEl.getBoundingClientRect().height;
+      }
+    } else {
+      const parentEl = e.currentTarget.parentElement;
+      if (parentEl) {
+        const rect = parentEl.getBoundingClientRect();
+        origWidth = Math.round(rect.width);
+        origHeight = Math.round(rect.height);
+      }
+      const currentItem = layout.items?.[id] || {};
+      if (currentItem.width) origWidth = currentItem.width;
+      if (currentItem.height) origHeight = currentItem.height;
+    }
+
+    setActiveDrag({
+      type: 'resize',
+      id,
+      handle: handleType,
+      startX: e.clientX,
+      startY: e.clientY,
+      origWidth,
+      origHeight,
+      cardOrigHeight
+    });
+  };
+
+  const handleCardMouseDown = (e) => {
+    if (!isEditMode) return;
+    if (e.button !== 0) return; // Left click only
+
+    // Ignore clicks on input, button, select, or resize handles
+    if (e.target.closest('button, input, select, textarea, .adv-resize-handle, .adv-card-resize-handle')) {
+      return;
+    }
+
+    const editableEl = e.target.closest('.adv-editable-item');
+    if (!editableEl) return;
+
+    const id = getItemIdFromElement(editableEl);
+    if (!id) return;
+
+    // If clicking on 'card' container itself, select card but don't drag-move it
+    if (id === 'card') {
+      setSelectedItemId('card');
+      return;
+    }
+
+    e.preventDefault(); // Prevent text highlight while dragging
+    setSelectedItemId(id);
+
+    const currentItem = layout.items?.[id] || {};
+    setActiveDrag({
+      type: 'move',
+      id,
+      startX: e.clientX,
+      startY: e.clientY,
+      origOffsetX: currentItem.offsetX || 0,
+      origOffsetY: currentItem.offsetY || 0
+    });
+  };
+
+  const handleCardWheel = (e) => {
+    if (!isEditMode) return;
+    if (e.altKey || e.shiftKey) {
+      const editableEl = e.target.closest('.adv-editable-item');
+      if (editableEl) {
+        const id = getItemIdFromElement(editableEl);
+        if (id && id !== 'card') {
+          e.preventDefault();
+          const delta = e.deltaY < 0 ? 0.05 : -0.05;
+          const currentItem = layout.items?.[id] || {};
+          const currentScale = currentItem.scale || 1;
+          const nextScale = Math.max(0.4, Math.min(2.0, Math.round((currentScale + delta) * 100) / 100));
+          const updated = {
+            ...layout,
+            items: {
+              ...(layout.items || {}),
+              [id]: {
+                ...currentItem,
+                scale: nextScale
+              }
+            }
+          };
+          saveLayout(updated);
+        }
+      }
+    }
+  };
+
   const renderItemBadge = (id) => {
     if (!isEditMode || selectedItemId !== id) return null;
     const def = EDITABLE_ITEMS.find(i => i.id === id);
     if (!def) return null;
     return (
-      <span className="adv-selected-badge no-print">
-        {def.icon} {def.label}
-      </span>
+      <>
+        <span className="adv-selected-badge no-print" title="Selected. Drag with mouse to move">
+          {def.icon} {def.label}
+        </span>
+        {id === 'card' ? (
+          <div
+            className="adv-card-resize-handle no-print"
+            title="Drag up or down to adjust Card Height"
+            onMouseDown={(e) => handleResizeMouseDown(e, 'card', 's')}
+          >
+            <div className="adv-card-handle-bar" />
+          </div>
+        ) : (
+          <>
+            <div
+              className="adv-resize-handle adv-resize-se no-print"
+              title="Drag to resize Width & Height"
+              onMouseDown={(e) => handleResizeMouseDown(e, id, 'se')}
+            />
+            <div
+              className="adv-resize-handle adv-resize-s no-print"
+              title="Drag to resize Height"
+              onMouseDown={(e) => handleResizeMouseDown(e, id, 's')}
+            />
+            <div
+              className="adv-resize-handle adv-resize-e no-print"
+              title="Drag to resize Width"
+              onMouseDown={(e) => handleResizeMouseDown(e, id, 'e')}
+            />
+          </>
+        )}
+      </>
     );
   };
 
@@ -779,6 +1038,9 @@ export default function VerdictStep({
         className={`verdict-card ${theme === 'dark' ? 'theme-dark' : 'theme-parchment'} ${getItemClass('card')}`}
         style={{ ...getCardStyle(), ...getItemStyle('card') }}
         onClick={(e) => handleItemClick(e, 'card')}
+        onMouseDown={handleCardMouseDown}
+        onWheel={handleCardWheel}
+        data-adv-id="card"
       >
         {renderItemBadge('card')}
 
@@ -1531,7 +1793,7 @@ export default function VerdictStep({
                   <span>Reset All Elements</span>
                 </button>
                 <span className="adv-hint">
-                  💡 Tip: Click any element directly on the card to inspect and adjust it.
+                  🖱️ Drag elements to move • Drag gold handles to resize • Alt/Shift + Scroll to scale
                 </span>
               </div>
             </div>
