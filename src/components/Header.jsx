@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Wine, ListFilter, Download, Sparkles, Save, Share2, Printer, Check, Sun, Moon, Loader2 } from 'lucide-react';
 import EditableText from './TextEditor/EditableText';
 import { useTexts } from '../context/TextContext';
@@ -17,10 +17,13 @@ export default function Header({
   isSharingPhoto = false,
   isSharePhotoSuccess = false
 }) {
-  const { t } = useTexts();
+  const { t, isEditMode } = useTexts();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isSavedFlash, setIsSavedFlash] = useState(false);
+  const [copiedToast, setCopiedToast] = useState(null);
+  const [toastKey, setToastKey] = useState(0);
+  const toastTimeoutRef = useRef(null);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
@@ -49,6 +52,49 @@ export default function Header({
     setTimeout(() => setIsSavedFlash(false), 2000);
   };
 
+  const handleSubtitleClick = async (e) => {
+    if (isEditMode) return;
+    e.stopPropagation();
+
+    const textToCopy = "If you like it - tell your friends.. Winitis wine taste app https://winitis.vercel.app";
+    let success = false;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(textToCopy);
+        success = true;
+      }
+    } catch (err) {
+      console.warn('Clipboard writeText failed:', err);
+    }
+
+    if (!success) {
+      try {
+        const textArea = document.createElement('textarea');
+        textArea.value = textToCopy;
+        textArea.style.position = 'fixed';
+        textArea.style.opacity = '0';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+      } catch (err) {
+        console.error('Fallback copy failed:', err);
+      }
+    }
+
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToastKey(Date.now());
+    setCopiedToast(textToCopy);
+
+    toastTimeoutRef.current = setTimeout(() => {
+      setCopiedToast(null);
+    }, 3000);
+  };
+
   return (
     <header className="app-header">
       <div className="header-content">
@@ -69,8 +115,14 @@ export default function Header({
             <div className="brand-title font-serif">
               <EditableText textKey="header.brandTitle" defaultText="WINITIS" />
             </div>
-            <div className="brand-subtitle">
-              <EditableText textKey="header.brandSubtitle" defaultText="Red Wine Tasting PWA" />
+            <div 
+              className="brand-subtitle"
+              onClick={handleSubtitleClick}
+              title="Click to copy app link and share"
+              role="button"
+              tabIndex={0}
+            >
+              <EditableText textKey="header.brandSubtitle" defaultText="by Nitay Malka" />
             </div>
           </div>
         </div>
@@ -209,6 +261,24 @@ export default function Header({
           )}
         </div>
       </div>
+
+      {/* 3s Fade-Away Copied Share Toast */}
+      {copiedToast && (
+        <div 
+          key={toastKey}
+          className="copied-toast-window font-serif"
+          onClick={() => setCopiedToast(null)}
+          title="Click to dismiss"
+        >
+          <div className="copied-toast-badge">
+            <Check size={16} color="#4ade80" />
+            <span>COPIED!</span>
+          </div>
+          <div className="copied-toast-text">
+            {copiedToast}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
