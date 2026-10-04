@@ -2126,8 +2126,9 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .pillar-header-row {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
+  gap: 4px;
   margin-bottom: 1px;
 }
 
@@ -2143,7 +2144,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .pillar-val {
-  font-size: 0.48rem;
+  font-size: 0.60rem;
   font-weight: 800;
   letter-spacing: 0.02em;
 }
@@ -2398,7 +2399,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     font-size: 0.56rem !important;
   }
   .pillar-val {
-    font-size: 0.46rem !important;
+    font-size: 0.58rem !important;
   }
   .pairings-title {
     font-size: 0.54rem !important;
@@ -4052,16 +4053,17 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .verdict-attr-2col-grid .pillar-header-row {
   display: flex;
+  justify-content: flex-start !important;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   height: 14px;
   margin-bottom: 0;
   white-space: nowrap;
 }
 
 .verdict-attr-2col-grid .pillar-icon {
-  font-size: 0.56rem;
-  width: 11px;
+  font-size: 0.58rem;
+  width: 12px;
   flex-shrink: 0;
 }
 
@@ -4075,10 +4077,10 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .verdict-attr-2col-grid .pillar-val {
-  font-size: 0.46rem !important;
-  font-weight: 700 !important;
-  padding-left: 13px;
-  line-height: 1.1;
+  font-size: 0.58rem !important;
+  font-weight: 800 !important;
+  padding-left: 15px;
+  line-height: 1.15;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
