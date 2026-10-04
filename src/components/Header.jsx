@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Wine, ListFilter, Download, Sparkles, Save, Share2, Printer, Check } from 'lucide-react';
+import { Wine, ListFilter, Download, Sparkles, Save, Share2, Printer, Check, Sun, Moon, Loader2 } from 'lucide-react';
 import EditableText from './TextEditor/EditableText';
 import { useTexts } from '../context/TextContext';
 
@@ -10,7 +10,11 @@ export default function Header({
   onOpenGuide,
   onSave,
   onShare,
-  onPrint
+  onPrint,
+  theme = 'dark',
+  onToggleTheme,
+  isSharingPhoto = false,
+  isSharePhotoSuccess = false
 }) {
   const { t } = useTexts();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -71,6 +75,19 @@ export default function Header({
         </div>
 
         <div className="nav-buttons">
+          {onToggleTheme && (
+            <button 
+              type="button"
+              className="btn btn-outline"
+              onClick={onToggleTheme}
+              title={theme === 'dark' ? 'Night Mode (click for Day)' : 'Day Mode (click for Night)'}
+              aria-label="Toggle Night/Day mode"
+              style={{ padding: '8px 10px', minWidth: '38px', height: '38px', justifyContent: 'center' }}
+            >
+              {theme === 'dark' ? <Moon size={18} color="#d4af37" /> : <Sun size={18} color="#d4af37" />}
+            </button>
+          )}
+
           <button 
             className={`btn ${currentView === 'new' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => setCurrentView('new')}
@@ -115,7 +132,7 @@ export default function Header({
             )}
           </button>
 
-          {/* Quick Action Symbols: Save, Share, Print (Symbol only, no text) */}
+          {/* Quick Action Symbols: Save, Share Photo, Print (Symbol only, no text) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '2px' }}>
             {onSave && (
               <button 
@@ -141,11 +158,24 @@ export default function Header({
                 type="button"
                 className="btn btn-outline" 
                 onClick={onShare}
-                title="Share Tasting Note"
-                aria-label="Share"
-                style={{ padding: '8px 10px', minWidth: '38px', justifyContent: 'center' }}
+                disabled={isSharingPhoto}
+                title="Share Summary as Photo"
+                aria-label="Share Photo"
+                style={{
+                  padding: '8px 10px',
+                  minWidth: '38px',
+                  justifyContent: 'center',
+                  borderColor: isSharePhotoSuccess ? 'var(--gold-primary)' : undefined,
+                  background: isSharePhotoSuccess ? 'rgba(212,175,55,0.2)' : undefined
+                }}
               >
-                <Share2 size={16} />
+                {isSharingPhoto ? (
+                  <Loader2 size={16} className="spin-animate" color="#d4af37" />
+                ) : isSharePhotoSuccess ? (
+                  <Check size={16} color="#d4af37" />
+                ) : (
+                  <Share2 size={16} />
+                )}
               </button>
             )}
 

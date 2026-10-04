@@ -1,10 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import GenericWineBottle from './GenericWineBottle';
 import EditableText from '../TextEditor/EditableText';
-import {
-  Camera, RotateCcw, Quote, Sun, Moon, Share2, Loader2, Check
-} from 'lucide-react';
-import { toBlob, toPng } from 'html-to-image';
+import { Camera, RotateCcw } from 'lucide-react';
 import { useTexts } from '../../context/TextContext';
 
 // Helper to convert structural levels to gauge percentage
@@ -56,19 +53,12 @@ export default function VerdictStep({
   updateWineNote,
   onSave,
   onShare,
-  readOnly = false
+  readOnly = false,
+  theme = 'dark'
 }) {
   const { t } = useTexts();
   const fileInputRef = useRef(null);
   const cardRef = useRef(null);
-
-  const [theme, setTheme] = useState('parchment'); // 'parchment' | 'dark'
-  const [isSharingPhoto, setIsSharingPhoto] = useState(false);
-  const [shareSuccessFlash, setShareSuccessFlash] = useState(false);
-
-  const handleToggleTheme = () => {
-    setTheme(prev => prev === 'parchment' ? 'dark' : 'parchment');
-  };
 
   // Identity & Specs
   const rawWineName = wineNote.wineName || 'THE REVELATOR RED BLEND';
@@ -192,12 +182,6 @@ export default function VerdictStep({
           useGenericBottle: false
         };
         updateWineNote(updated);
-        pushLiveSync({
-          splitConfig,
-          wineNote: updated,
-          theme,
-          step: 4
-        });
       };
 
       img.onerror = () => {
@@ -207,12 +191,6 @@ export default function VerdictStep({
           useGenericBottle: false
         };
         updateWineNote(updated);
-        pushLiveSync({
-          splitConfig,
-          wineNote: updated,
-          theme,
-          step: 4
-        });
       };
 
       img.src = dataUrl;
@@ -228,86 +206,12 @@ export default function VerdictStep({
     };
     updateWineNote(updated);
     if (fileInputRef.current) fileInputRef.current.value = '';
-    pushLiveSync({
-      splitConfig,
-      wineNote: updated,
-      theme,
-      step: 4
-    });
   };
 
   const setVfm = (newVfm) => {
     if (readOnly) return;
     const updated = { ...wineNote, vfm: newVfm };
     updateWineNote(updated);
-    pushLiveSync({
-      splitConfig,
-      wineNote: updated,
-      theme,
-      step: 4
-    });
-  };
-
-  const handleSharePhoto = async () => {
-    if (!cardRef.current || isSharingPhoto) return;
-    setIsSharingPhoto(true);
-
-    try {
-      await new Promise(r => setTimeout(r, 60));
-
-      const blob = await toBlob(cardRef.current, {
-        pixelRatio: 2,
-        cacheBust: true,
-        filter: (node) => {
-          return !node.classList?.contains('no-print');
-        }
-      });
-
-      if (!blob) {
-        throw new Error('Failed to capture card image');
-      }
-
-      const safeName = (wineName || 'wine').replace(/[^a-z0-9]/gi, '_').toLowerCase();
-      const fileName = `${safeName}_verdict.png`;
-      const file = new File([blob], fileName, { type: 'image/png' });
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: wineName || 'Wine Tasting Verdict',
-          text: `Wine Tasting Summary: ${wineName} (${vintage})`
-        });
-        setShareSuccessFlash(true);
-        setTimeout(() => setShareSuccessFlash(false), 2500);
-      } else {
-        const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
-        const link = document.createElement('a');
-        link.download = fileName;
-        link.href = dataUrl;
-        link.click();
-        setShareSuccessFlash(true);
-        setTimeout(() => setShareSuccessFlash(false), 2500);
-      }
-    } catch (err) {
-      console.warn('Navigator share failed, trying PNG download fallback:', err);
-      if (cardRef.current) {
-        try {
-          const dataUrl = await toPng(cardRef.current, { pixelRatio: 2 });
-          const safeName = (wineName || 'wine').replace(/[^a-z0-9]/gi, '_').toLowerCase();
-          const fileName = `${safeName}_verdict.png`;
-          const link = document.createElement('a');
-          link.download = fileName;
-          link.href = dataUrl;
-          link.click();
-          setShareSuccessFlash(true);
-          setTimeout(() => setShareSuccessFlash(false), 2500);
-        } catch (fallbackErr) {
-          console.error('Fallback photo download failed:', fallbackErr);
-        }
-      }
-    } finally {
-      setIsSharingPhoto(false);
-    }
   };
 
   const wineTypeClean = (wineNote.type || 'red').toLowerCase();
@@ -315,94 +219,48 @@ export default function VerdictStep({
   return (
     <div className="verdict-wrapper">
       
-      {/* Top Toolbar Controls: Theme Toggle, Bottle Photo Actions, Share */}
-      <div className="verdict-toolbar no-print">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          
-          {/* Day / Night Theme Single Toggle Button */}
-          <button
-            type="button"
-            className="btn btn-outline"
-            style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
-            onClick={handleToggleTheme}
-            title={theme === 'parchment' ? 'Switch to Dark Theme' : 'Switch to Day / Parchment Theme'}
-            aria-label="Toggle Day / Night theme"
-          >
-            {theme === 'parchment' ? <Sun size={18} color="#d4af37" /> : <Moon size={18} color="#d4af37" />}
-          </button>
-
-          {/* Separator */}
-          <div style={{ width: '1px', height: '20px', background: 'rgba(212, 175, 55, 0.25)', margin: '0 2px' }} />
-
-          {/* Bottle Photo Controls */}
-          {!readOnly && (
-            <>
-              {bottleImage ? (
-                <>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
-                    onClick={() => fileInputRef.current?.click()}
-                    title="Change Bottle Photo"
-                    aria-label="Change Bottle Photo"
-                  >
-                    <Camera size={18} />
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-outline"
-                    style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
-                    onClick={handleRemovePhoto}
-                    title="Use Generic Bottle"
-                    aria-label="Use Generic Bottle"
-                  >
-                    <RotateCcw size={18} />
-                  </button>
-                </>
-              ) : (
+      {/* Top Toolbar Controls: Bottle Photo Actions */}
+      {!readOnly && (
+        <div className="verdict-toolbar no-print">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            {bottleImage ? (
+              <>
                 <button
                   type="button"
                   className="btn btn-outline"
                   style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
                   onClick={() => fileInputRef.current?.click()}
-                  title="Upload Bottle Photo"
-                  aria-label="Upload Bottle Photo"
+                  title="Change Bottle Photo"
+                  aria-label="Change Bottle Photo"
                 >
                   <Camera size={18} />
                 </button>
-              )}
-            </>
-          )}
-
-          {/* Share Summary as Photo Button */}
-          <button
-            type="button"
-            className="btn btn-outline"
-            style={{ 
-              padding: '8px 10px', 
-              minWidth: '38px', 
-              height: '36px', 
-              justifyContent: 'center',
-              borderColor: shareSuccessFlash ? 'var(--gold-primary)' : undefined,
-              background: shareSuccessFlash ? 'rgba(212, 175, 55, 0.2)' : undefined
-            }}
-            onClick={handleSharePhoto}
-            disabled={isSharingPhoto}
-            title="Share Summary as Photo"
-            aria-label="Share Summary as Photo"
-          >
-            {isSharingPhoto ? (
-              <Loader2 size={18} className="spin-animate" color="#d4af37" />
-            ) : shareSuccessFlash ? (
-              <Check size={18} color="#d4af37" />
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
+                  onClick={handleRemovePhoto}
+                  title="Use Generic Bottle"
+                  aria-label="Use Generic Bottle"
+                >
+                  <RotateCcw size={18} />
+                </button>
+              </>
             ) : (
-              <Share2 size={18} />
+              <button
+                type="button"
+                className="btn btn-outline"
+                style={{ padding: '8px 10px', minWidth: '38px', height: '36px', justifyContent: 'center' }}
+                onClick={() => fileInputRef.current?.click()}
+                title="Upload Bottle Photo"
+                aria-label="Upload Bottle Photo"
+              >
+                <Camera size={18} />
+              </button>
             )}
-          </button>
-
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ==========================================================
           THE 700PX ONE-SCREEN VERDICT SUMMARY CARD

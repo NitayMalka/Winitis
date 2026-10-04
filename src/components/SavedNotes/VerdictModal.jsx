@@ -1,8 +1,8 @@
-﻿import React from 'react';
+import React from 'react';
 import VerdictStep from '../TastingForm/VerdictStep';
 import { X } from 'lucide-react';
 
-export default function VerdictModal({ note, onClose, onShare }) {
+export default function VerdictModal({ note, onClose, onShare, theme = 'dark' }) {
   if (!note) return null;
 
   return (
@@ -49,6 +49,7 @@ export default function VerdictModal({ note, onClose, onShare }) {
             if (onShare) onShare(note);
           }}
           readOnly={true}
+          theme={theme}
         />
       </div>
     </div>

@@ -4,6 +4,21 @@ const STORAGE_KEY = 'winitis_tasting_notes';
 const ACTIVE_STEP_KEY = 'winitis_active_step';
 const ACTIVE_DRAFT_KEY = 'winitis_active_draft_note';
 const ACTIVE_VIEW_KEY = 'winitis_active_view';
+const ACTIVE_THEME_KEY = 'winitis_theme';
+
+export const getActiveTheme = () => {
+  try {
+    const val = localStorage.getItem(ACTIVE_THEME_KEY);
+    if (val === 'dark' || val === 'parchment') return val;
+  } catch (e) {}
+  return 'dark';
+};
+
+export const saveActiveTheme = (theme) => {
+  try {
+    localStorage.setItem(ACTIVE_THEME_KEY, theme);
+  } catch (e) {}
+};
 
 export const getActiveStep = () => {
   try {

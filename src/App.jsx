@@ -18,12 +18,14 @@ import {
   saveActiveView, 
   getActiveDraftNote, 
   saveActiveDraftNote, 
-  clearActiveDraftNote 
+  clearActiveDraftNote,
+  getActiveTheme,
+  saveActiveTheme
 } from './utils/storage';
+import { toBlob, toPng } from 'html-to-image';
 import { Wine, Check, Sparkles, Eye, Wind, Award, FileText } from 'lucide-react';
 import { useTexts } from './context/TextContext';
 import EditableText from './components/TextEditor/EditableText';
-import { subscribeLiveSync } from './utils/liveSync';
 
 const INITIAL_NOTE_STATE = {
   wineName: '',
@@ -80,22 +82,90 @@ export default function App() {
     setSavedNotes(loaded);
   }, []);
 
-  // Live Sync with PC during editing mode (deprecatable after editing)
-  useEffect(() => {
-    const unsubscribe = subscribeLiveSync((syncData) => {
-      if (syncData.step) {
-        setCurrentView('form');
-        setCurrentStep(syncData.step);
-      }
-      if (syncData.wineNote) {
-        setWineNote(prev => ({
-          ...prev,
-          ...syncData.wineNote
-        }));
-      }
+  // Day / Night Theme State (Default: 'dark')
+  const [theme, setTheme] = useState(getActiveTheme);
+  const [isSharingPhoto, setIsSharingPhoto] = useState(false);
+  const [isSharePhotoSuccess, setIsSharePhotoSuccess] = useState(false);
+
+  const handleToggleTheme = () => {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'parchment' : 'dark';
+      saveActiveTheme(next);
+      return next;
     });
-    return unsubscribe;
-  }, []);
+  };
+
+  const handleSharePhoto = async () => {
+    if (isSharingPhoto) return;
+    setIsSharingPhoto(true);
+
+    try {
+      // If not currently showing a verdict card, switch to summary step
+      if (!document.querySelector('.verdict-card')) {
+        setCurrentView('new');
+        setCurrentStep(4);
+        saveActiveView('new');
+        saveActiveStep(4);
+        await new Promise((r) => setTimeout(r, 200));
+      }
+
+      await new Promise((r) => setTimeout(r, 80));
+      const cardEl = document.querySelector('.verdict-card');
+      if (!cardEl) throw new Error('Verdict card element not found');
+
+      const blob = await toBlob(cardEl, {
+        pixelRatio: 2,
+        cacheBust: true,
+        filter: (node) => !node.classList?.contains('no-print')
+      });
+
+      if (!blob) throw new Error('Failed to generate image');
+
+      const targetNote = viewVerdictTarget || wineNote;
+      const safeWineName = (targetNote?.wineName || 'wine').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const fileName = `${safeWineName}_verdict.png`;
+      const file = new File([blob], fileName, { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: targetNote?.wineName || 'Wine Tasting Verdict',
+          text: `Wine Tasting Summary: ${targetNote?.wineName || ''} (${targetNote?.vintage || ''})`
+        });
+        setIsSharePhotoSuccess(true);
+        setTimeout(() => setIsSharePhotoSuccess(false), 2500);
+      } else {
+        const dataUrl = await toPng(cardEl, { pixelRatio: 2 });
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = dataUrl;
+        link.click();
+        setIsSharePhotoSuccess(true);
+        setTimeout(() => setIsSharePhotoSuccess(false), 2500);
+      }
+    } catch (err) {
+      console.warn('Share photo failed, attempting fallback download:', err);
+      const cardEl = document.querySelector('.verdict-card');
+      if (cardEl) {
+        try {
+          const dataUrl = await toPng(cardEl, { pixelRatio: 2 });
+          const targetNote = viewVerdictTarget || wineNote;
+          const safeWineName = (targetNote?.wineName || 'wine').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+          const fileName = `${safeWineName}_verdict.png`;
+          const link = document.createElement('a');
+          link.download = fileName;
+          link.href = dataUrl;
+          link.click();
+          setIsSharePhotoSuccess(true);
+          setTimeout(() => setIsSharePhotoSuccess(false), 2500);
+        } catch (fallbackErr) {
+          console.error('Fallback photo download failed:', fallbackErr);
+        }
+      }
+    } finally {
+      setIsSharingPhoto(false);
+    }
+  };
 
   // Persist current active step across app switches and browser sessions
   useEffect(() => {
@@ -172,8 +242,12 @@ export default function App() {
           savedCount={savedNotes.length}
           onOpenGuide={() => setShowGuideModal(true)}
           onSave={handleSaveCurrentNote}
-          onShare={() => setShareNoteTarget(wineNote)}
+          onShare={handleSharePhoto}
           onPrint={() => window.print()}
+          theme={theme}
+          onToggleTheme={handleToggleTheme}
+          isSharingPhoto={isSharingPhoto}
+          isSharePhotoSuccess={isSharePhotoSuccess}
         />
 
         {currentView === 'new' && (
@@ -230,7 +304,8 @@ export default function App() {
                 wineNote={wineNote} 
                 updateWineNote={setWineNote}
                 onSave={handleSaveCurrentNote}
-                onShare={() => setShareNoteTarget(wineNote)}
+                onShare={handleSharePhoto}
+                theme={theme}
               />
             )}
 
@@ -262,6 +337,7 @@ export default function App() {
         <VerdictModal 
           note={viewVerdictTarget}
           onClose={() => setViewVerdictTarget(null)}
+          theme={theme}
           onShare={(note) => {
             setViewVerdictTarget(null);
             setShareNoteTarget(note);
