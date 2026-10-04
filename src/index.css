@@ -3878,7 +3878,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-aromas-list-clean {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: clamp(2px, 0.9vh, 5px);
   width: 100%;
   box-sizing: border-box;
   overflow: visible;
@@ -3887,7 +3887,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .verdict-aromas-list-clean .verdict-aroma-row {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-size: 0.50rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -3898,6 +3898,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   width: 100%;
   box-sizing: border-box;
   overflow: visible;
+  line-height: 1.15;
 }
 
 .verdict-aromas-list-clean .verdict-aroma-row .aroma-icon {

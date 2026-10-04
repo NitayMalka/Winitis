@@ -113,8 +113,7 @@ export default function VerdictStep({
   const userAromas = rawAromas
     .map(a => cleanText(a))
     .filter(Boolean)
-    .slice(0, 4)
-    .map(a => a.length > 28 ? a.slice(0, 28).trim() : a);
+    .slice(0, 20);
 
   // 3. Palate & Structural Parameters
   const bodyVal = wineNote.palate?.body || 'Medium(+)';
