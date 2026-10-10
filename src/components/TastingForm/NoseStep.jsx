@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { toVisualRtl, visualTextStyle } from '../../i18n/visualOrder';
 import { RED_WINE_AROMAS } from '../../data/wineData';
 import { Wind, Sparkles, Check, Info, Trash2, Sliders, Search, Plus, X } from 'lucide-react';
 import EditableText from '../TextEditor/EditableText';
@@ -457,7 +458,8 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                       style={{ 
                         pointerEvents: 'none', 
                         userSelect: 'none', 
-                        textShadow: isSelected ? 'none' : '0 1px 3px rgba(0,0,0,0.9)' 
+                        textShadow: isSelected ? 'none' : '0 1px 3px rgba(0,0,0,0.9)',
+                        ...visualTextStyle
                       }}
                     >
                       <textPath 
@@ -465,7 +467,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                         xlinkHref={`#aroma-path-${idx}`}
                         startOffset="50%"
                       >
-                        {displayText}
+                        {toVisualRtl(displayText)}
                       </textPath>
                     </text>
                   </g>
@@ -501,7 +503,8 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                       style={{ 
                         pointerEvents: 'none', 
                         textShadow: '0 1px 4px rgba(0,0,0,0.95)', 
-                        userSelect: 'none' 
+                        userSelect: 'none',
+                        ...visualTextStyle
                       }}
                     >
                       <textPath 
@@ -509,7 +512,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                         xlinkHref={`#cat-path-${cat.id}`}
                         startOffset="50%"
                       >
-                        {displayText}
+                        {toVisualRtl(displayText)}
                       </textPath>
                     </text>
                   </g>
@@ -599,9 +602,9 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                 />
 
                 {/* CURVED "INTENSITY" TEXT LABEL CURVED EXACTLY ALONG SLIDER SHAPE STARTING AT ORIGIN */}
-                <text fill="#d4af37" fontSize="10" fontWeight="bold" letterSpacing="0.08em" style={{ pointerEvents: 'none' }}>
+                <text fill="#d4af37" fontSize="10" fontWeight="bold" letterSpacing="0.08em" style={{ pointerEvents: 'none', ...visualTextStyle }}>
                   <textPath href="#intensity-text-path" xlinkHref="#intensity-text-path" startOffset="2%">
-                    {tr('INTENSITY')}: {tr(currentIntensity).replace(/[()]/g, '').toUpperCase()}
+                    {toVisualRtl(`${tr('INTENSITY')}: ${tr(currentIntensity).replace(/[()]/g, '').toUpperCase()}`)}
                   </textPath>
                 </text>
 
@@ -643,9 +646,9 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                 />
 
                 {/* CURVED "DEVELOPMENT" TEXT LABEL CURVED EXACTLY ALONG SLIDER SHAPE STARTING AT ORIGIN */}
-                <text fill="#e67e22" fontSize="10" fontWeight="bold" letterSpacing="0.08em" style={{ pointerEvents: 'none' }}>
+                <text fill="#e67e22" fontSize="10" fontWeight="bold" letterSpacing="0.08em" style={{ pointerEvents: 'none', ...visualTextStyle }}>
                   <textPath href="#dev-text-path" xlinkHref="#dev-text-path" startOffset="2%">
-                    {tr('DEVELOPMENT')}: {tr(currentDevelopment).replace(/[()]/g, '').toUpperCase()}
+                    {toVisualRtl(`${tr('DEVELOPMENT')}: ${tr(currentDevelopment).replace(/[()]/g, '').toUpperCase()}`)}
                   </textPath>
                 </text>
 
