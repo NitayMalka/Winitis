@@ -331,7 +331,7 @@ export default function VerdictStep({
                       wineColorHex={colorHex}
                       wineName={wineName}
                       vintage={vintage}
-                      appellation={originStr}
+                      appellation={[region, country].filter(Boolean).join(', ')}
                       alcohol={alcohol}
                     />
                     {!readOnly && (

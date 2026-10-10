@@ -21,7 +21,10 @@ function FitText({ children, maxWidth = LABEL_TEXT_MAX, ...props }) {
     fit();
     if (document.fonts?.ready) document.fonts.ready.then(fit).catch(() => {});
   }, [children, maxWidth]);
-  return <text ref={ref} {...props}>{children}</text>;
+  // Hebrew on the label: right-to-left run, no tracking (letter-spacing breaks Hebrew words apart)
+  const isHebrew = /[\u0590-\u05FF]/.test([].concat(children).join(''));
+  const heProps = isHebrew ? { direction: 'rtl', letterSpacing: '0', style: { ...(props.style || {}), unicodeBidi: 'plaintext' } } : {};
+  return <text ref={ref} {...props} {...heProps}>{children}</text>;
 }
 
 /**
@@ -33,7 +36,8 @@ export default function GenericWineBottle({
   wineName = 'CHÂTEAU MARGAUX',
   grape = 'GRAND VIN',
   vintage = '2016',
-  region = 'BORDEAUX',
+  region,
+  appellation,
   alcohol = '14.0%',
   wineColorHex = '#7e1022',
   className = '',
@@ -42,7 +46,9 @@ export default function GenericWineBottle({
   const displayName = (wineName || 'ESTATE RESERVE').toUpperCase();
   const displayGrape = (grape || 'RED WINE').toUpperCase();
   const displayVintage = vintage || new Date().getFullYear().toString();
-  const displayOrigin = (region || 'FINE WINE').toUpperCase();
+  // Origin line = what the user entered (appellation / region, country). Nothing entered -> no line
+  // (it used to fall back to a fixed "BORDEAUX" because the caller's prop name didn't match).
+  const displayOrigin = String(appellation ?? region ?? '').trim().toUpperCase();
 
   return (
     <div
@@ -245,6 +251,7 @@ export default function GenericWineBottle({
         </text>
 
         {/* "GRAND VIN" or Origin Subtitle */}
+        {displayOrigin && (
         <FitText
           x="100"
           y="374"
@@ -257,6 +264,7 @@ export default function GenericWineBottle({
         >
           {displayOrigin}
         </FitText>
+        )}
 
         {/* Wine Main Title (Auto-wrapped or sized) */}
         <FitText
