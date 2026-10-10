@@ -65,7 +65,7 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
         {/* Nose & Aromas Preview */}
         {note.nose?.aromas?.length > 0 && (
           <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '12px' }}>
-            <strong style={{ color: 'var(--text-gold)' }}>
+            <strong className="note-aromas-label" style={{ color: 'var(--text-gold)' }}>
               <EditableText textKey="cellar.aromasPrefix" defaultText="Aromas:" />{' '}
             </strong>
             {note.nose.aromas.slice(0, 4).map(a => tr(a)).join(', ')}

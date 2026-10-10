@@ -31,7 +31,9 @@ export function TextProvider({ children }) {
   useEffect(() => {
     const html = document.documentElement;
     html.lang = lang;
-    html.dir = lang === 'he' ? 'rtl' : 'ltr';
+    // Layout never mirrors: the document stays LTR in both languages; Hebrew direction is
+    // handled per text run in CSS (unicode-bidi: plaintext), so only the text changes.
+    html.dir = 'ltr';
     document.title = lang === 'he' ? 'Winitis | טעימות יין אדום' : 'Winitis | Red Wine Tasting PWA';
     const manifest = document.querySelector('link[rel="manifest"]');
     if (manifest) manifest.setAttribute('href', lang === 'he' ? '/manifest.he.json' : '/manifest.json');

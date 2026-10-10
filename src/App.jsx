@@ -80,7 +80,7 @@ const INITIAL_NOTE_STATE = {
 };
 
 export default function App() {
-  const { t, tr } = useTexts();
+  const { t, tr, lang } = useTexts();
   const [currentView, setCurrentView] = useState(() => getActiveView());
   const [currentStep, setCurrentStep] = useState(() => getActiveStep());
   const [wineNote, setWineNote] = useState(() => getActiveDraftNote(INITIAL_NOTE_STATE));
@@ -267,10 +267,10 @@ export default function App() {
   };
 
   const steps = [
-    { num: 1, label: t('navigation.step1', 'Color'), key: 'navigation.step1', icon: Eye },
-    { num: 2, label: t('navigation.step2', 'Nose'), key: 'navigation.step2', icon: Wind },
-    { num: 3, label: t('navigation.step3', 'Rating'), key: 'navigation.step3', icon: Award },
-    { num: 4, label: t('navigation.step4', 'Summary'), key: 'navigation.step4', icon: FileText }
+    { num: 1, label: t('navigation.step1', 'Color'), key: 'navigation.step1', en: 'Color', icon: Eye },
+    { num: 2, label: t('navigation.step2', 'Nose'), key: 'navigation.step2', en: 'Nose', icon: Wind },
+    { num: 3, label: t('navigation.step3', 'Rating'), key: 'navigation.step3', en: 'Rating', icon: Award },
+    { num: 4, label: t('navigation.step4', 'Summary'), key: 'navigation.step4', en: 'Summary', icon: FileText }
   ];
 
   return (
@@ -305,7 +305,15 @@ export default function App() {
                     {currentStep > s.num ? <Check size={12} /> : s.num}
                   </div>
                   <Icon size={14} />
-                  <EditableText textKey={s.key} defaultText={s.label} />
+                  {lang === 'he' ? (
+                    // Same box as English (hidden English label sizes the slot) so tabs never move.
+                    <span className="step-label-slot">
+                      <span className="step-label-ghost" aria-hidden="true">{s.en}</span>
+                      <span className="step-label-text">{s.label}</span>
+                    </span>
+                  ) : (
+                    <EditableText textKey={s.key} defaultText={s.label} />
+                  )}
                 </div>
               );
             })}

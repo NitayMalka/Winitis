@@ -20,7 +20,6 @@
       try {
         if (localStorage.getItem('winitis_lang') === 'he') {
           document.documentElement.lang = 'he';
-          document.documentElement.dir = 'rtl';
           document.querySelector('link[rel="manifest"]').href = '/manifest.he.json';
         }
       } catch (e) {}

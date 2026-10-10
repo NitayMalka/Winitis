@@ -4457,11 +4457,19 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 
 /* ==========================================================================
-   Hebrew / RTL
-   Layout mirrors via dir="rtl" on <html> (flex rows follow the direction).
-   Kept LTR on purpose (dir="ltr" in JSX): colour spectrum canvas, aroma wheel SVG,
-   palate sliders, aftertaste range, verdict gauges, score gauge.
+   Hebrew
+   The layout is identical in both languages: <html dir="ltr"> always, nothing mirrors.
+   Only text changes. Each text run picks its own direction from its first strong
+   character (unicode-bidi: plaintext), so Hebrew sentences read RTL with correct
+   punctuation/numbers, while boxes keep their English positions and alignment.
+   SVG (aroma wheel) is excluded: its text is laid out along paths.
    ========================================================================== */
+html[lang="he"] body { text-align: left; }
+html[lang="he"] body *:not(svg):not(svg *) { unicode-bidi: plaintext; }
+/* inline emphasis stays part of its parent's text run (an isolate would swallow trailing spaces) */
+html[lang="he"] :is(strong, b, em, i, small, a, u) { unicode-bidi: normal; }
+/* typed text in fields follows the text the user types */
+html[lang="he"] input, html[lang="he"] textarea { text-align: start; }
 html[lang="he"] body { font-family: 'Heebo', 'Inter', system-ui, sans-serif; }
 html[lang="he"] .font-serif,
 html[lang="he"] .heading-serif,
@@ -4469,7 +4477,7 @@ html[lang="he"] h1, html[lang="he"] h2, html[lang="he"] h3, html[lang="he"] h4 {
   font-family: 'Frank Ruhl Libre', 'Cinzel', Georgia, serif;
 }
 /* Hebrew has no case and suffers from tracking */
-html[lang="he"] *:not(.brand-title):not(.brand-title *) { letter-spacing: normal !important; }
+html[lang="he"] *:not(.brand-title):not(.brand-title *):not(.step-item):not(.step-label-slot):not(.step-label-ghost) { letter-spacing: normal !important; }
 html[lang="he"] .brand-title, html[lang="he"] .brand-title * { font-family: var(--font-serif); }
 .lang-toggle-btn {
   padding: 0 8px; min-width: 38px; height: 38px; justify-content: center;
@@ -4494,3 +4502,9 @@ html[lang="he"] .brand-title, html[lang="he"] .brand-title * { font-family: var(
   .lang-toggle-btn { font-size: 0.74rem; }
 }
 html[lang="he"] textarea, html[lang="he"] input, html[lang="he"] select { font-family: 'Heebo', 'Inter', system-ui, sans-serif; }
+/* Hebrew step tab labels occupy exactly the English label's box (tabs keep their x positions) */
+.step-label-slot { position: relative; display: inline-block; }
+.step-label-ghost { visibility: hidden; }
+.step-label-text { position: absolute; left: 50%; top: 0; transform: translateX(-50%); white-space: nowrap; }
+html[lang="he"] .step-label-ghost { font-family: var(--font-sans); }
+html[lang="he"] .note-aromas-label { margin-left: 0.3em; } /* gap between the RTL label and the list */
