@@ -329,10 +329,11 @@ export default function VerdictStep({
                     <GenericWineBottle
                       wineType={wineTypeClean}
                       wineColorHex={colorHex}
-                      wineName={wineName}
-                      vintage={vintage}
+                      wineName={wineNote.wineName || ''}
+                      grape={wineNote.grape || ''}
+                      vintage={wineNote.vintage || ''}
                       appellation={[region, country].filter(Boolean).join(', ')}
-                      alcohol={alcohol}
+                      alcohol={wineNote.alcohol || ''}
                     />
                     {!readOnly && (
                       <div className="default-bottle-photo-badge no-print" title={tr('Upload Bottle Photo')}>

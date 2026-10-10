@@ -33,22 +33,43 @@ function FitText({ children, maxWidth = LABEL_TEXT_MAX, ...props }) {
  * foil capsule, and an authentic vintage estate label displaying the wine's actual details.
  */
 export default function GenericWineBottle({
-  wineName = 'CHÂTEAU MARGAUX',
-  grape = 'GRAND VIN',
-  vintage = '2016',
+  wineName,
+  grape,
+  vintage,
   region,
   appellation,
-  alcohol = '14.0%',
+  alcohol,
   wineColorHex = '#7e1022',
   className = '',
   style = {}
 }) {
-  const displayName = (wineName || 'ESTATE RESERVE').toUpperCase();
-  const displayGrape = (grape || 'RED WINE').toUpperCase();
-  const displayVintage = vintage || new Date().getFullYear().toString();
-  // Origin line = what the user entered (appellation / region, country). Nothing entered -> no line
-  // (it used to fall back to a fixed "BORDEAUX" because the caller's prop name didn't match).
-  const displayOrigin = String(appellation ?? region ?? '').trim().toUpperCase();
+  // Every label line comes from the note; a field that is empty hides its line (no invented
+  // "CHÂTEAU MARGAUX", "GRAND VIN", "BORDEAUX", "MIS EN BOUTEILLE AU DOMAINE" or "750 ML").
+  const clean = (v) => String(v ?? '').trim();
+  const displayOrigin = clean(appellation ?? region).toUpperCase();        // region, country
+  const displayName = clean(wineName).toUpperCase();                       // wine name
+  const displayGrape = clean(grape).toUpperCase();                         // grape / variety
+  const displayVintage = clean(vintage);                                   // vintage year
+  // ABV: the number the user entered, shown in the language-neutral EU label form "14.5% vol"
+  const abvNum = (clean(alcohol).match(/\d+(?:[.,]\d+)?/) || [])[0];
+  const displayAbv = abvNum ? `${abvNum}% vol` : '';
+
+  const lineDefs = [
+    displayOrigin && { kind: 'origin', text: displayOrigin, fontSize: 7, h: 13, fill: '#5a493b', fontFamily: 'serif', fontWeight: 'bold', letterSpacing: '0.18em' },
+    displayName && { kind: 'name', text: displayName.length > 24 ? `${displayName.substring(0, 22)}...` : displayName, fontSize: displayName.length > 20 ? 9.5 : 11.5, h: 19, fill: '#1c1317', fontFamily: 'serif', fontWeight: '900', letterSpacing: '0.08em' },
+    displayGrape && { kind: 'grape', text: displayGrape, fontSize: 8, h: 14, fill: '#6b5749', fontFamily: 'serif', fontWeight: '600', letterSpacing: '0.12em' },
+    displayVintage && (displayOrigin || displayName || displayGrape) && { kind: 'divider', h: 12 },
+    displayVintage && { kind: 'vintage', text: displayVintage, fontSize: 17, h: 24, fill: '#8c2337', fontFamily: 'serif', fontWeight: '900', letterSpacing: '0.14em' },
+    displayAbv && { kind: 'abv', text: displayAbv, fontSize: 6.5, h: 14, fill: '#6b5c50', fontFamily: 'sans-serif', fontWeight: '500', letterSpacing: '0.08em' },
+  ].filter(Boolean);
+  // free space under the emblem: y 364..488; centre the stack in it
+  const stackH = lineDefs.reduce((n, l) => n + l.h, 0);
+  let cursorY = 364 + Math.max(0, (124 - stackH) / 2);
+  const labelLines = lineDefs.map((l) => {
+    const top = cursorY; cursorY += l.h;
+    // text baseline sits ~0.8 of the font size below the top of its slot; the divider in the middle
+    return { ...l, y: +(l.kind === 'divider' ? top + l.h / 2 : top + (l.h - l.fontSize) / 2 + l.fontSize * 0.82).toFixed(1) };
+  });
 
   return (
     <div
@@ -250,92 +271,24 @@ export default function GenericWineBottle({
           ✦
         </text>
 
-        {/* "GRAND VIN" or Origin Subtitle */}
-        {displayOrigin && (
-        <FitText
-          x="100"
-          y="374"
-          textAnchor="middle"
-          fill="#5a493b"
-          fontFamily="serif"
-          fontSize="7"
-          letterSpacing="0.18em"
-          fontWeight="bold"
-        >
-          {displayOrigin}
-        </FitText>
-        )}
-
-        {/* Wine Main Title (Auto-wrapped or sized) */}
-        <FitText
-          x="100"
-          y="396"
-          textAnchor="middle"
-          fill="#1c1317"
-          fontFamily="serif"
-          fontSize={displayName.length > 20 ? '9.5' : '11.5'}
-          fontWeight="900"
-          letterSpacing="0.08em"
-        >
-          {displayName.length > 24 ? displayName.substring(0, 22) + '...' : displayName}
-        </FitText>
-
-        {/* Grape Variety */}
-        <FitText
-          x="100"
-          y="412"
-          textAnchor="middle"
-          fill="#6b5749"
-          fontFamily="serif"
-          fontSize="8"
-          letterSpacing="0.12em"
-          fontWeight="600"
-        >
-          {displayGrape}
-        </FitText>
-
-        {/* Fine Line Divider */}
-        <line x1="55" y1="424" x2="145" y2="424" stroke="#b8934a" strokeWidth="0.75" />
-
-        {/* Vintage Year */}
-        <text
-          x="100"
-          y="445"
-          textAnchor="middle"
-          fill="#8c2337"
-          fontFamily="serif"
-          fontSize="17"
-          fontWeight="900"
-          letterSpacing="0.14em"
-        >
-          {displayVintage}
-        </text>
-
-        {/* Alcohol & Volume Fine Print */}
-        <text
-          x="100"
-          y="464"
-          textAnchor="middle"
-          fill="#6b5c50"
-          fontFamily="sans-serif"
-          fontSize="6"
-          letterSpacing="0.05em"
-          fontWeight="500"
-        >
-          MIS EN BOUTEILLE AU DOMAINE
-        </text>
-
-        <FitText
-          x="100"
-          y="478"
-          textAnchor="middle"
-          fill="#7d6d60"
-          fontFamily="sans-serif"
-          fontSize="5.5"
-          letterSpacing="0.08em"
-        >
-          {alcohol || '14.0%'} alc./vol. • 750 ML
-        </FitText>
+        {/* Label lines: only real note data, stacked and centred in the space under the emblem */}
+        {labelLines.map((ln) => (ln.kind === 'divider'
+          ? <line key="divider" x1="55" y1={ln.y} x2="145" y2={ln.y} stroke="#b8934a" strokeWidth="0.75" />
+          : (
+            <FitText
+              key={ln.kind}
+              x="100"
+              y={ln.y}
+              textAnchor="middle"
+              fill={ln.fill}
+              fontFamily={ln.fontFamily}
+              fontSize={ln.fontSize}
+              fontWeight={ln.fontWeight}
+              letterSpacing={ln.letterSpacing}
+            >
+              {ln.text}
+            </FitText>
+          )))}
 
         {/* Bottom Curved Base Shadow & Highlight */}
         <path
