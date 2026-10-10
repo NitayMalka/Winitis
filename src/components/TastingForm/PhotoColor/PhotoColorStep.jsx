@@ -1,52 +1,23 @@
 /**
- * PhotoColorStep — Winitis colour step driven by a photo of the wine.
+ * PhotoColorStep — photo picker shown in the ColorStep's photo sheet.
  * Take/upload a photo → pinch/scroll to zoom, drag to pan → tap the wine → fine-adjust
- * with the loupe → confirm. Optional white-balance tap on paper/tablecloth.
- * The colour is matched (CIEDE2000) to an approximate WSET palette; the taster can override.
+ * with the loupe → "Use this colour". Optional white-balance tap on paper/tablecloth.
+ * The colour is matched (CIEDE2000) to an approximate WSET palette and the identified
+ * descriptor is handed to the host via onConfirm(patch).
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Camera, ImagePlus, Crosshair, Sun, ZoomIn, ZoomOut, Maximize, Check, RotateCcw, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, AlertTriangle } from 'lucide-react';
-import { WINE_TYPES, TYPE_ORDER, INTENSITIES, paletteHex, rgbToHex } from './winePalette.js';
+import { rgbToHex } from './winePalette.js';
 import { samplePatch, identify, whiteBalanceGains, applyGains } from './wineIdentify.js';
 import { loadPhoto } from './imageTools.js';
 import './photoColorStep.css';
 
-const RIM_OPTIONS = [
-  ['Ruby Edge', 'color.rimOptionStandard', 'Ruby Edge (Youthful)'],
-  ['Subtle Magenta', 'color.rimOptionMagenta', 'Subtle Magenta (High Acid)'],
-  ['Pale Garnet Edge', 'color.rimOptionGarnet', 'Pale Garnet Edge (Maturing)'],
-  ['Amber Rim', 'color.rimOptionAmber', 'Amber Rim (Aged)'],
-  ['Watery Edge (Light Extraction)', 'color.rimOptionWatery', 'Watery Edge (Light Extraction)'],
-];
-const LEGACY_IDS = { violet: 'purple', brick: 'brown' };
 const PATCH_SIZES = [[2, '5×5'], [4, '9×9'], [6, '13×13']];
 const LOUPE = 132;
 
-/** Read a saved wineNote.color back into selector state (handles legacy notes). */
-export function descriptorFromColor(c = {}) {
-  const type = WINE_TYPES[c.wineType] ? c.wineType : 'red';
-  const id = LEGACY_IDS[c.id] || c.id;
-  const hueIdx = Math.max(0, WINE_TYPES[type].hues.findIndex((h) => h.id === id));
-  const intensity = ['Pale', 'Medium', 'Deep'].includes(c.intensity) ? c.intensity : 'Medium';
-  return { type, hueIdx: hueIdx === -1 ? 0 : hueIdx, intensity };
-}
-const intensityValue = (l) => INTENSITIES.find(([n]) => n === l)?.[1] ?? 0.5;
-const labelOf = (d) => `${d.intensity} ${WINE_TYPES[d.type].hues[d.hueIdx].label.toLowerCase()}`;
-
-/**
- * Props: colorData, updateColorData, t (i18n).
- * Overlay mode: pass `onConfirm(patch)` — "Use this colour" hands the picked colour to the
- * caller instead of saving, and the Clarity/Rim fields are hidden (the host step owns them).
- */
-export default function PhotoColorStep({ colorData = {}, updateColorData, t, onConfirm, titleId }) {
-  const overlay = typeof onConfirm === 'function';
+/** Props: onConfirm(patch) — called with the picked colour; t — optional i18n. */
+export default function PhotoColorStep({ onConfirm, t }) {
   const tr = (k, fb) => (t ? t(k, fb) : fb);
-  // ---- persisted bits ------------------------------------------------------
-  const [desc, setDesc] = useState(() => descriptorFromColor(colorData));
-  const [clarity, setClarity] = useState(colorData.clarity || 'Clear');
-  const [rim, setRim] = useState(colorData.rimVariation || 'Ruby Edge');
-  const [saved, setSaved] = useState(() => (!overlay && colorData.source === 'photo' ? colorData : null));
-  // ---- photo session (not persisted) --------------------------------------
   const [photo, setPhoto] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -55,32 +26,17 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
   const [whitePt, setWhitePt] = useState(null);
   const [mode, setMode] = useState('wine');
   const [patchR, setPatchR] = useState(4);
-  const [overridden, setOverridden] = useState(false);
-  const [confirmed, setConfirmed] = useState(false);
   const [box, setBox] = useState({ w: 360, h: 420 });
 
   const camRef = useRef(null), galRef = useRef(null), vpRef = useRef(null), canvasRef = useRef(null), loupeRef = useRef(null);
   const st = useRef({}); // latest values for gesture handlers
   st.current = { view, point, photo, box, mode };
 
-  // ---- persistence helper ---------------------------------------------------
-  const save = (patch) => {
-    const next = { ...colorData, clarity, rimVariation: rim, ...patch };
-    updateColorData(next);
-    return next;
-  };
-  const colorFields = (d) => ({ id: WINE_TYPES[d.type].hues[d.hueIdx].id, name: WINE_TYPES[d.type].hues[d.hueIdx].label, intensity: d.intensity, wineType: d.type, descriptor: labelOf(d) });
-
   // ---- sampling + identification ------------------------------------------
   const whiteRgb = useMemo(() => (photo && whitePt ? samplePatch(photo.imageData, whitePt.x, whitePt.y, 6, { trimHigh: 0.1, trimLow: 0.1 })?.rgb : null), [photo, whitePt]);
   const sample = useMemo(() => (photo && point ? samplePatch(photo.imageData, point.x, point.y, patchR) : null), [photo, point, patchR]);
   const corrected = useMemo(() => (sample ? (whiteRgb ? applyGains(sample.rgb, whiteBalanceGains(whiteRgb)) : sample.rgb) : null), [sample, whiteRgb]);
   const ident = useMemo(() => (corrected ? identify(corrected) : null), [corrected]);
-
-  // auto-descriptor follows identification until the user overrides it
-  useEffect(() => {
-    if (ident && !overridden) setDesc({ type: ident.best.type, hueIdx: ident.best.hueIdx, intensity: ident.best.intensity });
-  }, [ident, overridden]);
 
   // ---- viewport geometry ------------------------------------------------------
   useEffect(() => {
@@ -89,7 +45,6 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
     ro.observe(el);
     return () => ro.disconnect();
   }, [photo]);
-  const fitScale = photo ? Math.min(box.w / photo.width, box.h / photo.height) : 1;
   const clampView = useCallback((v) => {
     const p = st.current.photo, b = st.current.box; if (!p) return v;
     const fs = Math.min(b.w / p.width, b.h / p.height);
@@ -116,7 +71,7 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
     setError(''); setLoading(true);
     try {
       const p = await loadPhoto(file);
-      setPhoto(p); setPoint(null); setWhitePt(null); setMode('wine'); setOverridden(false); setConfirmed(false);
+      setPhoto(p); setPoint(null); setWhitePt(null); setMode('wine');
     } catch (e) { setError(e.message || 'Could not open photo'); }
     setLoading(false);
   };
@@ -172,7 +127,7 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
     const p = st.current.photo;
     if (ip.x < 0 || ip.y < 0 || ip.x >= p.width || ip.y >= p.height) return;
     if (st.current.mode === 'white') { setWhitePt(ip); setMode('wine'); }
-    else { setPoint(ip); setConfirmed(false); }
+    else setPoint(ip);
   };
   const onPointerDown = (e) => {
     if (!st.current.photo) return;
@@ -207,7 +162,6 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
     if (g.kind === 'marker') { // fine adjust: half speed so the finger can be precise
       const s = st.current.view.s;
       setPoint((pt) => clampPt({ x: pt.x + (dx / s) * 0.5, y: pt.y + (dy / s) * 0.5 }));
-      setConfirmed(false);
     }
   };
   const onPointerUp = (e) => {
@@ -224,7 +178,7 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
     return () => el.removeEventListener('wheel', onWheel);
   }, [photo, zoomAt]);
 
-  const nudge = (dx, dy) => { if (!point) { setPoint(toImage(box.w / 2, box.h / 2)); return; } setPoint((p) => clampPt({ x: p.x + dx, y: p.y + dy })); setConfirmed(false); };
+  const nudge = (dx, dy) => { if (!point) { setPoint(toImage(box.w / 2, box.h / 2)); return; } setPoint((p) => clampPt({ x: p.x + dx, y: p.y + dy })); };
   const onKeyDown = (e) => {
     const step = e.shiftKey ? 10 : 1;
     const map = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] };
@@ -234,57 +188,35 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
     else if (e.key === 'Enter' && point) { e.preventDefault(); confirm(); }
   };
 
-  // ---- actions -------------------------------------------------------------------------------------
+  // ---- confirm: hand the identified colour to the host ------------------------------
   const confirm = () => {
-    if (!corrected) return;
-    const patch = {
-      ...colorFields(desc),
+    if (!corrected || !ident) return;
+    const b = ident.best;
+    onConfirm({
+      id: b.hueId,
+      name: b.hueLabel,
+      intensity: b.intensity,
+      wineType: b.type,
+      descriptor: b.descriptor,
       hex: rgbToHex(corrected),
       source: 'photo',
       sampledHex: rgbToHex(sample.rgb),
       whiteRefHex: whiteRgb ? rgbToHex(whiteRgb) : null,
-      autoDescriptor: ident.best.descriptor,
-      autoWineType: ident.best.type,
-      matchDeltaE: ident.best.deltaE,
-      overridden,
-    };
-    if (overlay) { onConfirm(patch); return; }
-    const next = save(patch);
-    setSaved(next); setConfirmed(true);
+      matchDeltaE: b.deltaE,
+    });
   };
-  const changeDesc = (patch) => {
-    const d = { ...desc, ...patch };
-    if (patch.type && patch.type !== desc.type) d.hueIdx = Math.min(d.hueIdx, WINE_TYPES[d.type].hues.length - 1);
-    setDesc(d); setOverridden(true);
-    if (photo && point && !confirmed) return; // will be saved on confirm
-    if (saved && !photo) { const n = save({ ...colorFields(d), overridden: true }); setSaved(n); return; }
-    if (photo && confirmed) { const n = save({ ...colorFields(d), overridden: true }); setSaved(n); return; }
-    // manual mode (no photo): reference colour from the palette
-    save({ ...colorFields(d), hex: paletteHex(d.type, d.hueIdx, intensityValue(d.intensity)), source: 'manual', sampledHex: null, whiteRefHex: null });
-  };
-  const changeClarity = (v) => { setClarity(v); updateColorData({ ...colorData, clarity: v }); };
-  const changeRim = (v) => { setRim(v); updateColorData({ ...colorData, rimVariation: v }); };
 
-  // ---- render -----------------------------------------------------------------------------------------
+  // ---- render ------------------------------------------------------------------------
   const loupeLeft = point ? toScreen(point).x > box.w / 2 : false;
   const best = ident?.best;
-  const shownHex = corrected ? rgbToHex(corrected) : saved?.hex || colorData.hex || paletteHex(desc.type, desc.hueIdx, intensityValue(desc.intensity));
-  const fileInputs = (
-    <>
-      <input ref={camRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { onFile(e.target.files[0]); e.target.value = ''; }} data-testid="camera-input" />
-      <input ref={galRef} type="file" accept="image/*" hidden onChange={(e) => { onFile(e.target.files[0]); e.target.value = ''; }} data-testid="gallery-input" />
-    </>
-  );
+  const pickedHex = corrected ? rgbToHex(corrected) : null;
 
   return (
     <div className="pcs card">
-      {fileInputs}
-      {(!overlay || photo) && <div className={`card-header pcs-header ${overlay ? 'pcs-header-min' : ''}`}>
-        {!overlay && <h2 className="card-title font-serif" id={titleId}>{tr('color.photoTitle', 'Wine Colour')}</h2>}
-        {photo && <button type="button" className="btn btn-outline pcs-small" onClick={() => galRef.current.click()}><ImagePlus size={15} /> {tr('color.newPhoto', 'New photo')}</button>}
-      </div>}
+      <input ref={camRef} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { onFile(e.target.files[0]); e.target.value = ''; }} data-testid="camera-input" />
+      <input ref={galRef} type="file" accept="image/*" hidden onChange={(e) => { onFile(e.target.files[0]); e.target.value = ''; }} data-testid="gallery-input" />
 
-      {!photo && overlay && (
+      {!photo && (
         <div className="pcs-empty-min">
           <div className="pcs-actions">
             <button type="button" className="btn btn-gold" onClick={() => camRef.current.click()} disabled={loading} aria-label="Take a photo of the wine"><Camera size={17} /> {tr('color.takePhoto', 'Take photo')}</button>
@@ -293,37 +225,13 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
           {loading && <span className="pcs-sr" role="status">Loading photo…</span>}
         </div>
       )}
-      {!photo && !overlay && (
-        <div className="pcs-empty" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onFile(e.dataTransfer.files[0]); }}>
-          {saved ? (
-            <div className="pcs-saved">
-              <span className="pcs-swatch big" style={{ background: saved.hex }} />
-              <div>
-                <div className="pcs-desc">{saved.descriptor || `${saved.intensity} ${saved.name}`}</div>
-                <div className="pcs-meta">{WINE_TYPES[saved.wineType]?.label || 'Red'} · {saved.hex}{saved.whiteRefHex ? ' · white-balanced' : ''}</div>
-                <div className="pcs-meta">{tr('color.fromPhoto', 'Picked from a photo')}</div>
-              </div>
-            </div>
-          ) : (
-            <div className="pcs-hero" aria-hidden="true"><Camera size={34} /></div>
-          )}
-          <p className="pcs-lead">{tr('color.photoLead', 'Tilt your glass over white paper in daylight, take a photo, then tap the wine.')}</p>
-          <div className="pcs-actions">
-            <button type="button" className="btn btn-gold" onClick={() => camRef.current.click()} disabled={loading}><Camera size={17} /> {saved ? tr('color.retake', 'Retake photo') : tr('color.takePhoto', 'Take photo')}</button>
-            <button type="button" className="btn btn-outline" onClick={() => galRef.current.click()} disabled={loading}><ImagePlus size={17} /> {tr('color.upload', 'Upload')}</button>
-          </div>
-          {loading && <p className="pcs-meta" role="status">Loading photo…</p>}
-          <ul className="pcs-tips">
-            <li>No flash; avoid coloured light and tinted tablecloths.</li>
-            <li>Include some white paper in the shot to correct the colour cast.</li>
-            <li>Tap the core (deepest part) for intensity; the rim for age.</li>
-          </ul>
-        </div>
-      )}
       {error && <p className="pcs-error" role="alert"><AlertTriangle size={14} /> {error}</p>}
 
       {photo && (
         <>
+          <div className="card-header pcs-header pcs-header-min">
+            <button type="button" className="btn btn-outline pcs-small" onClick={() => galRef.current.click()}><ImagePlus size={15} /> {tr('color.newPhoto', 'New photo')}</button>
+          </div>
           <div className="pcs-modebar" role="radiogroup" aria-label="Tap mode">
             <button type="button" role="radio" aria-checked={mode === 'wine'} className={mode === 'wine' ? 'on' : ''} onClick={() => setMode('wine')}><Crosshair size={15} /> {tr('color.pickWine', 'Pick wine')}</button>
             <button type="button" role="radio" aria-checked={mode === 'white'} className={mode === 'white' ? 'on' : ''} onClick={() => setMode('white')}><Sun size={15} /> {whiteRgb ? tr('color.whiteSet', 'White ✓') : tr('color.pickWhite', 'White balance')}</button>
@@ -342,7 +250,7 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
             {point && (
               <div className={`pcs-loupe ${loupeLeft ? 'left' : 'right'}`} aria-hidden="true">
                 <canvas ref={loupeRef} />
-                {corrected && <span style={{ background: rgbToHex(corrected) }} />}
+                {pickedHex && <span style={{ background: pickedHex }} />}
               </div>
             )}
             {mode === 'white' && <div className="pcs-hint">{tr('color.tapWhite', 'Tap white paper or tablecloth')}</div>}
@@ -366,8 +274,8 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
           </div>
           {whiteRgb && (
             <div className="pcs-wb">
-              <span className="pcs-swatch" style={{ background: rgbToHex(whiteRgb) }} />{overlay ? null : <> White reference {rgbToHex(whiteRgb)}</>}
-              <button type="button" className="pcs-link" onClick={() => setWhitePt(null)} aria-label="Remove white reference"><RotateCcw size={12} /> {overlay ? 'Reset white' : 'remove'}</button>
+              <span className="pcs-swatch" style={{ background: rgbToHex(whiteRgb) }} />
+              <button type="button" className="pcs-link" onClick={() => setWhitePt(null)} aria-label="Remove white reference"><RotateCcw size={12} /> Reset white</button>
             </div>
           )}
         </>
@@ -376,66 +284,21 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
       {photo && best && (
         <div className="pcs-result" aria-live="polite" data-testid="result">
           <div className="pcs-swatches">
-            <span className="pcs-swatch big" style={{ background: shownHex }} title="Corrected sample" />
-            {whiteRgb && <span className="pcs-swatch raw" style={{ background: rgbToHex(sample.rgb) }} title="Raw sample (before white balance)" />}
+            <span className="pcs-swatch big" style={{ background: pickedHex }} title="Picked colour" />
+            {whiteRgb && <span className="pcs-swatch raw" style={{ background: rgbToHex(sample.rgb) }} title="Before white balance" />}
           </div>
           <div className="pcs-res-text">
-            <div className="pcs-desc" data-testid="descriptor">{labelOf(desc)}</div>
-            <div className="pcs-meta">{WINE_TYPES[desc.type].label} · <code data-testid="hex">{shownHex}</code>{whiteRgb && !overlay ? <> · raw <code>{rgbToHex(sample.rgb)}</code></> : null}</div>
-            <div className={`pcs-conf ${best.confidence}`}>
-              {overlay
-                ? (overridden ? `Auto: ${best.descriptor}` : `Match: ${best.confidence}`)
-                : (overridden ? `Your choice (auto: ${best.typeLabel.toLowerCase()} ${best.descriptor})` : `Match: ${best.confidence} (ΔE ${best.deltaE})`)}
-            </div>
+            <div className="pcs-desc" data-testid="descriptor">{best.descriptor}</div>
+            <div className="pcs-meta">{best.typeLabel} · <code data-testid="hex">{pickedHex}</code></div>
+            <div className={`pcs-conf ${best.confidence}`}>Match: {best.confidence}</div>
           </div>
-          {sample.spread > 0.3 && <p className="pcs-warn"><AlertTriangle size={13} /> {overlay ? 'Uneven spot, try an even area.' : 'Uneven patch (edge or reflection). Zoom in on an even area.'}</p>}
-          {best.confidence === 'poor' && !overridden && <p className="pcs-warn"><AlertTriangle size={13} /> {overlay ? 'Not a wine colour?' : 'Doesn’t look like a wine colour. Try white balance or tap the wine’s core.'}</p>}
-          {!overlay && <div className="pcs-alts">
-            {ident.alternatives.slice(0, 2).map((a) => (
-              <button type="button" key={a.type} className="pcs-chip" onClick={() => changeDesc({ type: a.type, hueIdx: a.hueIdx, intensity: a.intensity })}>
-                {a.typeLabel}: {a.descriptor}
-              </button>
-            ))}
-          </div>}
-          <button type="button" className={`btn ${confirmed ? 'btn-outline' : 'btn-gold'} pcs-confirm`} onClick={confirm} data-testid="confirm">
-            <Check size={17} /> {confirmed ? tr('color.saved', 'Saved') : tr('color.useColor', 'Use this colour')}
+          {sample.spread > 0.3 && <p className="pcs-warn"><AlertTriangle size={13} /> Uneven spot, try an even area.</p>}
+          {best.confidence === 'poor' && <p className="pcs-warn"><AlertTriangle size={13} /> Not a wine colour?</p>}
+          <button type="button" className="btn btn-gold pcs-confirm" onClick={confirm} data-testid="confirm">
+            <Check size={17} /> {tr('color.useColor', 'Use this colour')}
           </button>
         </div>
       )}
-
-      {/* Manual descriptor: override for photo results, keyboard/no-camera fallback otherwise */}
-      {(!overlay || (photo && best)) && <fieldset className="pcs-manual">
-        <legend className={overlay ? 'pcs-sr' : 'form-label'}>{photo ? tr('color.override', 'Descriptor (override if wrong)') : tr('color.manual', 'Or choose manually')}</legend>
-        <div className="pcs-grid3">
-          <select className="form-select" aria-label="Wine type" value={desc.type} onChange={(e) => changeDesc({ type: e.target.value })} data-testid="type-select">
-            {TYPE_ORDER.map((k) => <option key={k} value={k}>{WINE_TYPES[k].label}</option>)}
-          </select>
-          <select className="form-select" aria-label="Hue" value={desc.hueIdx} onChange={(e) => changeDesc({ hueIdx: +e.target.value })}>
-            {WINE_TYPES[desc.type].hues.map((h, i) => <option key={h.id} value={i}>{h.label}</option>)}
-          </select>
-          <select className="form-select" aria-label="Intensity" value={desc.intensity} onChange={(e) => changeDesc({ intensity: e.target.value })}>
-            {INTENSITIES.map(([l]) => <option key={l} value={l}>{l}</option>)}
-          </select>
-        </div>
-        {!photo && !saved && <div className="pcs-meta"><span className="pcs-swatch" style={{ background: shownHex }} /> {labelOf(desc)} · {shownHex} (reference)</div>}
-      </fieldset>}
-
-      {!overlay && <div className="pcs-grid2">
-        <div className="form-group">
-          <label className="form-label" htmlFor="pcs-clarity">{tr('color.clarityLabel', 'Clarity')}</label>
-          <select id="pcs-clarity" className="form-select" value={clarity} onChange={(e) => changeClarity(e.target.value)}>
-            <option value="Clear">Clear</option><option value="Hazy">Hazy</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label className="form-label" htmlFor="pcs-rim">{tr('color.rimTransitionLabel', 'Rim Edge Transition')}</label>
-          <select id="pcs-rim" className="form-select" value={rim} onChange={(e) => changeRim(e.target.value)}>
-            {RIM_OPTIONS.map(([v, k, fb]) => <option key={v} value={v}>{tr(k, fb)}</option>)}
-            {!RIM_OPTIONS.some(([v]) => v === rim) && <option value={rim}>{rim}</option>}
-          </select>
-        </div>
-      </div>}
-      {!overlay && <p className="pcs-note">Colour names are matched to an approximate reference palette; lighting, glass and camera all shift colours.</p>}
     </div>
   );
 }

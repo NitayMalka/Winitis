@@ -29,8 +29,6 @@ export const WINE_TYPES = {
     { id: 'tawny', label: 'Tawny', medium: '#9B4A27' },
     { id: 'brown', label: 'Brown', medium: '#6E3B1F' } ] },
 };
-export const TYPE_ORDER = ['red', 'white', 'rose', 'orange'];
-export const INTENSITIES = [['Pale', 0.17], ['Medium', 0.5], ['Deep', 0.83]];
 
 const clamp01 = (x) => Math.min(1, Math.max(0, x));
 export const srgbToLinear = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4));
@@ -64,7 +62,3 @@ export function paletteHex(type, hue, intensity) {
   return rgbToHex(Tr.map((x) => linearToSrgb(x * (1 - leak) + m * leak)));
 }
 export function intensityLabel(v) { return v < 1 / 3 ? 'Pale' : v < 2 / 3 ? 'Medium' : 'Deep'; }
-export function descriptorOf(type, hueIdx, intensity) {
-  const h = WINE_TYPES[type].hues[hueIdx];
-  return `${intensity} ${h.label.toLowerCase()}`;
-}

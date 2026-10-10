@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import PhotoColorStep from './PhotoColorStep.jsx';
 
-export default function PhotoPickerSheet({ open, onClose, onConfirm, colorData, t, returnFocusRef }) {
+export default function PhotoPickerSheet({ open, onClose, onConfirm, t, returnFocusRef }) {
   const closeRef = useRef(null);
   useEffect(() => {
     if (!open) return undefined;
@@ -20,7 +20,7 @@ export default function PhotoPickerSheet({ open, onClose, onConfirm, colorData, 
     <div className="pcs-sheet-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="pcs-sheet" role="dialog" aria-modal="true" aria-label="Pick colour from a photo" data-testid="photo-sheet">
         <button ref={closeRef} type="button" className="btn btn-outline btn-icon pcs-sheet-close" onClick={onClose} aria-label="Close photo picker"><X size={18} /></button>
-        <PhotoColorStep colorData={colorData} updateColorData={() => {}} onConfirm={onConfirm} t={t} />
+        <PhotoColorStep onConfirm={onConfirm} t={t} />
       </div>
     </div>
   );

@@ -390,7 +390,6 @@ export default function ColorStep({ colorData, updateColorData }) {
         open={isPhotoOpen}
         onClose={() => setIsPhotoOpen(false)}
         onConfirm={handlePhotoConfirm}
-        colorData={colorData}
         t={t}
         returnFocusRef={cameraBtnRef}
       />
