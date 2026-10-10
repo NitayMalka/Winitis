@@ -516,7 +516,7 @@ function SommelierTextureSlider({ value, onChange, options, ariaLabel }) {
           transition: isDragging ? 'none' : 'left 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease, box-shadow 0.2s ease'
         }}
       >
-        {activeOption}
+        {tr(activeOption)}
       </div>
     </div>
   );

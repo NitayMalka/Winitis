@@ -4493,3 +4493,4 @@ html[lang="he"] .brand-title, html[lang="he"] .brand-title * { font-family: var(
   .nav-buttons .btn svg { width: 16px; height: 16px; }
   .lang-toggle-btn { font-size: 0.74rem; }
 }
+html[lang="he"] textarea, html[lang="he"] input, html[lang="he"] select { font-family: 'Heebo', 'Inter', system-ui, sans-serif; }

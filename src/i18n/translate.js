@@ -20,11 +20,17 @@ function recordMiss(str) {
   (window.__i18nMissing = window.__i18nMissing || new Set()).add(str);
 }
 
-// "45s+" -> "⁦45+⁩ שנ׳", "11-13.9%" -> "⁦11-13.9%⁩" (bidi-isolated so digits/symbols keep their order in RTL)
+// Measures inside parentheses, phrased in Hebrew so no symbol has to survive bidi reordering:
+// "45s+" -> "45 שנ׳ ומעלה", "<15s" -> "פחות מ-15 שנ׳", "30-45s" -> "30-45 שנ׳", "≥14%" -> "14% ומעלה", "<11%" -> "פחות מ-11%"
 function heMeasure(m) {
-  const secs = m.match(/^([<>≥≤]?\s*[\d.]+(?:\s*[-–]\s*[\d.]+)?)\s*s(\+?)$/);
-  if (secs) return `\u2066${secs[1]}${secs[2]}\u2069 שנ׳`;
-  return `\u2066${m}\u2069`;
+  const x = m.replace(/[–]/g, '-').replace(/\s+/g, '');
+  const mm = x.match(/^([<>≥≤]?)([\d.]+(?:-[\d.]+)?)(s|%)?(\+?)$/);
+  if (!mm) return m;
+  const [, cmp, num, unit, plus] = mm;
+  const val = unit === 's' ? `${num} שנ׳` : `${num}${unit || ''}`;
+  if (cmp === '<' || cmp === '≤') return `פחות מ-${val}`;
+  if (cmp === '>' || cmp === '≥' || plus) return `${val} ומעלה`;
+  return val;
 }
 
 // English canonical value / UI literal -> Hebrew. Unknown text (user free text) is returned unchanged.

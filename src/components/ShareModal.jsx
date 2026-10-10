@@ -82,7 +82,7 @@ export default function ShareModal({ note, onClose }) {
                 boxShadow: '0 4px 15px rgba(212,175,55,0.3)'
               }}
             >
-              {note.conclusion?.score ?? 92} <EditableText textKey="share.scoreMax" defaultText="/ 100" />
+              <span dir="ltr" style={{ whiteSpace: 'nowrap' }}>{note.conclusion?.score ?? 92} <EditableText textKey="share.scoreMax" defaultText="/ 100" /></span>
             </div>
           </div>
 
