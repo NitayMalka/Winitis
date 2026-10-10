@@ -4508,3 +4508,19 @@ html[lang="he"] textarea, html[lang="he"] input, html[lang="he"] select { font-f
 .step-label-text { position: absolute; left: 50%; top: 0; transform: translateX(-50%); white-space: nowrap; }
 html[lang="he"] .step-label-ghost { font-family: var(--font-sans); }
 html[lang="he"] .note-aromas-label { margin-left: 0.3em; } /* gap between the RTL label and the list */
+
+/* ---- Hebrew summary headline: each "label: value" chip reads right-to-left (icon, label, value),
+   items never break internally - if the row is too narrow a whole chip moves to the next line ---- */
+html[lang="he"] .verdict-wine-specs { gap: 4px 10px; }
+html[lang="he"] .verdict-wine-specs > * { white-space: nowrap; }
+html[lang="he"] .spec-badge-item { direction: rtl; gap: 3px; }
+html[lang="he"] .spec-badge-val { direction: ltr; unicode-bidi: isolate; }
+html[lang="he"] .spec-mini-circle { font-family: var(--font-sans); }
+html[lang="he"] .spec-item.spec-vintage-origin { letter-spacing: 0.02em; }
+
+/* ---- VFM row is the one element that follows Hebrew reading direction: label on the right,
+   glasses to its left, filling right-to-left ---- */
+html[lang="he"] .verdict-vfm-footer-bar { direction: rtl; }
+/* headline keeps the English typeface for Latin text (Hebrew glyphs fall back to Frank Ruhl Libre) */
+html[lang="he"] .verdict-wine-title, html[lang="he"] .verdict-wine-specs, html[lang="he"] .verdict-wine-specs * { font-family: var(--font-serif); }
+html[lang="he"] .spec-mini-circle { font-family: var(--font-sans); }

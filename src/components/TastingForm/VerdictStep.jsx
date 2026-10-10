@@ -72,6 +72,10 @@ export default function VerdictStep({
   const alcohol = wineNote.alcohol || '14.5% alc./vol.';
   const score = typeof wineNote.conclusion?.score === 'number' ? wineNote.conclusion.score : 93;
   const price = wineNote.conclusion?.price || '$45';
+  // Price badge: show the currency the user typed; a bare number gets the language's default
+  // currency in Hebrew (₪). Display only - the stored value is never changed.
+  const priceCurrency = (String(price).match(/\p{Sc}/u) || [lang === 'he' ? '₪' : '$'])[0];
+  const priceDisplay = lang === 'he' && /^\s*\d[\d.,\s]*$/.test(String(price)) ? `₪${String(price).trim()}` : price;
   const notes = wineNote.conclusion?.notes || '';
   const displayNotes = notes ? notes.trim().slice(0, 160) : '';
 
@@ -262,9 +266,9 @@ export default function VerdictStep({
                 <span className="spec-badge-val">{alcohol.includes('%') ? alcohol : `${alcohol}%`}</span>
               </span>
               <span className="spec-badge-item">
-                <span className="spec-mini-circle">$</span>
+                <span className="spec-mini-circle">{priceCurrency}</span>
                 <span className="spec-badge-label"><EditableText textKey="verdict.priceBadgeLabel" defaultText="PRICE:" /></span>
-                <span className="spec-badge-val">{price}</span>
+                <span className="spec-badge-val">{priceDisplay}</span>
               </span>
             </div>
           </div>
