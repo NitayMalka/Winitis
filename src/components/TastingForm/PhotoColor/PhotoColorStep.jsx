@@ -1,19 +1,18 @@
 /**
  * PhotoColorStep — photo picker shown in the ColorStep's photo sheet.
  * Take/upload a photo → pinch/scroll to zoom, drag to pan → tap the wine → fine-adjust
- * with the loupe → "Use this colour". Optional white-balance tap on paper/tablecloth.
+ * with the swatch circle → "Use this colour". Optional white-balance tap on paper/tablecloth.
  * The colour is matched (CIEDE2000) to an approximate WSET palette and the identified
  * descriptor is handed to the host via onConfirm(patch).
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Camera, ImagePlus, Crosshair, Sun, ZoomIn, ZoomOut, Maximize, Check, RotateCcw, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, AlertTriangle } from 'lucide-react';
+import { Camera, ImagePlus, Crosshair, Sun, Check, AlertTriangle } from 'lucide-react';
 import { rgbToHex } from './winePalette.js';
 import { samplePatch, identify, whiteBalanceGains, applyGains } from './wineIdentify.js';
 import { loadPhoto } from './imageTools.js';
 import './photoColorStep.css';
 
-const PATCH_SIZES = [[2, '5×5'], [4, '9×9'], [6, '13×13']];
-const LOUPE = 132;
+const PATCH_R = 4; // 9×9 sample patch
 
 /** Props: onConfirm(patch) — called with the picked colour; t — optional i18n. */
 export default function PhotoColorStep({ onConfirm, t }) {
@@ -25,16 +24,15 @@ export default function PhotoColorStep({ onConfirm, t }) {
   const [point, setPoint] = useState(null);
   const [whitePt, setWhitePt] = useState(null);
   const [mode, setMode] = useState('wine');
-  const [patchR, setPatchR] = useState(4);
   const [box, setBox] = useState({ w: 360, h: 420 });
 
-  const camRef = useRef(null), galRef = useRef(null), vpRef = useRef(null), canvasRef = useRef(null), loupeRef = useRef(null);
+  const camRef = useRef(null), galRef = useRef(null), vpRef = useRef(null), canvasRef = useRef(null);
   const st = useRef({}); // latest values for gesture handlers
   st.current = { view, point, photo, box, mode };
 
   // ---- sampling + identification ------------------------------------------
   const whiteRgb = useMemo(() => (photo && whitePt ? samplePatch(photo.imageData, whitePt.x, whitePt.y, 6, { trimHigh: 0.1, trimLow: 0.1 })?.rgb : null), [photo, whitePt]);
-  const sample = useMemo(() => (photo && point ? samplePatch(photo.imageData, point.x, point.y, patchR) : null), [photo, point, patchR]);
+  const sample = useMemo(() => (photo && point ? samplePatch(photo.imageData, point.x, point.y, PATCH_R) : null), [photo, point]);
   const corrected = useMemo(() => (sample ? (whiteRgb ? applyGains(sample.rgb, whiteBalanceGains(whiteRgb)) : sample.rgb) : null), [sample, whiteRgb]);
   const ident = useMemo(() => (corrected ? identify(corrected) : null), [corrected]);
 
@@ -95,27 +93,11 @@ export default function PhotoColorStep({ onConfirm, t }) {
       ctx.fillStyle = '#fff'; ctx.font = '600 10px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('W', w.x, w.y + 3.5);
     }
     if (point) {
-      const p = toScreen(point), half = Math.max(3, ((2 * patchR + 1) * view.s) / 2);
+      const p = toScreen(point), half = Math.max(3, ((2 * PATCH_R + 1) * view.s) / 2);
       ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,.65)'; drawCross(ctx, p, half);
       ctx.lineWidth = 1.5; ctx.strokeStyle = '#f7e4a1'; drawCross(ctx, p, half);
     }
-  }, [photo, view, point, whitePt, patchR, box]);
-
-  useEffect(() => {
-    const c = loupeRef.current; if (!c || !photo || !point) return;
-    const dpr = Math.min(2, window.devicePixelRatio || 1);
-    c.width = c.height = LOUPE * dpr;
-    const ctx = c.getContext('2d');
-    const span = Math.max(15, (2 * patchR + 1) * 3);
-    ctx.imageSmoothingEnabled = false;
-    ctx.fillStyle = '#0b070c'; ctx.fillRect(0, 0, c.width, c.height);
-    ctx.drawImage(photo.canvas, Math.round(point.x) - span / 2 + 0.5, Math.round(point.y) - span / 2 + 0.5, span, span, 0, 0, c.width, c.height);
-    const k = c.width / span, half = ((2 * patchR + 1) * k) / 2, m = c.width / 2;
-    ctx.lineWidth = 2 * dpr; ctx.strokeStyle = 'rgba(0,0,0,.6)'; ctx.strokeRect(m - half, m - half, half * 2, half * 2);
-    ctx.lineWidth = 1 * dpr; ctx.strokeStyle = '#f7e4a1'; ctx.strokeRect(m - half, m - half, half * 2, half * 2);
-    ctx.beginPath(); ctx.moveTo(m, 0); ctx.lineTo(m, m - half); ctx.moveTo(m, m + half); ctx.lineTo(m, c.height);
-    ctx.moveTo(0, m); ctx.lineTo(m - half, m); ctx.moveTo(m + half, m); ctx.lineTo(c.width, m); ctx.stroke();
-  }, [photo, point, patchR, view]);
+  }, [photo, view, point, whitePt, box]);
 
   // ---- gestures --------------------------------------------------------------------
   const ptrs = useRef(new Map());
@@ -207,9 +189,12 @@ export default function PhotoColorStep({ onConfirm, t }) {
   };
 
   // ---- render ------------------------------------------------------------------------
-  const loupeLeft = point ? toScreen(point).x > box.w / 2 : false;
-  const best = ident?.best;
   const pickedHex = corrected ? rgbToHex(corrected) : null;
+  const whiteHex = whiteRgb ? rgbToHex(whiteRgb) : null;
+  const swatchHex = mode === 'white' ? whiteHex : pickedHex; // white mode shows the tapped white
+  // swatch sits top-left; move it right only if the pick point would be hidden under it
+  const pScreen = point ? toScreen(point) : null;
+  const swatchRight = !!pScreen && pScreen.x < 120 && pScreen.y < 150;
 
   return (
     <div className="pcs card">
@@ -230,7 +215,7 @@ export default function PhotoColorStep({ onConfirm, t }) {
       {photo && (
         <>
           <div className="card-header pcs-header pcs-header-min">
-            <button type="button" className="btn btn-outline pcs-small" onClick={() => galRef.current.click()}><ImagePlus size={15} /> {tr('color.newPhoto', 'New photo')}</button>
+            <button type="button" className="btn btn-outline pcs-small" onClick={() => galRef.current.click()} aria-label="Choose a new photo"><ImagePlus size={15} /> {tr('color.newPhoto', 'New photo')}</button>
           </div>
           <div className="pcs-modebar" role="radiogroup" aria-label="Tap mode">
             <button type="button" role="radio" aria-checked={mode === 'wine'} className={mode === 'wine' ? 'on' : ''} onClick={() => setMode('wine')}><Crosshair size={15} /> {tr('color.pickWine', 'Pick wine')}</button>
@@ -241,63 +226,24 @@ export default function PhotoColorStep({ onConfirm, t }) {
             className={`pcs-viewport ${mode === 'white' ? 'white-mode' : ''}`}
             tabIndex={0}
             role="application"
-            aria-label="Wine photo. Pinch or scroll to zoom, drag to pan, tap to pick. Arrow keys move the picker, plus and minus zoom, Enter confirms."
+            aria-label="Wine photo. Pinch or scroll to zoom, drag to pan, tap to pick. Arrow keys move the picker, plus and minus zoom, Enter uses the colour."
             onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
             onKeyDown={onKeyDown}
             data-testid="viewport"
           >
             <canvas ref={canvasRef} />
-            {point && (
-              <div className={`pcs-loupe ${loupeLeft ? 'left' : 'right'}`} aria-hidden="true">
-                <canvas ref={loupeRef} />
-                {pickedHex && <span style={{ background: pickedHex }} />}
+            {swatchHex && (
+              <div className={`pcs-swatch-overlay ${swatchRight ? 'right' : 'left'}`} data-testid="swatch">
+                <span className="pcs-swatch-circle" style={{ background: swatchHex }} />
+                <code className="pcs-swatch-hex" data-testid="hex">{swatchHex}</code>
               </div>
             )}
-            {mode === 'white' && <div className="pcs-hint">{tr('color.tapWhite', 'Tap white paper or tablecloth')}</div>}
-            {!point && mode === 'wine' && <div className="pcs-hint">{tr('color.tapWine', 'Zoom in and tap the wine')}</div>}
           </div>
-          <div className="pcs-tools">
-            <button type="button" className="pcs-icon" onClick={() => zoomAt(1 / 1.4, box.w / 2, box.h / 2)} aria-label="Zoom out"><ZoomOut size={17} /></button>
-            <button type="button" className="pcs-icon" onClick={fit} aria-label="Fit photo"><Maximize size={16} /></button>
-            <button type="button" className="pcs-icon" onClick={() => zoomAt(1.4, box.w / 2, box.h / 2)} aria-label="Zoom in"><ZoomIn size={17} /></button>
-            <span className="pcs-sep" />
-            <button type="button" className="pcs-icon" onClick={() => nudge(-1, 0)} aria-label="Move picker left"><ChevronLeft size={17} /></button>
-            <button type="button" className="pcs-icon" onClick={() => nudge(0, -1)} aria-label="Move picker up"><ChevronUp size={17} /></button>
-            <button type="button" className="pcs-icon" onClick={() => nudge(0, 1)} aria-label="Move picker down"><ChevronDown size={17} /></button>
-            <button type="button" className="pcs-icon" onClick={() => nudge(1, 0)} aria-label="Move picker right"><ChevronRight size={17} /></button>
-            <label className="pcs-patch">
-              <span className="pcs-sr">Sample size</span>
-              <select value={patchR} onChange={(e) => setPatchR(+e.target.value)} aria-label="Sample size">
-                {PATCH_SIZES.map(([r, l]) => <option key={r} value={r}>{l}</option>)}
-              </select>
-            </label>
-          </div>
-          {whiteRgb && (
-            <div className="pcs-wb">
-              <span className="pcs-swatch" style={{ background: rgbToHex(whiteRgb) }} />
-              <button type="button" className="pcs-link" onClick={() => setWhitePt(null)} aria-label="Remove white reference"><RotateCcw size={12} /> Reset white</button>
-            </div>
-          )}
-        </>
-      )}
-
-      {photo && best && (
-        <div className="pcs-result" aria-live="polite" data-testid="result">
-          <div className="pcs-swatches">
-            <span className="pcs-swatch big" style={{ background: pickedHex }} title="Picked colour" />
-            {whiteRgb && <span className="pcs-swatch raw" style={{ background: rgbToHex(sample.rgb) }} title="Before white balance" />}
-          </div>
-          <div className="pcs-res-text">
-            <div className="pcs-desc" data-testid="descriptor">{best.descriptor}</div>
-            <div className="pcs-meta">{best.typeLabel} · <code data-testid="hex">{pickedHex}</code></div>
-            <div className={`pcs-conf ${best.confidence}`}>Match: {best.confidence}</div>
-          </div>
-          {sample.spread > 0.3 && <p className="pcs-warn"><AlertTriangle size={13} /> Uneven spot, try an even area.</p>}
-          {best.confidence === 'poor' && <p className="pcs-warn"><AlertTriangle size={13} /> Not a wine colour?</p>}
-          <button type="button" className="btn btn-gold pcs-confirm" onClick={confirm} data-testid="confirm">
+          <span className="pcs-sr" aria-live="polite">{pickedHex ? `Picked colour ${pickedHex}` : ''}</span>
+          <button type="button" className="btn btn-gold pcs-confirm" onClick={confirm} disabled={!pickedHex} data-testid="confirm" aria-label={pickedHex ? `Use colour ${pickedHex}` : 'Use this colour (tap the wine first)'}>
             <Check size={17} /> {tr('color.useColor', 'Use this colour')}
           </button>
-        </div>
+        </>
       )}
     </div>
   );
