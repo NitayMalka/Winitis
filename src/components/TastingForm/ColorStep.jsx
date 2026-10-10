@@ -368,14 +368,14 @@ export default function ColorStep({ colorData, updateColorData }) {
               <button
                 ref={cameraBtnRef}
                 type="button"
-                className="btn btn-outline btn-icon color-camera-btn"
+                className="color-camera-btn"
                 onClick={() => setIsPhotoOpen(true)}
                 aria-label={t ? t('color.photoButton', 'Pick colour from a photo') : 'Pick colour from a photo'}
                 aria-haspopup="dialog"
                 title="Pick colour from a photo"
                 data-testid="color-camera-btn"
               >
-                <Camera size={18} />
+                <Camera size={22} />
               </button>
             </div>
           </div>
