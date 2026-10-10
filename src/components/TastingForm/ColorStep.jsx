@@ -325,9 +325,46 @@ export default function ColorStep({ colorData, updateColorData }) {
               </div>
             </div>
 
-            {/* RIGHT COLUMN: CAMERA BUTTON (header row, right edge) + CORE & RIM CONTROLS */}
-            <div className="color-controls-column">
-            <div className="color-controls-header">
+            {/* RIGHT GROUP: CORE & RIM CONTROLS CARD + CAMERA BUTTON (same row, vertically centred) */}
+            <div className="color-controls-group">
+              {/* CORE EXTRACTION & RIM EDGE TRANSITION CONTAINER */}
+              <div className="color-controls-card">
+                
+                {/* Core Extraction Depth Selector (Single dropdown button like the rim) */}
+                <div className="form-group">
+                  <label className="form-label">
+                    <EditableText textKey="color.coreDepthLabel" defaultText="Core Extraction Depth" />
+                  </label>
+                  <select 
+                    className="form-select"
+                    value={intensity}
+                    onChange={(e) => setIntensity(e.target.value)}
+                  >
+                    <option value="Pale">{t ? t('color.depthPale', 'Pale') : 'Pale'}</option>
+                    <option value="Medium">{t ? t('color.depthMedium', 'Medium') : 'Medium'}</option>
+                    <option value="Deep">{t ? t('color.depthDeep', 'Deep') : 'Deep'}</option>
+                  </select>
+                </div>
+  
+                {/* Rim Edge Transition Selector */}
+                <div className="form-group">
+                  <label className="form-label">
+                    <EditableText textKey="color.rimTransitionLabel" defaultText="Rim Edge Transition" />
+                  </label>
+                  <select 
+                    className="form-select"
+                    value={rimVariation}
+                    onChange={(e) => setRimVariation(e.target.value)}
+                  >
+                    <option value="Ruby Edge">{t ? t('color.rimOptionStandard', 'Ruby Edge (Youthful)') : 'Ruby Edge (Youthful)'}</option>
+                    <option value="Subtle Magenta">{t ? t('color.rimOptionMagenta', 'Subtle Magenta (High Acid)') : 'Subtle Magenta (High Acid)'}</option>
+                    <option value="Pale Garnet Edge">{t ? t('color.rimOptionGarnet', 'Pale Garnet Edge (Maturing)') : 'Pale Garnet Edge (Maturing)'}</option>
+                    <option value="Amber Rim">{t ? t('color.rimOptionAmber', 'Amber Rim (Aged)') : 'Amber Rim (Aged)'}</option>
+                    <option value="Watery Edge (Light Extraction)">{t ? t('color.rimOptionWatery', 'Watery Edge (Light Extraction)') : 'Watery Edge (Light Extraction)'}</option>
+                  </select>
+                </div>
+  
+              </div>
               <button
                 ref={cameraBtnRef}
                 type="button"
@@ -340,45 +377,6 @@ export default function ColorStep({ colorData, updateColorData }) {
               >
                 <Camera size={18} />
               </button>
-            </div>
-            {/* CORE EXTRACTION & RIM EDGE TRANSITION CONTAINER */}
-            <div className="color-controls-card">
-              
-              {/* Core Extraction Depth Selector (Single dropdown button like the rim) */}
-              <div className="form-group">
-                <label className="form-label">
-                  <EditableText textKey="color.coreDepthLabel" defaultText="Core Extraction Depth" />
-                </label>
-                <select 
-                  className="form-select"
-                  value={intensity}
-                  onChange={(e) => setIntensity(e.target.value)}
-                >
-                  <option value="Pale">{t ? t('color.depthPale', 'Pale') : 'Pale'}</option>
-                  <option value="Medium">{t ? t('color.depthMedium', 'Medium') : 'Medium'}</option>
-                  <option value="Deep">{t ? t('color.depthDeep', 'Deep') : 'Deep'}</option>
-                </select>
-              </div>
-
-              {/* Rim Edge Transition Selector */}
-              <div className="form-group">
-                <label className="form-label">
-                  <EditableText textKey="color.rimTransitionLabel" defaultText="Rim Edge Transition" />
-                </label>
-                <select 
-                  className="form-select"
-                  value={rimVariation}
-                  onChange={(e) => setRimVariation(e.target.value)}
-                >
-                  <option value="Ruby Edge">{t ? t('color.rimOptionStandard', 'Ruby Edge (Youthful)') : 'Ruby Edge (Youthful)'}</option>
-                  <option value="Subtle Magenta">{t ? t('color.rimOptionMagenta', 'Subtle Magenta (High Acid)') : 'Subtle Magenta (High Acid)'}</option>
-                  <option value="Pale Garnet Edge">{t ? t('color.rimOptionGarnet', 'Pale Garnet Edge (Maturing)') : 'Pale Garnet Edge (Maturing)'}</option>
-                  <option value="Amber Rim">{t ? t('color.rimOptionAmber', 'Amber Rim (Aged)') : 'Amber Rim (Aged)'}</option>
-                  <option value="Watery Edge (Light Extraction)">{t ? t('color.rimOptionWatery', 'Watery Edge (Light Extraction)') : 'Watery Edge (Light Extraction)'}</option>
-                </select>
-              </div>
-
-            </div>
             </div>
           </div>
 
