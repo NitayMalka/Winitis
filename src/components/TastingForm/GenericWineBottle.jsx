@@ -1,4 +1,28 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
+
+// SVG text never wraps or shrinks by itself, and font metrics differ per platform (iOS "serif"
+// is Times, Android/desktop differ), so a long name could run past the label edges. FitText
+// measures the rendered line and, only when it is wider than the label, compresses it to fit.
+const LABEL_TEXT_MAX = 118; // inner label is 128 units wide (x 36..164)
+function FitText({ children, maxWidth = LABEL_TEXT_MAX, ...props }) {
+  const ref = useRef(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el || typeof el.getComputedTextLength !== 'function') return;
+    el.removeAttribute('textLength');
+    el.removeAttribute('lengthAdjust');
+    const fit = () => {
+      el.removeAttribute('textLength');
+      if (el.getComputedTextLength() > maxWidth) {
+        el.setAttribute('textLength', String(maxWidth));
+        el.setAttribute('lengthAdjust', 'spacingAndGlyphs');
+      }
+    };
+    fit();
+    if (document.fonts?.ready) document.fonts.ready.then(fit).catch(() => {});
+  }, [children, maxWidth]);
+  return <text ref={ref} {...props}>{children}</text>;
+}
 
 /**
  * Photorealistic SVG & CSS Red Wine Bottle
@@ -221,7 +245,7 @@ export default function GenericWineBottle({
         </text>
 
         {/* "GRAND VIN" or Origin Subtitle */}
-        <text
+        <FitText
           x="100"
           y="374"
           textAnchor="middle"
@@ -232,10 +256,10 @@ export default function GenericWineBottle({
           fontWeight="bold"
         >
           {displayOrigin}
-        </text>
+        </FitText>
 
         {/* Wine Main Title (Auto-wrapped or sized) */}
-        <text
+        <FitText
           x="100"
           y="396"
           textAnchor="middle"
@@ -246,10 +270,10 @@ export default function GenericWineBottle({
           letterSpacing="0.08em"
         >
           {displayName.length > 24 ? displayName.substring(0, 22) + '...' : displayName}
-        </text>
+        </FitText>
 
         {/* Grape Variety */}
-        <text
+        <FitText
           x="100"
           y="412"
           textAnchor="middle"
@@ -260,7 +284,7 @@ export default function GenericWineBottle({
           fontWeight="600"
         >
           {displayGrape}
-        </text>
+        </FitText>
 
         {/* Fine Line Divider */}
         <line x1="55" y1="424" x2="145" y2="424" stroke="#b8934a" strokeWidth="0.75" />
@@ -293,7 +317,7 @@ export default function GenericWineBottle({
           MIS EN BOUTEILLE AU DOMAINE
         </text>
 
-        <text
+        <FitText
           x="100"
           y="478"
           textAnchor="middle"
@@ -303,7 +327,7 @@ export default function GenericWineBottle({
           letterSpacing="0.08em"
         >
           {alcohol || '14.0%'} alc./vol. • 750 ML
-        </text>
+        </FitText>
 
         {/* Bottom Curved Base Shadow & Highlight */}
         <path

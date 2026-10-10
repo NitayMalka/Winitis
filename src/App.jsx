@@ -89,6 +89,19 @@ export default function App() {
   const [viewVerdictTarget, setViewVerdictTarget] = useState(null);
   const [showGuideModal, setShowGuideModal] = useState(false);
 
+  // Expose the sticky header height as --chrome-h so the 700px "screens" can fit the visible
+  // viewport (iPhone Safari/Chrome tabs show toolbars that the installed PWA does not).
+  useEffect(() => {
+    const nav = document.querySelector('.sticky-nav-wrapper');
+    if (!nav) return undefined;
+    const apply = () => document.documentElement.style.setProperty('--chrome-h', `${Math.round(nav.getBoundingClientRect().height)}px`);
+    apply();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(apply);
+    ro.observe(nav);
+    return () => ro.disconnect();
+  }, []);
+
   useEffect(() => {
     const loaded = getSavedNotes();
     setSavedNotes(loaded);

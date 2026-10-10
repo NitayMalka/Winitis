@@ -367,7 +367,7 @@ h1, h2, h3, .heading-serif {
   flex-direction: column;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 640px), screen and (min-width: 600px) {
   .app-header {
     padding: 8px 12px;
   }
@@ -910,7 +910,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   white-space: nowrap;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 640px), screen and (min-width: 600px) {
   .palate-row-layout {
     flex-direction: column;
     align-items: stretch;
@@ -1376,7 +1376,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 /* Responsive Rules for Mobile Split Screen & 3-Panel Layout */
-@media (max-width: 1050px) {
+@media (max-width: 1050px), screen and (min-width: 600px) {
   div[style*="grid-template-columns: minmax(280px, 1fr)"] {
     grid-template-columns: 1fr !important;
   }
@@ -1386,7 +1386,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     border-bottom: 2px solid #e2e8f0;
   }
 }
-@media (max-width: 900px) {
+@media (max-width: 900px), screen and (min-width: 600px) {
   .split-screen-container {
     grid-template-columns: 1fr;
   }
@@ -2317,7 +2317,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 /* Responsive Styles for Mobile / Tablet */
-@media (max-width: 768px) {
+@media (max-width: 768px), screen and (min-width: 600px) {
   .verdict-wrapper {
     gap: 6px !important;
   }
@@ -2662,7 +2662,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 /* Mobile iPhone Adjustments for Sector 1 */
-@media (max-width: 640px) {
+@media (max-width: 640px), screen and (min-width: 600px) {
   .color-split-container {
     border-radius: 16px;
     height: 700px;
@@ -3709,7 +3709,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: 0 0 12px rgba(212, 175, 55, 0.4), inset 0 2px 8px rgba(0, 0, 0, 0.6);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 640px), screen and (min-width: 600px) {
   .card {
     padding: 16px 12px;
     margin-bottom: 12px;
@@ -4485,7 +4485,7 @@ html[lang="he"] .brand-title, html[lang="he"] .brand-title * { font-family: var(
 }
 
 /* Compact phone header: 7 icon buttons (incl. language toggle) + brand must fit 360px */
-@media (max-width: 480px) {
+@media (max-width: 480px), screen and (min-width: 600px) {
   .app-header { padding-left: 10px; padding-right: 10px; }
   .header-content { gap: 6px; }
   .brand-logo { gap: 6px; min-width: 0; flex-shrink: 1; }
@@ -4524,3 +4524,147 @@ html[lang="he"] .verdict-vfm-footer-bar { direction: rtl; }
 /* headline keeps the English typeface for Latin text (Hebrew glyphs fall back to Frank Ruhl Libre) */
 html[lang="he"] .verdict-wine-title, html[lang="he"] .verdict-wine-specs, html[lang="he"] .verdict-wine-specs * { font-family: var(--font-serif); }
 html[lang="he"] .spec-mini-circle { font-family: var(--font-sans); }
+
+/* ==========================================================================
+   RESPONSIVE HARDENING (browser tabs, small phones, tablets, desktop)
+   - The app is designed as a phone app. On screens >= 600px it now runs in a centred
+     phone-width column (the phone rules above also apply there via "(min-width: 600px)"),
+     instead of stretching the 700px "screens" across a tablet / desktop.
+   - The fixed 700px screens follow the *visible* viewport (svh = height with browser
+     toolbars shown) minus the measured header height (--chrome-h, set by App.jsx),
+     so the color/nose/rating screens fit an iPhone Safari/Chrome tab too. Never taller
+     than the 700px of the original design, never smaller than 520px.
+   ========================================================================== */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { min-height: 100vh; min-height: 100dvh; }
+:root { --chrome-h: 132px; --screen-h: 700px; }
+@supports (height: 100svh) {
+  :root { --screen-h: clamp(520px, calc(100svh - var(--chrome-h) - 22px), 700px); }
+}
+@media screen and (min-width: 600px) {
+  .app-container {
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.10), 0 0 60px rgba(0, 0, 0, 0.55);
+  }
+  .main-content { padding: 10px 8px 16px 8px; }
+}
+.color-split-container,
+.nose-step-card,
+.rating-step-card {
+  height: var(--screen-h) !important;
+  min-height: var(--screen-h) !important;
+  max-height: var(--screen-h) !important;
+}
+@media (max-width: 640px), screen and (min-width: 600px) {
+  .nose-wheel-wrap {
+    max-width: min(345px, 39vh) !important;
+    max-height: min(345px, 39vh) !important;
+  }
+  @supports (height: 100svh) {
+    .nose-wheel-wrap {
+      max-width: min(345px, 39svh, calc(var(--screen-h) * 0.5)) !important;
+      max-height: min(345px, 39svh, calc(var(--screen-h) * 0.5)) !important;
+    }
+  }
+}
+
+/* ---- Summary card: content-driven instead of fixed percentages ----
+   Before: a fixed 700px card, bottle = 68% / gauges+attributes = 32% of whatever was left,
+   children overflow:visible -> a 2-line title, 2-line notes or long values pushed the
+   gauges/attributes under the notes box and the VFM row. Now the gauges/attributes take
+   the height they need, the bottle absorbs the rest, and the card may grow. */
+.verdict-card {
+  height: auto !important;
+  min-height: var(--screen-h) !important;
+  max-height: none !important;
+}
+.verdict-main-body-split { flex: 1 1 auto; min-height: 0; }
+.verdict-left-main-sector { height: auto; min-height: 0; }
+.verdict-bottle-top-sector {
+  flex: 1 1 0 !important;
+  height: auto !important;
+  min-height: 190px;
+  position: relative;
+}
+.verdict-bottle-top-sector .verdict-bottle-frame {
+  position: absolute;
+  inset: 0;
+}
+.verdict-bottom-subsector {
+  flex: 0 0 auto !important;
+  height: auto !important;
+  grid-template-columns: minmax(0, 31fr) minmax(0, 69fr) !important;
+}
+.verdict-attr-2col-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  grid-template-rows: auto !important;
+  height: auto !important;
+  row-gap: 6px !important;
+}
+.verdict-subsector-bars .verdict-palate-bars-group { grid-template-rows: repeat(3, auto); row-gap: 8px; }
+.verdict-attr-2col-grid .pillar-val {
+  white-space: normal !important;
+  overflow-wrap: normal;
+  font-size: clamp(9.5px, 2.85vw, 11.8px) !important;
+  padding-left: 15px;
+}
+@media screen and (min-width: 600px) { .verdict-attr-2col-grid .pillar-val { font-size: 11.8px !important; } }
+/* long aroma names wrap inside the aroma column instead of running off the card */
+.verdict-aromas-list-clean .verdict-aroma-row { white-space: normal !important; align-items: flex-start; }
+.verdict-aromas-list-clean .verdict-aroma-row .aroma-text {
+  white-space: normal !important;
+  min-width: 0;
+}
+.verdict-aromas-list-clean .verdict-aroma-row .aroma-icon { margin-top: -1px; }
+.verdict-col-aromas { overflow: hidden !important; }
+/* notes: at most 4 lines (160 chars max), never over the VFM row */
+.verdict-notes-row .notes-body {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+}
+/* Body of the summary card as one grid: bottle | aromas on top, gauges + attributes on a
+   full-width row below (they used to overflow sideways under the aroma column). The left
+   wrapper is display:contents so its two children become grid items. */
+.verdict-main-body-split {
+  grid-template-columns: minmax(0, 64fr) minmax(0, 36fr) !important;
+  grid-template-rows: minmax(190px, 1fr) auto;
+  grid-template-areas: "bottle aromas" "bottom bottom";
+  row-gap: 8px !important;
+}
+.verdict-left-main-sector { display: contents; }
+.verdict-bottle-top-sector { grid-area: bottle; }
+.verdict-col-aromas { grid-area: aromas; padding-right: 0 !important; }
+.verdict-bottom-subsector { grid-area: bottom; grid-template-columns: minmax(0, 28fr) minmax(0, 72fr) !important; column-gap: 10px !important; }
+.verdict-aromas-list-clean .verdict-aroma-row .aroma-text { overflow-wrap: break-word; }
+@media (max-width: 768px) {
+  .verdict-aromas-list-clean .verdict-aroma-row { font-size: min(0.62rem, 2.5vw) !important; }
+}
+/* <=380px (Galaxy S8, small Androids): brand + 7 buttons did not fit - "WINITIS" ran under
+   the first button (WebKit's Cinzel is a little wider than Chromium's) */
+@media (max-width: 380px) {
+  .app-header { padding-left: 8px; padding-right: 8px; }
+  .header-content { gap: 4px; }
+  .brand-logo { gap: 4px; }
+  .brand-icon { width: 20px; height: 20px; }
+  .brand-title { font-size: 0.94rem; }
+  .brand-subtitle { font-size: 0.44rem; letter-spacing: 0.04em; }
+  .nav-buttons, .nav-buttons > div { gap: 3px !important; }
+  .nav-buttons .btn { min-width: 30px !important; width: 30px; }
+}
+/* Native <select> rendering differs per engine (WebKit draws a light native control that ignores
+   the dark background, hiding the text). Draw it ourselves so it looks the same everywhere. */
+.form-select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23f5f0f7' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px 12px;
+  padding-right: 30px;
+}
+.color-controls-card .form-select { padding-right: 18px; background-position: right 5px center; background-size: 10px 10px; }
+.form-select option { background: #1a0f1d; color: #f5f0f7; }
