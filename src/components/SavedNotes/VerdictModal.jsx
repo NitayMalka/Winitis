@@ -1,8 +1,10 @@
 import React from 'react';
 import VerdictStep from '../TastingForm/VerdictStep';
 import { X } from 'lucide-react';
+import { useTexts } from '../../context/TextContext';
 
 export default function VerdictModal({ note, onClose, onShare, theme = 'dark' }) {
+  const { tr } = useTexts();
   if (!note) return null;
 
   return (
@@ -36,7 +38,7 @@ export default function VerdictModal({ note, onClose, onShare, theme = 'dark' })
             type="button"
             className="btn btn-outline btn-icon"
             onClick={onClose}
-            title="Close"
+            title={tr('Close')}
           >
             <X size={18} />
           </button>

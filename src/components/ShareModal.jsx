@@ -5,14 +5,14 @@ import EditableText from './TextEditor/EditableText';
 import { useTexts } from '../context/TextContext';
 
 export default function ShareModal({ note, onClose }) {
-  const { t } = useTexts();
+  const { t, tr, lang } = useTexts();
   const [copied, setCopied] = useState(false);
   const [shareStatus, setShareStatus] = useState(null);
 
   if (!note) return null;
 
   const handleShareClick = async () => {
-    const res = await shareWineNote(note);
+    const res = await shareWineNote(note, tr, lang);
     if (res.success) {
       setShareStatus(t('share.sharedSuccess', 'Shared successfully!'));
     } else {
@@ -21,14 +21,14 @@ export default function ShareModal({ note, onClose }) {
   };
 
   const handleCopyText = async () => {
-    const text = formatNoteText(note);
+    const text = formatNoteText(note, tr, lang);
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
 
-  const originStr = [note.region, note.country].filter(Boolean).join(', ') || 'N/A';
-  const priceVal = note.conclusion?.price || note.price || 'N/A';
+  const originStr = [note.region, note.country].filter(Boolean).join(', ') || tr('N/A');
+  const priceVal = note.conclusion?.price || note.price || tr('N/A');
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -61,7 +61,7 @@ export default function ShareModal({ note, onClose }) {
                 <EditableText textKey="share.brandBadge" defaultText="WINITIS SOMMELIER SELECTION" />
               </div>
               <h2 className="font-serif" style={{ fontSize: '1.5rem', color: '#ffffff', marginTop: '4px' }}>
-                {note.wineName || 'Red Wine Evaluation'}
+                {note.wineName || tr('Red Wine Evaluation')}
               </h2>
               {note.vintage && (
                 <div style={{ fontSize: '0.9rem', color: 'var(--gold-light)' }}>
@@ -89,15 +89,15 @@ export default function ShareModal({ note, onClose }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '20px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
             <div>
               <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.originLabel" defaultText="Origin:" /></strong> {originStr}<br/>
-              <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.grapeLabel" defaultText="Grape:" /></strong> {note.grape || 'Red Blend'}<br/>
+              <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.grapeLabel" defaultText="Grape:" /></strong> {note.grape || tr('Red Blend')}<br/>
               <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.alcoholLabel" defaultText="Alcohol:" /></strong> {note.alcohol || '13.5%'}<br/>
               <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.priceLabel" defaultText="Price:" /></strong> {priceVal}
             </div>
             <div>
-              <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.colorLabel" defaultText="Color:" /></strong> {note.color?.name || 'Ruby'} <br/>
-              <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.bodyLabel" defaultText="Body:" /></strong> {note.palate?.body || 'Medium'}<br/>
-              <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.tanninsLabel" defaultText="Tannins:" /></strong> {note.palate?.tannin || 'Medium'}<br/>
-              <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.finishLabel" defaultText="Finish:" /></strong> {note.palate?.finish || 'Medium'}
+              <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.colorLabel" defaultText="Color:" /></strong> {tr(note.color?.name || 'Ruby')} <br/>
+              <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.bodyLabel" defaultText="Body:" /></strong> {tr(note.palate?.body || 'Medium')}<br/>
+              <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.tanninsLabel" defaultText="Tannins:" /></strong> {tr(note.palate?.tannin || 'Medium')}<br/>
+              <strong style={{ color: 'var(--text-main)' }}><EditableText textKey="share.finishLabel" defaultText="Finish:" /></strong> {tr(note.palate?.finish || 'Medium')}
             </div>
           </div>
 
@@ -107,13 +107,13 @@ export default function ShareModal({ note, onClose }) {
                 <EditableText textKey="share.keyAromasTitle" defaultText="KEY AROMAS" />
               </div>
               <div style={{ fontSize: '0.85rem', color: '#ffffff', marginTop: '4px' }}>
-                {note.nose.aromas.join(' • ')}
+                {note.nose.aromas.map(a => tr(a)).join(' • ')}
               </div>
             </div>
           )}
 
           {note.conclusion?.notes && (
-            <div style={{ marginTop: '14px', fontSize: '0.85rem', color: 'var(--gold-light)', fontStyle: 'italic' }}>
+            <div dir="auto" style={{ marginTop: '14px', fontSize: '0.85rem', color: 'var(--gold-light)', fontStyle: 'italic' }}>
               "{note.conclusion.notes}"
             </div>
           )}

@@ -46,7 +46,7 @@ function hslToHex(h, s, l) {
 }
 
 export default function ColorStep({ colorData, updateColorData }) {
-  const { t } = useTexts();
+  const { t, tr, lang } = useTexts();
   // Store exact normalized positions: normX = Tone Darkness (0.0 Left Light -> 1.0 Right Dark), normY = Red Spectrum (0.0 Top Violet -> 1.0 Bottom Brick)
   const [normX, setNormX] = useState(0.64); // Default ~24% lightness
   const [normY, setNormY] = useState(0.25); // Default Ruby
@@ -270,12 +270,12 @@ export default function ColorStep({ colorData, updateColorData }) {
           onClick={() => setIsFullscreenWhite(false)}
         >
           <div style={{ position: 'absolute', top: 20, right: 20, background: '#0f0910', color: '#f7e4a1', padding: '10px 18px', borderRadius: '20px', cursor: 'pointer', fontWeight: 600 }}>
-            ✕ Exit White Canvas (Click Anywhere)
+            {tr('✕ Exit White Canvas (Click Anywhere)')}
           </div>
           <div className="glass-target-guide" style={{ width: '300px', height: '400px', borderColor: '#94a3b8' }}>
             <span style={{ fontSize: '3.5rem' }}>🍷</span>
             <div className="glass-target-text" style={{ fontSize: '1.1rem', marginTop: '16px' }}>
-              Hold your physical wine glass over this pure white background at a 45° angle.
+              {tr('Hold your physical wine glass over this pure white background at a 45° angle.')}
             </div>
           </div>
         </div>
@@ -302,17 +302,19 @@ export default function ColorStep({ colorData, updateColorData }) {
                 <div 
                   className="color-badge"
                   onClick={handleToggleDetails}
-                  title="Tap to view tone & hex code"
+                  title={tr('Tap to view tone & hex code')}
                 >
-                  <span className="color-badge-name">{photoColor ? `${photoColor.name} (Photo)` : currentClassObj.name}</span>
+                  <span className="color-badge-name">{photoColor ? `${tr(photoColor.name)} (${tr('Photo')})` : tr(currentClassObj.name)}</span>
                   <span className={`color-badge-details ${showDetails ? 'visible' : ''}`}>
-                    {photoColor ? ` | ${photoColor.descriptor} | ${currentColorHex.toUpperCase()}` : <>{' '}| Tone: {lightness}% | {currentColorHex.toUpperCase()}</>}
+                    {photoColor
+                      ? <>{' | '}{lang === 'he' ? `${tr(photoColor.name)} ${tr(photoColor.intensity)}` : photoColor.descriptor}{' | '}<bdi dir="ltr">{currentColorHex.toUpperCase()}</bdi></>
+                      : <>{' | '}{tr('Tone')}: <bdi dir="ltr">{lightness}%</bdi>{' | '}<bdi dir="ltr">{currentColorHex.toUpperCase()}</bdi></>}
                   </span>
                 </div>
               </div>
 
               {/* 2D RED WINE SPECTRUM CANVAS (Narrowed) */}
-              <div className="color-canvas-wrap">
+              <div className="color-canvas-wrap" dir="ltr">
                 <canvas 
                   ref={canvasRef}
                   width={280}
@@ -372,7 +374,7 @@ export default function ColorStep({ colorData, updateColorData }) {
                 onClick={() => setIsPhotoOpen(true)}
                 aria-label={t ? t('color.photoButton', 'Pick colour from a photo') : 'Pick colour from a photo'}
                 aria-haspopup="dialog"
-                title="Pick colour from a photo"
+                title={tr('Pick colour from a photo')}
                 data-testid="color-camera-btn"
               >
                 <Camera size={22} />

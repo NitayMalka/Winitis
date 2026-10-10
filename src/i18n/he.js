@@ -358,7 +358,8 @@ export const HE_TERMS = {
 
   // ---- cellar / share ----
   'Origin Unspecified': 'מקור לא צוין', 'Red Wine Evaluation': 'הערכת יין אדום', 'Red Variety': 'זן אדום',
-  'Red Blend': 'בלנד אדום', 'Backup as JSON': 'גיבוי כ-JSON', 'All': 'הכול', 'N/A': 'לא צוין', 'intensity': 'עוצמה'
+  'Red Blend': 'בלנד אדום', 'Tawny / Brick': 'חום-ענברי / לבנה',
+  'Low Tannin': 'טאנינים נמוכים', 'Medium Tannin': 'טאנינים בינוניים', 'High Tannin': 'טאנינים גבוהים', 'Backup as JSON': 'גיבוי כ-JSON', 'All': 'הכול', 'N/A': 'לא צוין', 'intensity': 'עוצמה'
 };
 
 // Legacy / variant English labels -> canonical id (read-time, non-destructive).

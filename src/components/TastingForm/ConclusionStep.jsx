@@ -13,6 +13,7 @@ const getScoreTier = (s) => {
 };
 
 function VerticalScoreGauge({ score, onChange }) {
+  const { tr } = useTexts();
   const isUnworthy = score === 0;
   const displayScore = isUnworthy ? 0 : Math.max(70, Math.min(100, score));
   const trackRef = useRef(null);
@@ -83,7 +84,7 @@ function VerticalScoreGauge({ score, onChange }) {
           {score}
         </span>
         <span className={`score-tier-badge ${isUnworthy ? 'unworthy' : ''}`} style={{ color: tier.color }}>
-          {tier.label}
+          {tr(tier.label)}
         </span>
       </div>
 
@@ -93,7 +94,7 @@ function VerticalScoreGauge({ score, onChange }) {
         className={`vertical-score-track ${isDragging ? 'dragging' : ''}`}
         tabIndex={0}
         role="slider"
-        aria-label="Wine Points Score"
+        aria-label={tr('Wine Points Score')}
         aria-valuenow={score}
         aria-valuemin={0}
         aria-valuemax={100}
@@ -102,7 +103,8 @@ function VerticalScoreGauge({ score, onChange }) {
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         onKeyDown={handleKeyDown}
-        title="Drag vertically to change score"
+        title={tr('Drag vertically to change score')}
+        dir="ltr"
       >
         {/* Fill from bottom */}
         <div
@@ -139,7 +141,7 @@ function VerticalScoreGauge({ score, onChange }) {
         type="button"
         className={`unworthy-pill-btn ${isUnworthy ? 'active' : ''}`}
         onClick={toggleUnworthy}
-        title={isUnworthy ? 'Click to restore score' : 'Mark wine as defective or unworthy of scoring'}
+        title={tr(isUnworthy ? 'Click to restore score' : 'Mark wine as defective or unworthy of scoring')}
       >
         <span className="unworthy-icon">{isUnworthy ? '✕' : '0'}</span>
         <span>
@@ -156,6 +158,7 @@ export default function ConclusionStep({
   conclusionData,
   updateConclusionData
 }) {
+  const { tr } = useTexts();
   const currentScore = typeof conclusionData?.score === 'number' ? conclusionData.score : 92;
 
   const handleChange = (field, value) => {
@@ -269,7 +272,7 @@ export default function ConclusionStep({
               value={conclusionData?.notes || ''}
               onChange={(e) => handleChange('notes', e.target.value)}
               maxLength={160}
-              placeholder="e.g. Elegant vintage with fine tannins, pairs with roasted duck..."
+              placeholder={tr('e.g. Elegant vintage with fine tannins, pairs with roasted duck...')}
             />
           </div>
 

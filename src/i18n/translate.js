@@ -1,4 +1,4 @@
-import { HE_TERMS, LEGACY_ALIASES } from './he';
+import { HE_TERMS, LEGACY_ALIASES } from './he.js';
 
 export const LANG_KEY = 'winitis_lang';
 export const SUPPORTED_LANGS = ['en', 'he'];
@@ -20,6 +20,13 @@ function recordMiss(str) {
   (window.__i18nMissing = window.__i18nMissing || new Set()).add(str);
 }
 
+// "45s+" -> "⁦45+⁩ שנ׳", "11-13.9%" -> "⁦11-13.9%⁩" (bidi-isolated so digits/symbols keep their order in RTL)
+function heMeasure(m) {
+  const secs = m.match(/^([<>≥≤]?\s*[\d.]+(?:\s*[-–]\s*[\d.]+)?)\s*s(\+?)$/);
+  if (secs) return `\u2066${secs[1]}${secs[2]}\u2069 שנ׳`;
+  return `\u2066${m}\u2069`;
+}
+
 // English canonical value / UI literal -> Hebrew. Unknown text (user free text) is returned unchanged.
 export function translateHe(value) {
   if (value === null || value === undefined) return value;
@@ -34,7 +41,7 @@ export function translateHe(value) {
   const m = key.match(/^(.*?)\s*\(([^()]*)\)$/);
   if (m && m[1]) {
     const inner = m[2].trim();
-    const innerHe = MEASURE.test(inner) ? inner : translateHe(inner);
+    const innerHe = MEASURE.test(inner) ? heMeasure(inner) : translateHe(inner);
     return `${translateHe(m[1])} (${innerHe})`;
   }
   // Trailing colon labels "Finish:"

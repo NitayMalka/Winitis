@@ -141,6 +141,7 @@ function percentToLevel(pct, list) {
 }
 
 export default function NoseStep({ noseData, updateNoseData, palateData, updatePalateData }) {
+  const { tr } = useTexts();
   const selectedAromas = noseData.aromas || [];
   const [activeTier, setActiveTier] = useState('primary');
   const [activeCategory, setActiveCategory] = useState(CATEGORY_MAP[0]); // Default Red Fruit
@@ -169,22 +170,38 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
   const cleanInput = aromaInput.trim().toLowerCase();
   const filteredSuggestions = cleanInput.length > 0
     ? ALL_MASTER_AROMAS.filter(item => 
-        item.toLowerCase().includes(cleanInput) &&
+        (item.toLowerCase().includes(cleanInput) || tr(item).toLowerCase().includes(cleanInput)) &&
         !selectedAromas.some(s => cleanAromaText(s).toLowerCase() === item.toLowerCase())
       ).slice(0, 8)
     : [];
 
-  const isExactMatch = ALL_MASTER_AROMAS.some(
-    item => item.toLowerCase() === cleanInput
-  );
+  // A typed name that matches a known aroma (in English or in the UI language) resolves to its canonical id.
+  const findMasterAroma = (text) => {
+    const q = (text || '').trim().toLowerCase();
+    if (!q) return null;
+    return ALL_MASTER_AROMAS.find(item => item.toLowerCase() === q || tr(item).toLowerCase() === q) || null;
+  };
+  const isExactMatch = Boolean(findMasterAroma(cleanInput));
   const isAlreadySelected = selectedAromas.some(
-    s => cleanAromaText(s).toLowerCase() === cleanInput
+    s => cleanAromaText(s).toLowerCase() === cleanInput || tr(cleanAromaText(s)).toLowerCase() === cleanInput ||
+      cleanAromaText(s) === findMasterAroma(cleanInput)
   );
   const canAddCustom = cleanInput.length > 0 && !isAlreadySelected && !isExactMatch;
 
   const handleAddAroma = (nameToAdd) => {
     const raw = (nameToAdd || aromaInput).trim();
     if (!raw) return;
+    const master = findMasterAroma(raw);
+    if (master) {
+      // Known aroma: always store the canonical id, never the translated label.
+      if (!selectedAromas.some(a => cleanAromaText(a) === master)) {
+        updateNoseData({ ...noseData, aromas: [...selectedAromas, master] });
+      }
+      setAromaInput('');
+      setHighlightedIndex(-1);
+      setIsInputFocused(false);
+      return;
+    }
 
     // Capitalize words nicely
     const formatted = raw
@@ -372,7 +389,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
       {/* WORKSPACE LAYOUT: CENTERED AROMA WHEEL WITH SELECTED AROMAS BENEATH */}
       <div className="nose-workspace-container">
         {/* INTERACTIVE AROMA WHEEL WITH CURVED TEXT ARCS */}
-        <div className="nose-wheel-wrap" style={{ width: '100%', touchAction: 'none', position: 'relative' }}>
+        <div className="nose-wheel-wrap" dir="ltr" style={{ width: '100%', touchAction: 'none', position: 'relative' }}>
             <svg 
               ref={svgRef}
               viewBox="0 0 500 500" 
@@ -417,7 +434,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                 const isSelected = isAromaSelected(item);
 
                 const pathD = describeArc(cx, cy, 145, 218, itemStartAngle, itemEndAngle);
-                const displayText = `${item}${isSelected ? ' ✓' : ''}`;
+                const displayText = `${tr(item)}${isSelected ? ' ✓' : ''}`;
                 const fontSize = getAromaFontSize(displayText, sliceAngle3);
 
                 return (
@@ -460,7 +477,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                 const isSelected = activeCategory.id === cat.id;
                 const pathD = describeArc(cx, cy, 76, 141, cat.startAngle, cat.endAngle);
                 const sliceAngle = cat.endAngle - cat.startAngle;
-                const catName = cat.name.split(' ')[0];
+                const catName = tr(cat.name.split(' ')[0]);
                 const displayText = `${catName}${isSelected ? ' ▸' : ''}`;
                 const fontSize = getCategoryFontSize(displayText, sliceAngle);
 
@@ -512,7 +529,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                   const pos = polarToCartesian(cx, cy, 40, -30);
                   return (
                     <text x={pos.x} y={pos.y} fill="#ffffff" fontSize="10.5" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" style={{ pointerEvents: 'none', userSelect: 'none' }}>
-                      Primary
+                      {tr('Primary')}
                     </text>
                   );
                 })()}
@@ -530,7 +547,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                   const pos = polarToCartesian(cx, cy, 40, 90);
                   return (
                     <text x={pos.x} y={pos.y} fill="#0f0910" fontSize="9.5" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" style={{ pointerEvents: 'none', userSelect: 'none' }}>
-                      Secondary
+                      {tr('Secondary')}
                     </text>
                   );
                 })()}
@@ -548,7 +565,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                   const pos = polarToCartesian(cx, cy, 40, 210);
                   return (
                     <text x={pos.x} y={pos.y} fill="#ffffff" fontSize="10.5" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" style={{ pointerEvents: 'none', userSelect: 'none' }}>
-                      Tertiary
+                      {tr('Tertiary')}
                     </text>
                   );
                 })()}
@@ -584,7 +601,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                 {/* CURVED "INTENSITY" TEXT LABEL CURVED EXACTLY ALONG SLIDER SHAPE STARTING AT ORIGIN */}
                 <text fill="#d4af37" fontSize="10" fontWeight="bold" letterSpacing="0.08em" style={{ pointerEvents: 'none' }}>
                   <textPath href="#intensity-text-path" xlinkHref="#intensity-text-path" startOffset="2%">
-                    INTENSITY: {currentIntensity.replace(/[()]/g, '').toUpperCase()}
+                    {tr('INTENSITY')}: {tr(currentIntensity).replace(/[()]/g, '').toUpperCase()}
                   </textPath>
                 </text>
 
@@ -628,7 +645,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                 {/* CURVED "DEVELOPMENT" TEXT LABEL CURVED EXACTLY ALONG SLIDER SHAPE STARTING AT ORIGIN */}
                 <text fill="#e67e22" fontSize="10" fontWeight="bold" letterSpacing="0.08em" style={{ pointerEvents: 'none' }}>
                   <textPath href="#dev-text-path" xlinkHref="#dev-text-path" startOffset="2%">
-                    DEVELOPMENT: {currentDevelopment.replace(/[()]/g, '').toUpperCase()}
+                    {tr('DEVELOPMENT')}: {tr(currentDevelopment).replace(/[()]/g, '').toUpperCase()}
                   </textPath>
                 </text>
 
@@ -663,7 +680,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
               }}
               onFocus={() => setIsInputFocused(true)}
               onKeyDown={handleKeyDown}
-              placeholder="Type any aroma (or choose from list)..."
+              placeholder={tr('Type any aroma (or choose from list)...')}
               className="aroma-search-input font-serif"
             />
             {aromaInput.length > 0 && (
@@ -674,7 +691,7 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                   setAromaInput('');
                   setHighlightedIndex(-1);
                 }}
-                title="Clear input"
+                title={tr('Clear input')}
               >
                 <X size={13} />
               </button>
@@ -684,10 +701,10 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
               className="aroma-add-btn"
               onClick={() => handleAddAroma(aromaInput)}
               disabled={aromaInput.trim().length === 0}
-              title="Add aroma"
+              title={tr('Add aroma')}
             >
               <Plus size={13} />
-              <span>Add</span>
+              <span>{tr('Add')}</span>
             </button>
           </div>
 
@@ -704,8 +721,8 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                   }}
                 >
                   <span className="aroma-item-icon">🍇</span>
-                  <span className="aroma-item-text">{item}</span>
-                  <span className="aroma-item-badge">{getAromaCategoryName(item)}</span>
+                  <span className="aroma-item-text">{tr(item)}</span>
+                  <span className="aroma-item-badge">{tr(getAromaCategoryName(item))}</span>
                 </div>
               ))}
 
@@ -719,9 +736,9 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                 >
                   <Plus size={13} color="#4ade80" />
                   <span className="aroma-item-text">
-                    Add custom: <strong>"{aromaInput.trim()}"</strong>
+                    {tr('Add custom:')} <strong>"{aromaInput.trim()}"</strong>
                   </span>
-                  <span className="aroma-item-badge custom">Custom</span>
+                  <span className="aroma-item-badge custom">{tr('Custom')}</span>
                 </div>
               )}
             </div>
@@ -736,9 +753,9 @@ export default function NoseStep({ noseData, updateNoseData, palateData, updateP
                 key={item} 
                 className="aroma-pill-slide"
                 onClick={() => toggleAroma(item)}
-                title="Click to remove"
+                title={tr('Click to remove')}
               >
-                <span style={{ fontWeight: 500 }}>{cleanAromaText(item)}</span>
+                <span style={{ fontWeight: 500 }}>{tr(cleanAromaText(item))}</span>
                 <span style={{ color: 'var(--gold-light)', fontWeight: 'bold' }}>✕</span>
               </div>
             ))

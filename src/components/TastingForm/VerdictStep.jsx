@@ -56,19 +56,19 @@ export default function VerdictStep({
   readOnly = false,
   theme = 'dark'
 }) {
-  const { t } = useTexts();
+  const { t, tr, lang } = useTexts();
   const fileInputRef = useRef(null);
   const cardRef = useRef(null);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
 
   // Identity & Specs
-  const rawWineName = wineNote.wineName || 'THE REVELATOR RED BLEND';
+  const rawWineName = wineNote.wineName || tr('THE REVELATOR RED BLEND');
   const wineName = rawWineName.slice(0, 23);
   const vintage = wineNote.vintage || '2018';
   const grape = wineNote.grape || 'Grand Vin';
   const country = wineNote.country || '';
   const region = wineNote.region || '';
-  const originStr = [region, country].filter(Boolean).join(', ') || 'Fine Wine';
+  const originStr = [region, country].filter(Boolean).join(', ') || tr('Fine Wine');
   const alcohol = wineNote.alcohol || '14.5% alc./vol.';
   const score = typeof wineNote.conclusion?.score === 'number' ? wineNote.conclusion.score : 93;
   const price = wineNote.conclusion?.price || '$45';
@@ -139,14 +139,15 @@ export default function VerdictStep({
   const formatFinishDisplay = () => {
     const raw = String(finishVal || '').trim();
     const cleanLevel = cleanIntensity(raw);
+    const unit = lang === 'he' ? ` ${tr('sec')}` : 's';
     if (finishSeconds !== null && finishSeconds !== undefined && finishSeconds > 0) {
-      return `${cleanLevel} ${finishSeconds}s`;
+      return `${tr(cleanLevel)} ${finishSeconds}${unit}`;
     }
     const secMatch = raw.match(/(\d+)\s*s/i);
     if (secMatch) {
-      return `${cleanLevel} ${secMatch[1]}s`;
+      return `${tr(cleanLevel)} ${secMatch[1]}${unit}`;
     }
-    return cleanLevel;
+    return tr(cleanLevel);
   };
 
   // 4. Rating & VFM
@@ -275,7 +276,7 @@ export default function VerdictStep({
                 <span className="medal-score-number font-serif">{score}</span>
                 {score === 0 && (
                   <span className="medal-score-label font-serif">
-                    <span style={{ color: '#ef4444', fontWeight: 800, fontSize: '0.62rem', letterSpacing: '0.05em' }}>UNWORTHY</span>
+                    <span style={{ color: '#ef4444', fontWeight: 800, fontSize: '0.62rem', letterSpacing: '0.05em' }}>{tr('UNWORTHY')}</span>
                   </span>
                 )}
               </div>
@@ -308,9 +309,9 @@ export default function VerdictStep({
                       if (!readOnly) setShowPhotoOptions(true);
                     }}
                     style={{ cursor: readOnly ? 'default' : 'pointer', width: '100%', height: '100%' }}
-                    title={readOnly ? undefined : "Click to change photo or switch to default bottle"}
+                    title={readOnly ? undefined : tr('Click to change photo or switch to default bottle')}
                   >
-                    <img src={bottleImage} alt="Wine Bottle" className="custom-bottle-img" />
+                    <img src={bottleImage} alt={tr('Wine Bottle')} className="custom-bottle-img" />
                   </div>
                 ) : (
                   <div 
@@ -319,7 +320,7 @@ export default function VerdictStep({
                       if (!readOnly) fileInputRef.current?.click();
                     }}
                     style={{ cursor: readOnly ? 'default' : 'pointer', position: 'relative', width: '100%', height: '100%' }}
-                    title={readOnly ? undefined : "Click to take or upload bottle photo"}
+                    title={readOnly ? undefined : tr('Click to take or upload bottle photo')}
                   >
                     <GenericWineBottle
                       wineType={wineTypeClean}
@@ -330,7 +331,7 @@ export default function VerdictStep({
                       alcohol={alcohol}
                     />
                     {!readOnly && (
-                      <div className="default-bottle-photo-badge no-print" title="Upload Bottle Photo">
+                      <div className="default-bottle-photo-badge no-print" title={tr('Upload Bottle Photo')}>
                         <Camera size={18} color="#d4af37" />
                       </div>
                     )}
@@ -351,7 +352,7 @@ export default function VerdictStep({
                       <span className="gauge-icon">🍷</span>
                       <span className="gauge-title"><EditableText textKey="verdict.bodyTitle" defaultText="BODY:" /></span>
                     </div>
-                    <div className="gauge-control-wrap">
+                    <div className="gauge-control-wrap" dir="ltr">
                       <div className="gauge-track-container">
                         <span
                           className="gauge-pointer"
@@ -367,8 +368,8 @@ export default function VerdictStep({
                         </div>
                       </div>
                       <div className="gauge-tickers-row">
-                        <span>Light</span>
-                        <span>Full</span>
+                        <span>{tr('Light')}</span>
+                        <span>{tr('Full')}</span>
                       </div>
                     </div>
                   </div>
@@ -379,7 +380,7 @@ export default function VerdictStep({
                       <span className="gauge-icon">🍋</span>
                       <span className="gauge-title"><EditableText textKey="verdict.acidityTitle" defaultText="ACIDITY:" /></span>
                     </div>
-                    <div className="gauge-control-wrap">
+                    <div className="gauge-control-wrap" dir="ltr">
                       <div className="gauge-track-container">
                         <span
                           className="gauge-pointer"
@@ -395,8 +396,8 @@ export default function VerdictStep({
                         </div>
                       </div>
                       <div className="gauge-tickers-row">
-                        <span>Low</span>
-                        <span>High</span>
+                        <span>{tr('Low')}</span>
+                        <span>{tr('High')}</span>
                       </div>
                     </div>
                   </div>
@@ -407,7 +408,7 @@ export default function VerdictStep({
                       <span className="gauge-icon">🍇</span>
                       <span className="gauge-title"><EditableText textKey="verdict.tanninsTitle" defaultText="TANNINS:" /></span>
                     </div>
-                    <div className="gauge-control-wrap">
+                    <div className="gauge-control-wrap" dir="ltr">
                       <div className="gauge-track-container">
                         <span
                           className="gauge-pointer"
@@ -423,8 +424,8 @@ export default function VerdictStep({
                         </div>
                       </div>
                       <div className="gauge-tickers-row">
-                        <span>Low</span>
-                        <span>High</span>
+                        <span>{tr('Low')}</span>
+                        <span>{tr('High')}</span>
                       </div>
                     </div>
                   </div>
@@ -440,7 +441,7 @@ export default function VerdictStep({
                       <span className="pillar-icon">👃</span>
                       <span className="pillar-label"><EditableText textKey="verdict.intensityLabel" defaultText="INTENSITY:" /></span>
                     </div>
-                    <span className="pillar-val">{noseIntensityClean.toUpperCase()}</span>
+                    <span className="pillar-val">{tr(noseIntensityClean).toUpperCase()}</span>
                   </div>
 
                   <div className="palate-pillar-item">
@@ -448,7 +449,7 @@ export default function VerdictStep({
                       <span className="pillar-icon">🌱</span>
                       <span className="pillar-label"><EditableText textKey="verdict.developmentLabel" defaultText="DEVELOPMENT:" /></span>
                     </div>
-                    <span className="pillar-val">{cleanIntensity(noseDevelopment).toUpperCase()}</span>
+                    <span className="pillar-val">{tr(cleanIntensity(noseDevelopment)).toUpperCase()}</span>
                   </div>
 
                   {/* Row 2: Sweetness & Alcohol */}
@@ -457,7 +458,7 @@ export default function VerdictStep({
                       <span className="pillar-icon">💧</span>
                       <span className="pillar-label"><EditableText textKey="verdict.sweetnessTitle" defaultText="SWEETNESS:" /></span>
                     </div>
-                    <span className="pillar-val">{sweetnessVal.toUpperCase()}</span>
+                    <span className="pillar-val">{tr(sweetnessVal).toUpperCase()}</span>
                   </div>
 
                   <div className="palate-pillar-item">
@@ -465,7 +466,7 @@ export default function VerdictStep({
                       <span className="pillar-icon">↗️</span>
                       <span className="pillar-label"><EditableText textKey="verdict.alcoholLevelTitle" defaultText="ALCOHOL:" /></span>
                     </div>
-                    <span className="pillar-val">{cleanIntensity(alcoholLevelVal.split(' ')[0]).toUpperCase()}</span>
+                    <span className="pillar-val">{tr(cleanIntensity(alcoholLevelVal.split(' ')[0])).toUpperCase()}</span>
                   </div>
 
                   {/* Row 3: Flavor & Finish */}
@@ -474,7 +475,7 @@ export default function VerdictStep({
                       <span className="pillar-icon">🍄</span>
                       <span className="pillar-label"><EditableText textKey="verdict.flavorTitle" defaultText="FLAVOR:" /></span>
                     </div>
-                    <span className="pillar-val">{flavorIntensityVal.toUpperCase()}</span>
+                    <span className="pillar-val">{tr(flavorIntensityVal).toUpperCase()}</span>
                   </div>
 
                   <div className="palate-pillar-item">
@@ -497,13 +498,13 @@ export default function VerdictStep({
                 userAromas.map((aroma, idx) => (
                   <div key={idx} className="verdict-aroma-row">
                     <span className="aroma-icon">{getAromaIcon(aroma)}</span>
-                    <span className="aroma-text">{aroma.toUpperCase()}</span>
+                    <span className="aroma-text">{tr(aroma).toUpperCase()}</span>
                   </div>
                 ))
               ) : (
                 <div className="verdict-aroma-row verdict-aroma-empty">
                   <span className="aroma-icon">🍇</span>
-                  <span className="aroma-text">NO SPECIFIC AROMAS</span>
+                  <span className="aroma-text">{tr('NO SPECIFIC AROMAS')}</span>
                 </div>
               )}
             </div>
@@ -518,8 +519,8 @@ export default function VerdictStep({
             <Quote size={12} color="#9e7a24" />
             <EditableText textKey="verdict.notesTitle" defaultText="SOMMELIER'S NOTES & PAIRINGS:" />
           </div>
-          <div className="notes-body">
-            {displayNotes ? `"${displayNotes}"` : '"Balanced red wine evaluation displaying harmonious structure, and lingering."'}
+          <div className="notes-body" dir={displayNotes ? 'auto' : undefined}>
+            {displayNotes ? `"${displayNotes}"` : `"${tr('Balanced red wine evaluation displaying harmonious structure, and lingering.')}"`}
           </div>
         </div>
 
@@ -531,7 +532,7 @@ export default function VerdictStep({
             <span className="vfm-prefix"><EditableText textKey="verdict.vfmTitle" defaultText="VFM:" /></span>
             <div
               className="vfm-glasses-row"
-              title={readOnly ? undefined : 'Click to rate Value For Money'}
+              title={readOnly ? undefined : tr('Click to rate Value For Money')}
             >
               {[1, 2, 3, 4, 5].map((gIndex) => {
                 const isFilled = gIndex <= vfmScore;
@@ -541,7 +542,7 @@ export default function VerdictStep({
                     type="button"
                     className={`vfm-glass-btn ${isFilled ? 'filled' : 'empty'} ${readOnly ? 'read-only' : ''}`}
                     onClick={() => setVfm(gIndex)}
-                    aria-label={`Set VFM ${gIndex} of 5`}
+                    aria-label={tr('Set VFM {n} of 5').replace('{n}', gIndex)}
                   >
                     <svg viewBox="0 0 28 42" fill="currentColor">
                       <path d="M 4 4 C 4 22, 24 22, 24 4 Z" />
@@ -591,14 +592,14 @@ export default function VerdictStep({
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid rgba(212,175,55,0.2)', paddingBottom: '10px' }}>
               <h3 style={{ margin: 0, fontSize: '1rem', color: 'var(--gold-primary)', fontFamily: 'Cinzel, serif', fontWeight: 700 }}>
-                Bottle Photo
+                {tr('Bottle Photo')}
               </h3>
               <button 
                 type="button" 
                 className="btn btn-outline"
                 style={{ padding: '4px', minWidth: '28px', height: '28px', borderRadius: '50%', justifyContent: 'center' }}
                 onClick={() => setShowPhotoOptions(false)}
-                title="Close"
+                title={tr('Close')}
               >
                 <X size={16} />
               </button>
@@ -622,7 +623,7 @@ export default function VerdictStep({
                 }}
               >
                 <Camera size={19} color="#d4af37" />
-                <span>Retake / Change Photo</span>
+                <span>{tr('Retake / Change Photo')}</span>
               </button>
 
               <button
@@ -640,7 +641,7 @@ export default function VerdictStep({
                 }}
               >
                 <RotateCcw size={18} />
-                <span>Switch to Default Bottle</span>
+                <span>{tr('Switch to Default Bottle')}</span>
               </button>
 
               <button
@@ -655,7 +656,7 @@ export default function VerdictStep({
                 }}
                 onClick={() => setShowPhotoOptions(false)}
               >
-                Cancel
+                {tr('Cancel')}
               </button>
             </div>
           </div>

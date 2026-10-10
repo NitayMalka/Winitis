@@ -115,6 +115,7 @@ const SNAP_POSITIONS = [15.5, 33.33, 50.0, 66.67, 84.5];
  * Slides smoothly and parks between choices for Med(-) and Med(+).
  */
 function SommelierTrackSlider({ value, onChange, options, anchorLabels, anchorSubLabels = null, ariaLabel }) {
+  const { tr } = useTexts();
   const [isDragging, setIsDragging] = useState(false);
   const [dragPct, setDragPct] = useState(null);
   const trackRef = useRef(null);
@@ -212,11 +213,12 @@ function SommelierTrackSlider({ value, onChange, options, anchorLabels, anchorSu
       className="sommelier-slider-track"
       tabIndex={0}
       role="slider"
-      aria-label={ariaLabel}
+      aria-label={tr(ariaLabel)}
+      dir="ltr"
       aria-valuenow={activeIndex}
       aria-valuemin={0}
       aria-valuemax={4}
-      aria-valuetext={activeOption.label}
+      aria-valuetext={tr(activeOption.label)}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -226,10 +228,10 @@ function SommelierTrackSlider({ value, onChange, options, anchorLabels, anchorSu
       {/* 3 Exposed Sectors with thin separators [Low | Medium | High] - NO DOTS */}
       <div className="sommelier-slider-sectors">
         <div className="sommelier-slider-sector" style={{ flexDirection: 'column', gap: '1px' }}>
-          <span>{anchorLabels[0]}</span>
+          <span>{tr(anchorLabels[0])}</span>
           {anchorSubLabels?.[0] && (
             <span style={{ fontSize: '0.62rem', opacity: 0.65, fontWeight: 500 }}>
-              {anchorSubLabels[0]}
+              {tr(anchorSubLabels[0])}
             </span>
           )}
         </div>
@@ -237,10 +239,10 @@ function SommelierTrackSlider({ value, onChange, options, anchorLabels, anchorSu
         <div className="sommelier-slider-separator" />
 
         <div className="sommelier-slider-sector" style={{ flexDirection: 'column', gap: '1px' }}>
-          <span>{anchorLabels[1]}</span>
+          <span>{tr(anchorLabels[1])}</span>
           {anchorSubLabels?.[1] && (
             <span style={{ fontSize: '0.62rem', opacity: 0.65, fontWeight: 500 }}>
-              {anchorSubLabels[1]}
+              {tr(anchorSubLabels[1])}
             </span>
           )}
         </div>
@@ -248,10 +250,10 @@ function SommelierTrackSlider({ value, onChange, options, anchorLabels, anchorSu
         <div className="sommelier-slider-separator" />
 
         <div className="sommelier-slider-sector" style={{ flexDirection: 'column', gap: '1px' }}>
-          <span>{anchorLabels[2]}</span>
+          <span>{tr(anchorLabels[2])}</span>
           {anchorSubLabels?.[2] && (
             <span style={{ fontSize: '0.62rem', opacity: 0.65, fontWeight: 500 }}>
-              {anchorSubLabels[2]}
+              {tr(anchorSubLabels[2])}
             </span>
           )}
         </div>
@@ -265,7 +267,7 @@ function SommelierTrackSlider({ value, onChange, options, anchorLabels, anchorSu
           transition: isDragging ? 'none' : 'left 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease, box-shadow 0.2s ease'
         }}
       >
-        {activeOption.pillLabel || activeOption.label}
+        {tr(activeOption.pillLabel || activeOption.label)}
       </div>
     </div>
   );
@@ -278,6 +280,7 @@ const SWEETNESS_SNAP_POSITIONS = [10.0, 30.0, 50.0, 70.0, 90.0];
  * [ Bone Dry | Dry | Off-Dry | Med-Dry | Sweet ]
  */
 function Sommelier5SectorSlider({ value, onChange, options, ariaLabel }) {
+  const { tr } = useTexts();
   const [isDragging, setIsDragging] = useState(false);
   const [dragPct, setDragPct] = useState(null);
   const trackRef = useRef(null);
@@ -350,11 +353,12 @@ function Sommelier5SectorSlider({ value, onChange, options, ariaLabel }) {
       className="sommelier-slider-track"
       tabIndex={0}
       role="slider"
-      aria-label={ariaLabel}
+      aria-label={tr(ariaLabel)}
+      dir="ltr"
       aria-valuenow={activeIndex}
       aria-valuemin={0}
       aria-valuemax={4}
-      aria-valuetext={activeOption.label}
+      aria-valuetext={tr(activeOption.label)}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -366,7 +370,7 @@ function Sommelier5SectorSlider({ value, onChange, options, ariaLabel }) {
         {options.map((opt, i) => (
           <React.Fragment key={opt.value}>
             <div className="sommelier-slider-sector" style={{ fontSize: '0.74rem' }}>
-              {opt.pillLabel || opt.label}
+              {tr(opt.pillLabel || opt.label)}
             </div>
             {i < options.length - 1 && <div className="sommelier-slider-separator" />}
           </React.Fragment>
@@ -383,7 +387,7 @@ function Sommelier5SectorSlider({ value, onChange, options, ariaLabel }) {
           transition: isDragging ? 'none' : 'left 0.22s cubic-bezier(0.16, 1, 0.3, 1), transform 0.15s ease, box-shadow 0.2s ease'
         }}
       >
-        {activeOption.pillLabel || activeOption.label}
+        {tr(activeOption.pillLabel || activeOption.label)}
       </div>
     </div>
   );
@@ -396,6 +400,7 @@ const TEXTURE_SNAP_POSITIONS = [7.14, 21.43, 35.71, 50.0, 64.29, 78.57, 92.86];
  * [ Silky | Velvety | Chalky | Fine-grained | Grippy | Chewy | Muscular ]
  */
 function SommelierTextureSlider({ value, onChange, options, ariaLabel }) {
+  const { tr } = useTexts();
   const [isDragging, setIsDragging] = useState(false);
   const [dragPct, setDragPct] = useState(null);
   const trackRef = useRef(null);
@@ -467,11 +472,12 @@ function SommelierTextureSlider({ value, onChange, options, ariaLabel }) {
       className="sommelier-slider-track"
       tabIndex={0}
       role="slider"
-      aria-label={ariaLabel}
+      aria-label={tr(ariaLabel)}
+      dir="ltr"
       aria-valuenow={activeIndex}
       aria-valuemin={0}
       aria-valuemax={options.length - 1}
-      aria-valuetext={activeOption}
+      aria-valuetext={tr(activeOption)}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -492,7 +498,7 @@ function SommelierTextureSlider({ value, onChange, options, ariaLabel }) {
               }}
               onClick={() => onChange(opt)}
             >
-              {opt}
+              {tr(opt)}
             </div>
             {i < options.length - 1 && <div className="sommelier-slider-separator" />}
           </React.Fragment>
@@ -631,6 +637,7 @@ const BAR_TYPES = [
  * and next-next bars shaded out and half-covered by the container boundaries.
  */
 function BarCarouselPicker({ barTypes, selectedBarId, onSelectBar, getBarValueBadge }) {
+  const { tr } = useTexts();
   const N = barTypes.length;
   const rawIdx = barTypes.findIndex(b => b.id === selectedBarId);
   const currentIndex = Math.max(0, Math.min(N - 1, rawIdx === -1 ? 0 : rawIdx));
@@ -701,7 +708,7 @@ function BarCarouselPicker({ barTypes, selectedBarId, onSelectBar, getBarValueBa
       onPointerCancel={handlePointerUp}
       onWheel={handleWheel}
       role="region"
-      aria-label="Bar attribute picker"
+      aria-label={tr('Bar attribute picker')}
     >
       {/* Left Chevron Button */}
       <button
@@ -712,8 +719,8 @@ function BarCarouselPicker({ barTypes, selectedBarId, onSelectBar, getBarValueBa
           if (hasPrev) onSelectBar(barTypes[currentIndex - 1].id);
         }}
         disabled={!hasPrev}
-        title={hasPrev ? `Previous: ${barTypes[currentIndex - 1].label}` : undefined}
-        aria-label="Previous attribute"
+        title={hasPrev ? `${tr('Previous')}: ${tr(barTypes[currentIndex - 1].label)}` : undefined}
+        aria-label={tr('Previous attribute')}
       >
         ‹
       </button>
@@ -737,15 +744,15 @@ function BarCarouselPicker({ barTypes, selectedBarId, onSelectBar, getBarValueBa
               e.stopPropagation();
               onSelectBar(bar.id);
             }}
-            title={isCenter ? `${bar.label}: ${currentVal}` : `Switch to ${bar.label}`}
+            title={isCenter ? `${tr(bar.label)}: ${tr(currentVal)}` : `${tr('Switch to')} ${tr(bar.label)}`}
           >
             {/* Top Row: Icon + Bar Label */}
             <div className="carousel-bar-header">
               <Icon size={isCenter ? 13 : 11} color={isCenter ? '#ffffff' : bar.color} />
-              <span className="carousel-bar-label">{bar.label}</span>
+              <span className="carousel-bar-label">{tr(bar.label)}</span>
             </div>
             {/* Bottom Row: Chosen Value Badge Below Name (More square layout) */}
-            <div className="carousel-bar-val">{currentVal}</div>
+            <div className="carousel-bar-val">{tr(currentVal)}</div>
           </div>
         );
       })}
@@ -759,8 +766,8 @@ function BarCarouselPicker({ barTypes, selectedBarId, onSelectBar, getBarValueBa
           if (hasNext) onSelectBar(barTypes[currentIndex + 1].id);
         }}
         disabled={!hasNext}
-        title={hasNext ? `Next: ${barTypes[currentIndex + 1].label}` : undefined}
-        aria-label="Next attribute"
+        title={hasNext ? `${tr('Next')}: ${tr(barTypes[currentIndex + 1].label)}` : undefined}
+        aria-label={tr('Next attribute')}
       >
         ›
       </button>
@@ -769,6 +776,7 @@ function BarCarouselPicker({ barTypes, selectedBarId, onSelectBar, getBarValueBa
 }
 
 export default function PalateStep({ palateData = {}, updatePalateData, isEmbedded = false }) {
+  const { tr } = useTexts();
   const [selectedBarId, setSelectedBarId] = useState('tannin');
   const [finishSeconds, setFinishSeconds] = useState(() => parseInitialSeconds(palateData));
   const [isPressingTimer, setIsPressingTimer] = useState(false);
@@ -1053,7 +1061,7 @@ export default function PalateStep({ palateData = {}, updatePalateData, isEmbedd
                       <span>{liveElapsed.toFixed(1)}s</span>
                     </div>
                   )}
-                  <div className="aftertaste-track-wrap">
+                  <div className="aftertaste-track-wrap" dir="ltr">
                     <input
                       type="range"
                       min="0"
@@ -1065,13 +1073,13 @@ export default function PalateStep({ palateData = {}, updatePalateData, isEmbedd
                       style={{
                         background: `linear-gradient(to right, #b81d40 0%, #d4af37 ${sliderPercent}%, rgba(255,255,255,0.08) ${sliderPercent}%, rgba(255,255,255,0.08) 100%)`
                       }}
-                      aria-label="Aftertaste duration in seconds"
+                      aria-label={tr('Aftertaste duration in seconds')}
                     />
                   </div>
-                  <div className="aftertaste-labels-row">
+                  <div className="aftertaste-labels-row" dir="ltr">
                     <span className="aftertaste-tick-label" onClick={() => handleFinishChange(0)}>0s</span>
                     <span className="aftertaste-level-center" style={{ color: tierInfo.color }}>
-                      {tierInfo.tier}
+                      {tr(tierInfo.tier)}
                     </span>
                     <span className="aftertaste-tick-label" onClick={() => handleFinishChange(60)}>60s</span>
                   </div>
@@ -1083,11 +1091,11 @@ export default function PalateStep({ palateData = {}, updatePalateData, isEmbedd
                   onPointerUp={stopTiming}
                   onPointerLeave={stopTiming}
                   onPointerCancel={stopTiming}
-                  title="Hold while tasting to measure aftertaste"
-                  aria-label="Hold to time aftertaste"
+                  title={tr('Hold while tasting to measure aftertaste')}
+                  aria-label={tr('Hold to time aftertaste')}
                 >
                   <Timer size={14} color={isPressingTimer ? '#ffffff' : 'var(--gold-primary)'} />
-                  <span>Hold</span>
+                  <span>{tr('Hold')}</span>
                 </button>
               </div>
             );

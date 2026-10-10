@@ -4,8 +4,8 @@ import EditableText from '../TextEditor/EditableText';
 import { useTexts } from '../../context/TextContext';
 
 export default function NoteCard({ note, onView, onShare, onDelete }) {
-  const { t } = useTexts();
-  const originStr = [note.region, note.country].filter(Boolean).join(', ') || 'Origin Unspecified';
+  const { t, tr } = useTexts();
+  const originStr = [note.region, note.country].filter(Boolean).join(', ') || tr('Origin Unspecified');
   const priceStr = note.conclusion?.price || note.price;
 
   return (
@@ -13,7 +13,7 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
       <div>
         <div className="note-header">
           <div>
-            <div className="note-wine-title font-serif">{note.wineName || 'Red Wine Evaluation'}</div>
+            <div className="note-wine-title font-serif">{note.wineName || tr('Red Wine Evaluation')}</div>
             {note.vintage && (
               <div style={{ fontSize: '0.85rem', color: 'var(--gold-primary)', fontWeight: 600 }}>
                 <EditableText textKey="cellar.vintagePrefix" defaultText="Vintage" /> {note.vintage}
@@ -31,7 +31,7 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
             {originStr}
           </span>
           <span style={{ margin: '0 8px' }}>•</span>
-          <span>{note.grape || 'Red Variety'}</span>
+          <span>{note.grape || tr('Red Variety')}</span>
           {priceStr && (
             <>
               <span style={{ margin: '0 8px' }}>•</span>
@@ -52,12 +52,12 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
                 border: '1px solid rgba(255,255,255,0.4)' 
               }} 
             />
-            <span>{note.color?.name || 'Ruby'} ({note.color?.intensity || 'Medium'})</span>
+            <span>{tr(note.color?.name || 'Ruby')} ({tr(note.color?.intensity || 'Medium')})</span>
           </div>
 
           {note.palate?.finish && (
             <div className="note-color-indicator" style={{ marginBottom: 0, color: 'var(--gold-light)', border: '1px solid rgba(212,175,55,0.2)' }}>
-              <span><EditableText textKey="cellar.finishPrefix" defaultText="Finish:" /> {note.palate.finish}</span>
+              <span><EditableText textKey="cellar.finishPrefix" defaultText="Finish:" /> {tr(note.palate.finish)}</span>
             </div>
           )}
         </div>
@@ -68,14 +68,14 @@ export default function NoteCard({ note, onView, onShare, onDelete }) {
             <strong style={{ color: 'var(--text-gold)' }}>
               <EditableText textKey="cellar.aromasPrefix" defaultText="Aromas:" />{' '}
             </strong>
-            {note.nose.aromas.slice(0, 4).join(', ')}
+            {note.nose.aromas.slice(0, 4).map(a => tr(a)).join(', ')}
             {note.nose.aromas.length > 4 && '...'}
           </div>
         )}
 
         {/* Notes summary */}
         {note.conclusion?.notes && (
-          <div style={{ fontSize: '0.8rem', color: 'var(--text-main)', fontStyle: 'italic', marginBottom: '16px', lineClamp: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <div dir="auto" style={{ fontSize: '0.8rem', color: 'var(--text-main)', fontStyle: 'italic', marginBottom: '16px', lineClamp: 2, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             "{note.conclusion.notes}"
           </div>
         )}

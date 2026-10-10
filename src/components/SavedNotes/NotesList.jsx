@@ -6,7 +6,7 @@ import EditableText from '../TextEditor/EditableText';
 import { useTexts } from '../../context/TextContext';
 
 export default function NotesList({ notes, onViewNote, onShareNote, onDeleteNote, onNewTasting }) {
-  const { t } = useTexts();
+  const { t, tr } = useTexts();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedGrapeFilter, setSelectedGrapeFilter] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
@@ -50,7 +50,7 @@ export default function NotesList({ notes, onViewNote, onShareNote, onDeleteNote
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button className="btn btn-outline" onClick={exportNotesJSON} title="Backup as JSON">
+          <button className="btn btn-outline" onClick={exportNotesJSON} title={tr('Backup as JSON')}>
             <Download size={16} /> <EditableText textKey="cellar.exportJsonBtn" defaultText="Export JSON" />
           </button>
 
@@ -64,11 +64,11 @@ export default function NotesList({ notes, onViewNote, onShareNote, onDeleteNote
       <div className="card" style={{ padding: '16px 20px', marginBottom: '24px' }}>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
           <div style={{ flex: 1, minWidth: '220px', position: 'relative' }}>
-            <Search size={16} color="#a395a8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
+            <Search size={16} color="#a395a8" style={{ position: 'absolute', insetInlineStart: '12px', top: '50%', transform: 'translateY(-50%)' }} />
             <input 
               type="text" 
               className="form-input" 
-              style={{ paddingLeft: '36px', width: '100%' }}
+              style={{ paddingInlineStart: '36px', width: '100%' }}
               placeholder={t('cellar.searchPlaceholder', 'Search wine, country, region, or grape...')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -102,7 +102,7 @@ export default function NotesList({ notes, onViewNote, onShareNote, onDeleteNote
                 style={{ fontSize: '0.78rem', padding: '4px 12px' }}
                 onClick={() => setSelectedGrapeFilter(grape)}
               >
-                {grape}
+                {grape === 'All' ? tr('All') : grape}
               </button>
             ))}
           </div>

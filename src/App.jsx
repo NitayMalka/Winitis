@@ -80,6 +80,7 @@ const INITIAL_NOTE_STATE = {
 };
 
 export default function App() {
+  const { t, tr } = useTexts();
   const [currentView, setCurrentView] = useState(() => getActiveView());
   const [currentStep, setCurrentStep] = useState(() => getActiveStep());
   const [wineNote, setWineNote] = useState(() => getActiveDraftNote(INITIAL_NOTE_STATE));
@@ -163,15 +164,15 @@ export default function App() {
       if (!blob) throw new Error('Failed to generate image');
 
       const targetNote = viewVerdictTarget || wineNote;
-      const safeWineName = (targetNote?.wineName || 'wine').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const safeWineName = (targetNote?.wineName || 'wine').replace(/[^\p{L}\p{N}]+/gu, '_').toLowerCase();
       const fileName = `${safeWineName}_verdict.png`;
       const file = new File([blob], fileName, { type: 'image/png' });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
-          title: targetNote?.wineName || 'Wine Tasting Verdict',
-          text: `Wine Tasting Summary: ${targetNote?.wineName || ''} (${targetNote?.vintage || ''})`
+          title: targetNote?.wineName || tr('Wine Tasting Verdict'),
+          text: `${tr('Wine Tasting Summary')}: ${targetNote?.wineName || ''} (${targetNote?.vintage || ''})`
         });
         setIsSharePhotoSuccess(true);
         setTimeout(() => setIsSharePhotoSuccess(false), 2500);
@@ -191,7 +192,7 @@ export default function App() {
         try {
           const dataUrl = await toPng(cardEl, { pixelRatio: 2 });
           const targetNote = viewVerdictTarget || wineNote;
-          const safeWineName = (targetNote?.wineName || 'wine').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+          const safeWineName = (targetNote?.wineName || 'wine').replace(/[^\p{L}\p{N}]+/gu, '_').toLowerCase();
           const fileName = `${safeWineName}_verdict.png`;
           const link = document.createElement('a');
           link.download = fileName;
@@ -250,7 +251,7 @@ export default function App() {
   };
 
   const handleDeleteNote = (id) => {
-    if (window.confirm('Are you sure you want to delete this tasting note?')) {
+    if (window.confirm(tr('Are you sure you want to delete this tasting note?'))) {
       const updated = deleteNote(id);
       setSavedNotes(updated);
     }
@@ -264,8 +265,6 @@ export default function App() {
     saveActiveStep(1);
     saveActiveView('new');
   };
-
-  const { t } = useTexts();
 
   const steps = [
     { num: 1, label: t('navigation.step1', 'Color'), key: 'navigation.step1', icon: Eye },

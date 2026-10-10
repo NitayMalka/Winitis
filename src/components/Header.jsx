@@ -17,7 +17,7 @@ export default function Header({
   isSharingPhoto = false,
   isSharePhotoSuccess = false
 }) {
-  const { t, isEditMode } = useTexts();
+  const { t, tr, lang, setLang, isEditMode } = useTexts();
   const [deferredPrompt, setDeferredPrompt] = useState(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isSavedFlash, setIsSavedFlash] = useState(false);
@@ -56,8 +56,8 @@ export default function Header({
     if (isEditMode) return;
     e.stopPropagation();
 
-    const textToCopy = `If you like it - tell your friends
-Winitis wine taste app
+    const textToCopy = `${tr('If you like it - tell your friends')}
+${tr('Winitis wine taste app')}
 https://winitis.vercel.app`;
     let success = false;
     try {
@@ -103,7 +103,7 @@ https://winitis.vercel.app`;
         <div 
           className="brand-logo" 
           onClick={handleBrandShareClick}
-          title="Click to copy app link and share"
+          title={tr('Click to copy app link and share')}
           role="button"
           tabIndex={0}
         >
@@ -130,14 +130,25 @@ https://winitis.vercel.app`;
         </div>
 
         <div className="nav-buttons">
+          <button
+            type="button"
+            className="btn btn-outline lang-toggle-btn"
+            onClick={() => setLang(lang === 'he' ? 'en' : 'he')}
+            aria-label={lang === 'he' ? 'מעבר לאנגלית (Switch to English)' : 'Switch to Hebrew (מעבר לעברית)'}
+            title={lang === 'he' ? 'English' : 'עברית'}
+            data-testid="lang-toggle"
+            lang={lang === 'he' ? 'en' : 'he'}
+          >
+            {lang === 'he' ? 'EN' : 'עב'}
+          </button>
           {onToggleTheme && (
             <button 
               type="button"
               className="btn btn-outline"
               onClick={onToggleTheme}
               disabled={isRefreshingTheme}
-              title={theme === 'dark' ? 'Night Mode (click to switch & refresh latest changes)' : 'Day Mode (click to switch & refresh latest changes)'}
-              aria-label="Toggle Night/Day mode and refresh"
+              title={tr(theme === 'dark' ? 'Night Mode (click to switch & refresh latest changes)' : 'Day Mode (click to switch & refresh latest changes)')}
+              aria-label={tr('Toggle Night/Day mode and refresh')}
               style={{ padding: '8px 10px', minWidth: '38px', height: '38px', justifyContent: 'center' }}
             >
               {isRefreshingTheme ? (
@@ -154,7 +165,7 @@ https://winitis.vercel.app`;
             className={`btn ${currentView === 'new' ? 'btn-primary' : 'btn-outline'}`}
             onClick={() => setCurrentView('new')}
             title={t('header.newTasting', 'New Tasting')}
-            aria-label="New Tasting"
+            aria-label={t('header.newTasting', 'New Tasting')}
             style={{ padding: '8px 10px', minWidth: '38px', height: '38px', justifyContent: 'center' }}
           >
             <Wine size={18} />
@@ -163,8 +174,8 @@ https://winitis.vercel.app`;
           <button 
             className={`btn ${currentView === 'saved' ? 'btn-gold' : 'btn-outline'}`}
             onClick={() => setCurrentView('saved')}
-            title={`${t('header.cellarLog', 'Cellar Log')} (${savedCount})`}
-            aria-label={`Cellar Log (${savedCount})`}
+            title={t('header.cellarLog', 'Cellar Log ({count})', { count: savedCount })}
+            aria-label={t('header.cellarLog', 'Cellar Log ({count})', { count: savedCount })}
             style={{ padding: '8px 10px', minWidth: '38px', height: '38px', justifyContent: 'center', position: 'relative' }}
           >
             <ListFilter size={18} />
@@ -173,7 +184,7 @@ https://winitis.vercel.app`;
                 style={{
                   position: 'absolute',
                   top: '-4px',
-                  right: '-4px',
+                  insetInlineEnd: '-4px',
                   background: 'var(--gold-primary)',
                   color: '#0f0910',
                   fontSize: '0.62rem',
@@ -195,14 +206,14 @@ https://winitis.vercel.app`;
           </button>
 
           {/* Quick Action Symbols: Save, Share Photo, Print (Symbol only, no text) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: '2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginInlineStart: '2px' }}>
             {onSave && (
               <button 
                 type="button"
                 className="btn btn-outline" 
                 onClick={handleSaveClick}
-                title="Save Tasting Note to Cellar"
-                aria-label="Save"
+                title={tr('Save Tasting Note to Cellar')}
+                aria-label={tr('Save')}
                 style={{
                   padding: '8px 10px',
                   minWidth: '38px',
@@ -221,8 +232,8 @@ https://winitis.vercel.app`;
                 className="btn btn-outline" 
                 onClick={onShare}
                 disabled={isSharingPhoto}
-                title="Share Summary as Photo"
-                aria-label="Share Photo"
+                title={tr('Share Summary as Photo')}
+                aria-label={tr('Share Photo')}
                 style={{
                   padding: '8px 10px',
                   minWidth: '38px',
@@ -246,8 +257,8 @@ https://winitis.vercel.app`;
                 type="button"
                 className="btn btn-outline" 
                 onClick={onPrint}
-                title="Print / Save PDF"
-                aria-label="Print"
+                title={tr('Print / Save PDF')}
+                aria-label={tr('Print')}
                 style={{ padding: '8px 10px', minWidth: '38px', justifyContent: 'center' }}
               >
                 <Printer size={16} />
@@ -256,7 +267,7 @@ https://winitis.vercel.app`;
           </div>
 
           {isInstallable && (
-            <button className="btn btn-gold" onClick={handleInstallClick} title="Install App">
+            <button className="btn btn-gold" onClick={handleInstallClick} title={tr('Install App')}>
               <Download size={16} />
               <span><EditableText textKey="header.installPwa" defaultText="Install PWA" /></span>
             </button>
@@ -270,15 +281,15 @@ https://winitis.vercel.app`;
           key={toastKey}
           className="copied-toast-window font-serif"
           onClick={() => setCopiedToast(false)}
-          title="Click to dismiss"
+          title={tr('Click to dismiss')}
         >
           <div className="copied-toast-badge">
             <Check size={16} color="#4ade80" />
-            <span>COPIED!</span>
+            <span>{tr('COPIED!')}</span>
           </div>
           <div className="copied-toast-text">
-            <div className="toast-headline">If you like it - tell your friends</div>
-            <div className="toast-subline">Winitis wine taste app</div>
+            <div className="toast-headline">{tr('If you like it - tell your friends')}</div>
+            <div className="toast-subline">{tr('Winitis wine taste app')}</div>
             <div className="toast-link">https://winitis.vercel.app</div>
           </div>
         </div>

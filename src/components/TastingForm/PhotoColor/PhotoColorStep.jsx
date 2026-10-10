@@ -6,6 +6,7 @@
  * descriptor is handed to the host via onConfirm(patch).
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTexts } from '../../../context/TextContext';
 import { Camera, ImagePlus, Crosshair, Sun, Check, AlertTriangle } from 'lucide-react';
 import { rgbToHex } from './winePalette.js';
 import { samplePatch, identify, whiteBalanceGains, applyGains } from './wineIdentify.js';
@@ -17,6 +18,7 @@ const PATCH_R = 4; // 9×9 sample patch
 /** Props: onConfirm(patch) — called with the picked colour; t — optional i18n. */
 export default function PhotoColorStep({ onConfirm, t }) {
   const tr = (k, fb) => (t ? t(k, fb) : fb);
+  const { tr: tt } = useTexts();
   const [photo, setPhoto] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -70,7 +72,7 @@ export default function PhotoColorStep({ onConfirm, t }) {
     try {
       const p = await loadPhoto(file);
       setPhoto(p); setPoint(null); setWhitePt(null); setMode('wine');
-    } catch (e) { setError(e.message || 'Could not open photo'); }
+    } catch (e) { setError(tt('Could not open photo')); }
     setLoading(false);
   };
 
@@ -204,10 +206,10 @@ export default function PhotoColorStep({ onConfirm, t }) {
       {!photo && (
         <div className="pcs-empty-min">
           <div className="pcs-actions">
-            <button type="button" className="btn btn-gold" onClick={() => camRef.current.click()} disabled={loading} aria-label="Take a photo of the wine"><Camera size={17} /> {tr('color.takePhoto', 'Take photo')}</button>
-            <button type="button" className="btn btn-outline" onClick={() => galRef.current.click()} disabled={loading} aria-label="Upload a photo of the wine"><ImagePlus size={17} /> {tr('color.upload', 'Upload')}</button>
+            <button type="button" className="btn btn-gold" onClick={() => camRef.current.click()} disabled={loading} aria-label={tt('Take a photo of the wine')}><Camera size={17} /> {tr('color.takePhoto', 'Take photo')}</button>
+            <button type="button" className="btn btn-outline" onClick={() => galRef.current.click()} disabled={loading} aria-label={tt('Upload a photo of the wine')}><ImagePlus size={17} /> {tr('color.upload', 'Upload')}</button>
           </div>
-          {loading && <span className="pcs-sr" role="status">Loading photo…</span>}
+          {loading && <span className="pcs-sr" role="status">{tt('Loading photo…')}</span>}
         </div>
       )}
       {error && <p className="pcs-error" role="alert"><AlertTriangle size={14} /> {error}</p>}
@@ -215,9 +217,9 @@ export default function PhotoColorStep({ onConfirm, t }) {
       {photo && (
         <>
           <div className="card-header pcs-header pcs-header-min">
-            <button type="button" className="btn btn-outline pcs-small" onClick={() => galRef.current.click()} aria-label="Choose a new photo"><ImagePlus size={15} /> {tr('color.newPhoto', 'New photo')}</button>
+            <button type="button" className="btn btn-outline pcs-small" onClick={() => galRef.current.click()} aria-label={tt('Choose a new photo')}><ImagePlus size={15} /> {tr('color.newPhoto', 'New photo')}</button>
           </div>
-          <div className="pcs-modebar" role="radiogroup" aria-label="Tap mode">
+          <div className="pcs-modebar" role="radiogroup" aria-label={tt('Tap mode')}>
             <button type="button" role="radio" aria-checked={mode === 'wine'} className={mode === 'wine' ? 'on' : ''} onClick={() => setMode('wine')}><Crosshair size={15} /> {tr('color.pickWine', 'Pick wine')}</button>
             <button type="button" role="radio" aria-checked={mode === 'white'} className={mode === 'white' ? 'on' : ''} onClick={() => setMode('white')}><Sun size={15} /> {whiteRgb ? tr('color.whiteSet', 'White ✓') : tr('color.pickWhite', 'White balance')}</button>
           </div>
@@ -226,7 +228,7 @@ export default function PhotoColorStep({ onConfirm, t }) {
             className={`pcs-viewport ${mode === 'white' ? 'white-mode' : ''}`}
             tabIndex={0}
             role="application"
-            aria-label="Wine photo. Pinch or scroll to zoom, drag to pan, tap to pick. Arrow keys move the picker, plus and minus zoom, Enter uses the colour."
+            aria-label={tt('Wine photo. Pinch or scroll to zoom, drag to pan, tap to pick. Arrow keys move the picker, plus and minus zoom, Enter uses the colour.')}
             onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
             onKeyDown={onKeyDown}
             data-testid="viewport"
@@ -240,7 +242,7 @@ export default function PhotoColorStep({ onConfirm, t }) {
             )}
           </div>
           <span className="pcs-sr" aria-live="polite">{pickedHex ? `Picked colour ${pickedHex}` : ''}</span>
-          <button type="button" className="btn btn-gold pcs-confirm" onClick={confirm} disabled={!pickedHex} data-testid="confirm" aria-label={pickedHex ? `Use colour ${pickedHex}` : 'Use this colour (tap the wine first)'}>
+          <button type="button" className="btn btn-gold pcs-confirm" onClick={confirm} disabled={!pickedHex} data-testid="confirm" aria-label={pickedHex ? `${tt('Use colour')} ${pickedHex}` : tt('Use this colour (tap the wine first)')}>
             <Check size={17} /> {tr('color.useColor', 'Use this colour')}
           </button>
         </>
