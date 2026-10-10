@@ -279,12 +279,21 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
   return (
     <div className="pcs card">
       {fileInputs}
-      <div className="card-header pcs-header">
-        <h2 className="card-title font-serif" id={titleId}>{tr('color.photoTitle', 'Wine Colour')}</h2>
+      {(!overlay || photo) && <div className={`card-header pcs-header ${overlay ? 'pcs-header-min' : ''}`}>
+        {!overlay && <h2 className="card-title font-serif" id={titleId}>{tr('color.photoTitle', 'Wine Colour')}</h2>}
         {photo && <button type="button" className="btn btn-outline pcs-small" onClick={() => galRef.current.click()}><ImagePlus size={15} /> {tr('color.newPhoto', 'New photo')}</button>}
-      </div>
+      </div>}
 
-      {!photo && (
+      {!photo && overlay && (
+        <div className="pcs-empty-min">
+          <div className="pcs-actions">
+            <button type="button" className="btn btn-gold" onClick={() => camRef.current.click()} disabled={loading} aria-label="Take a photo of the wine"><Camera size={17} /> {tr('color.takePhoto', 'Take photo')}</button>
+            <button type="button" className="btn btn-outline" onClick={() => galRef.current.click()} disabled={loading} aria-label="Upload a photo of the wine"><ImagePlus size={17} /> {tr('color.upload', 'Upload')}</button>
+          </div>
+          {loading && <span className="pcs-sr" role="status">Loading photo…</span>}
+        </div>
+      )}
+      {!photo && !overlay && (
         <div className="pcs-empty" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); onFile(e.dataTransfer.files[0]); }}>
           {saved ? (
             <div className="pcs-saved">
@@ -357,8 +366,8 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
           </div>
           {whiteRgb && (
             <div className="pcs-wb">
-              <span className="pcs-swatch" style={{ background: rgbToHex(whiteRgb) }} /> White reference {rgbToHex(whiteRgb)}
-              <button type="button" className="pcs-link" onClick={() => setWhitePt(null)}><RotateCcw size={12} /> remove</button>
+              <span className="pcs-swatch" style={{ background: rgbToHex(whiteRgb) }} />{overlay ? null : <> White reference {rgbToHex(whiteRgb)}</>}
+              <button type="button" className="pcs-link" onClick={() => setWhitePt(null)} aria-label="Remove white reference"><RotateCcw size={12} /> {overlay ? 'Reset white' : 'remove'}</button>
             </div>
           )}
         </>
@@ -372,20 +381,22 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
           </div>
           <div className="pcs-res-text">
             <div className="pcs-desc" data-testid="descriptor">{labelOf(desc)}</div>
-            <div className="pcs-meta">{WINE_TYPES[desc.type].label} · <code data-testid="hex">{shownHex}</code>{whiteRgb ? <> · raw <code>{rgbToHex(sample.rgb)}</code></> : null}</div>
+            <div className="pcs-meta">{WINE_TYPES[desc.type].label} · <code data-testid="hex">{shownHex}</code>{whiteRgb && !overlay ? <> · raw <code>{rgbToHex(sample.rgb)}</code></> : null}</div>
             <div className={`pcs-conf ${best.confidence}`}>
-              {overridden ? `Your choice (auto: ${best.typeLabel.toLowerCase()} ${best.descriptor})` : `Match: ${best.confidence} (ΔE ${best.deltaE})`}
+              {overlay
+                ? (overridden ? `Auto: ${best.descriptor}` : `Match: ${best.confidence}`)
+                : (overridden ? `Your choice (auto: ${best.typeLabel.toLowerCase()} ${best.descriptor})` : `Match: ${best.confidence} (ΔE ${best.deltaE})`)}
             </div>
           </div>
-          {sample.spread > 0.3 && <p className="pcs-warn"><AlertTriangle size={13} /> Uneven patch (edge or reflection). Zoom in on an even area.</p>}
-          {best.confidence === 'poor' && !overridden && <p className="pcs-warn"><AlertTriangle size={13} /> Doesn’t look like a wine colour. Try white balance or tap the wine’s core.</p>}
-          <div className="pcs-alts">
+          {sample.spread > 0.3 && <p className="pcs-warn"><AlertTriangle size={13} /> {overlay ? 'Uneven spot, try an even area.' : 'Uneven patch (edge or reflection). Zoom in on an even area.'}</p>}
+          {best.confidence === 'poor' && !overridden && <p className="pcs-warn"><AlertTriangle size={13} /> {overlay ? 'Not a wine colour?' : 'Doesn’t look like a wine colour. Try white balance or tap the wine’s core.'}</p>}
+          {!overlay && <div className="pcs-alts">
             {ident.alternatives.slice(0, 2).map((a) => (
               <button type="button" key={a.type} className="pcs-chip" onClick={() => changeDesc({ type: a.type, hueIdx: a.hueIdx, intensity: a.intensity })}>
                 {a.typeLabel}: {a.descriptor}
               </button>
             ))}
-          </div>
+          </div>}
           <button type="button" className={`btn ${confirmed ? 'btn-outline' : 'btn-gold'} pcs-confirm`} onClick={confirm} data-testid="confirm">
             <Check size={17} /> {confirmed ? tr('color.saved', 'Saved') : tr('color.useColor', 'Use this colour')}
           </button>
@@ -394,7 +405,7 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
 
       {/* Manual descriptor: override for photo results, keyboard/no-camera fallback otherwise */}
       {(!overlay || (photo && best)) && <fieldset className="pcs-manual">
-        <legend className="form-label">{photo ? tr('color.override', 'Descriptor (override if wrong)') : tr('color.manual', 'Or choose manually')}</legend>
+        <legend className={overlay ? 'pcs-sr' : 'form-label'}>{photo ? tr('color.override', 'Descriptor (override if wrong)') : tr('color.manual', 'Or choose manually')}</legend>
         <div className="pcs-grid3">
           <select className="form-select" aria-label="Wine type" value={desc.type} onChange={(e) => changeDesc({ type: e.target.value })} data-testid="type-select">
             {TYPE_ORDER.map((k) => <option key={k} value={k}>{WINE_TYPES[k].label}</option>)}
@@ -424,7 +435,7 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t, onC
           </select>
         </div>
       </div>}
-      <p className="pcs-note">Colour names are matched to an approximate reference palette; lighting, glass and camera all shift colours.</p>
+      {!overlay && <p className="pcs-note">Colour names are matched to an approximate reference palette; lighting, glass and camera all shift colours.</p>}
     </div>
   );
 }

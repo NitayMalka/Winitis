@@ -18,9 +18,9 @@ export default function PhotoPickerSheet({ open, onClose, onConfirm, colorData, 
   if (!open) return null;
   return (
     <div className="pcs-sheet-backdrop" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="pcs-sheet" role="dialog" aria-modal="true" aria-labelledby="pcs-sheet-title" data-testid="photo-sheet">
+      <div className="pcs-sheet" role="dialog" aria-modal="true" aria-label="Pick colour from a photo" data-testid="photo-sheet">
         <button ref={closeRef} type="button" className="btn btn-outline btn-icon pcs-sheet-close" onClick={onClose} aria-label="Close photo picker"><X size={18} /></button>
-        <PhotoColorStep colorData={colorData} updateColorData={() => {}} onConfirm={onConfirm} t={t} titleId="pcs-sheet-title" />
+        <PhotoColorStep colorData={colorData} updateColorData={() => {}} onConfirm={onConfirm} t={t} />
       </div>
     </div>
   );
