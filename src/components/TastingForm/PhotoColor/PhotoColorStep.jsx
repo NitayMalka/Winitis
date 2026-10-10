@@ -33,13 +33,19 @@ export function descriptorFromColor(c = {}) {
 const intensityValue = (l) => INTENSITIES.find(([n]) => n === l)?.[1] ?? 0.5;
 const labelOf = (d) => `${d.intensity} ${WINE_TYPES[d.type].hues[d.hueIdx].label.toLowerCase()}`;
 
-export default function PhotoColorStep({ colorData = {}, updateColorData, t }) {
+/**
+ * Props: colorData, updateColorData, t (i18n).
+ * Overlay mode: pass `onConfirm(patch)` — "Use this colour" hands the picked colour to the
+ * caller instead of saving, and the Clarity/Rim fields are hidden (the host step owns them).
+ */
+export default function PhotoColorStep({ colorData = {}, updateColorData, t, onConfirm, titleId }) {
+  const overlay = typeof onConfirm === 'function';
   const tr = (k, fb) => (t ? t(k, fb) : fb);
   // ---- persisted bits ------------------------------------------------------
   const [desc, setDesc] = useState(() => descriptorFromColor(colorData));
   const [clarity, setClarity] = useState(colorData.clarity || 'Clear');
   const [rim, setRim] = useState(colorData.rimVariation || 'Ruby Edge');
-  const [saved, setSaved] = useState(() => (colorData.source === 'photo' ? colorData : null));
+  const [saved, setSaved] = useState(() => (!overlay && colorData.source === 'photo' ? colorData : null));
   // ---- photo session (not persisted) --------------------------------------
   const [photo, setPhoto] = useState(null);
   const [error, setError] = useState('');
@@ -231,7 +237,7 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t }) {
   // ---- actions -------------------------------------------------------------------------------------
   const confirm = () => {
     if (!corrected) return;
-    const next = save({
+    const patch = {
       ...colorFields(desc),
       hex: rgbToHex(corrected),
       source: 'photo',
@@ -241,7 +247,9 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t }) {
       autoWineType: ident.best.type,
       matchDeltaE: ident.best.deltaE,
       overridden,
-    });
+    };
+    if (overlay) { onConfirm(patch); return; }
+    const next = save(patch);
     setSaved(next); setConfirmed(true);
   };
   const changeDesc = (patch) => {
@@ -272,7 +280,7 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t }) {
     <div className="pcs card">
       {fileInputs}
       <div className="card-header pcs-header">
-        <h2 className="card-title font-serif">{tr('color.photoTitle', 'Wine Colour')}</h2>
+        <h2 className="card-title font-serif" id={titleId}>{tr('color.photoTitle', 'Wine Colour')}</h2>
         {photo && <button type="button" className="btn btn-outline pcs-small" onClick={() => galRef.current.click()}><ImagePlus size={15} /> {tr('color.newPhoto', 'New photo')}</button>}
       </div>
 
@@ -385,7 +393,7 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t }) {
       )}
 
       {/* Manual descriptor: override for photo results, keyboard/no-camera fallback otherwise */}
-      <fieldset className="pcs-manual">
+      {(!overlay || (photo && best)) && <fieldset className="pcs-manual">
         <legend className="form-label">{photo ? tr('color.override', 'Descriptor (override if wrong)') : tr('color.manual', 'Or choose manually')}</legend>
         <div className="pcs-grid3">
           <select className="form-select" aria-label="Wine type" value={desc.type} onChange={(e) => changeDesc({ type: e.target.value })} data-testid="type-select">
@@ -399,9 +407,9 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t }) {
           </select>
         </div>
         {!photo && !saved && <div className="pcs-meta"><span className="pcs-swatch" style={{ background: shownHex }} /> {labelOf(desc)} · {shownHex} (reference)</div>}
-      </fieldset>
+      </fieldset>}
 
-      <div className="pcs-grid2">
+      {!overlay && <div className="pcs-grid2">
         <div className="form-group">
           <label className="form-label" htmlFor="pcs-clarity">{tr('color.clarityLabel', 'Clarity')}</label>
           <select id="pcs-clarity" className="form-select" value={clarity} onChange={(e) => changeClarity(e.target.value)}>
@@ -415,7 +423,7 @@ export default function PhotoColorStep({ colorData = {}, updateColorData, t }) {
             {!RIM_OPTIONS.some(([v]) => v === rim) && <option value={rim}>{rim}</option>}
           </select>
         </div>
-      </div>
+      </div>}
       <p className="pcs-note">Colour names are matched to an approximate reference palette; lighting, glass and camera all shift colours.</p>
     </div>
   );

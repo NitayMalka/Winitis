@@ -63,3 +63,15 @@
 .pcs-grid2 .form-select { padding: 10px 8px; font-size: .85rem; min-width: 0; }
 .pcs-note { margin: 0; font-size: .7rem; color: var(--text-muted, #a395a8); }
 .pcs-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ---- overlay sheet ---- */
+.pcs-sheet-backdrop { position: fixed; inset: 0; z-index: 10000; background: rgba(5, 3, 6, .78); backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px); display: flex; align-items: flex-end; justify-content: center; }
+.pcs-sheet { position: relative; width: 100%; max-width: 520px; max-height: 100%; overflow-y: auto; overscroll-behavior: contain;
+  padding: 10px 10px calc(14px + env(safe-area-inset-bottom)); background: var(--bg-dark, #0f0910);
+  border-radius: 20px 20px 0 0; border: 1px solid var(--border-gold, rgba(212,175,55,.25)); border-bottom: 0;
+  box-shadow: 0 -10px 40px rgba(0,0,0,.6); }
+.pcs-sheet .pcs { margin-bottom: 0; }
+.pcs-sheet .pcs-header { padding-right: 52px; }
+.pcs-sheet-close { position: absolute; top: 18px; right: 18px; z-index: 2; width: 40px; height: 40px; justify-content: center; }
+@media (min-width: 560px) { .pcs-sheet-backdrop { align-items: center; padding: 20px; } .pcs-sheet { border-radius: 20px; border-bottom: 1px solid var(--border-gold, rgba(212,175,55,.25)); } }

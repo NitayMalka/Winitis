@@ -4394,3 +4394,46 @@ input[type="range"]::-webkit-slider-thumb:hover {
   white-space: nowrap !important;
   flex: 1;
 }
+
+/* Sector 1: right-hand column = camera button header + core/rim controls card */
+.color-controls-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  flex: 1 1 53%;
+  max-width: 53%;
+  min-width: 0;
+}
+.color-controls-header {
+  display: flex;
+  justify-content: flex-end;
+}
+.color-controls-column > .color-controls-card {
+  flex: none;
+  width: 100%;
+  max-width: 100%;
+}
+.color-camera-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  justify-content: center;
+  background: rgba(15, 9, 16, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--gold-light);
+}
+.color-camera-btn::after { /* 46px touch target */
+  content: '';
+  position: absolute;
+  inset: -4px;
+}
+.color-camera-btn:focus-visible {
+  outline: 2px solid var(--gold-primary);
+  outline-offset: 2px;
+}
+@media (max-width: 640px) {
+  .color-controls-column { flex: 1 1 54%; max-width: 54%; }
+}
