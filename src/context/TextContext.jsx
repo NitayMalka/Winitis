@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import defaultTexts from '../content/appTexts.json';
+import { HE_UI } from '../i18n/he';
+import { getStoredLang, makeTr, LANG_KEY } from '../i18n/translate';
 
 const TextContext = createContext(null);
 const STORAGE_KEY = 'winitis_user_custom_texts_v1';
@@ -17,6 +19,23 @@ export function TextProvider({ children }) {
     }
     return defaultTexts;
   });
+
+  // UI language. Display-only: switching never touches note data (notes keep English ids).
+  const [lang, setLangState] = useState(getStoredLang);
+  const setLang = (next) => {
+    setLangState(next);
+    try { localStorage.setItem(LANG_KEY, next); } catch (e) {}
+  };
+  const tr = makeTr(lang);
+
+  useEffect(() => {
+    const html = document.documentElement;
+    html.lang = lang;
+    html.dir = lang === 'he' ? 'rtl' : 'ltr';
+    document.title = lang === 'he' ? 'Winitis | טעימות יין אדום' : 'Winitis | Red Wine Tasting PWA';
+    const manifest = document.querySelector('link[rel="manifest"]');
+    if (manifest) manifest.setAttribute('href', lang === 'he' ? '/manifest.he.json' : '/manifest.json');
+  }, [lang]);
 
   const [isEditMode, setIsEditMode] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -114,6 +133,13 @@ export function TextProvider({ children }) {
     }
 
     let textVal = current !== null && current !== undefined ? current : fallback || path;
+    if (lang === 'he') {
+      let he = HE_UI;
+      for (const part of parts) {
+        he = he && typeof he === 'object' && part in he ? he[part] : undefined;
+      }
+      textVal = typeof he === 'string' ? he : (typeof textVal === 'string' ? tr(textVal) : textVal);
+    }
     if (typeof textVal === 'string' && interpolations) {
       for (const [key, val] of Object.entries(interpolations)) {
         textVal = textVal.replace(new RegExp(`\\{\\s*${key}\\s*\\}`, 'g'), val);
@@ -128,6 +154,9 @@ export function TextProvider({ children }) {
     <TextContext.Provider value={{
       texts,
       t,
+      tr,
+      lang,
+      setLang,
       updateText,
       resetTexts,
       exportTextsJSON,

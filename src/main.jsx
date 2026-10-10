@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import { TextProvider } from './context/TextContext';
 import './index.css';
+import { runI18nMigration } from './i18n/migrate';
+
+runI18nMigration();
 
 class ErrorBoundary extends React.Component {
   constructor(props) {

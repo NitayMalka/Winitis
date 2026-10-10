@@ -1,9 +1,9 @@
 {
-  "name": "Winitis Red Wine Tasting Companion",
+  "name": "Winitis – מלווה טעימות יין אדום",
   "short_name": "Winitis",
-  "description": "Sommelier-grade Red Wine Tasting PWA with Interactive Split-Screen Color Inspection",
-  "lang": "en",
-  "dir": "ltr",
+  "description": "אפליקציית טעימות יין אדום ברמת סומלייה, עם בחינת צבע במסך מפוצל",
+  "lang": "he",
+  "dir": "rtl",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0910",

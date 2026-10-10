@@ -1,8 +1,9 @@
-const CACHE_NAME = 'winitis-v14';
+const CACHE_NAME = 'winitis-v15';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/manifest.he.json',
   '/icon.svg'
 ];
 
