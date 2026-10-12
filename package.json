@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test:layout": "node tests/layout-audit.mjs"
+    "test:layout": "node tests/layout-audit.mjs",
+    "test:share": "node tests/e2e-share-image.mjs"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",

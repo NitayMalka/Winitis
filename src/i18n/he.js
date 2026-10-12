@@ -350,6 +350,8 @@ export const HE_TERMS = {
   'Day Mode (click to switch & refresh latest changes)': 'מצב יום (הקישו להחלפה ולרענון)',
   'Toggle Night/Day mode and refresh': 'החלפת מצב יום/לילה ורענון', 'New Tasting': 'טעימה חדשה', 'Cellar Log': 'יומן המרתף',
   'Save Tasting Note to Cellar': 'שמירת הערת הטעימה במרתף', 'Save': 'שמירה', 'Share Summary as Photo': 'שיתוף הסיכום כתמונה',
+  'The wine photo could not be included in the image, so nothing was shared. Please try again, or re-upload the photo.': 'לא ניתן היה לכלול את תמונת היין בתמונה, ולכן לא שותף דבר. נסו שוב, או העלו את התמונה מחדש.',
+  'The summary image could not be created completely, so nothing was shared. Please try again.': 'לא ניתן היה ליצור את תמונת הסיכום במלואה, ולכן לא שותף דבר. נסו שוב.',
   'Share Photo': 'שיתוף תמונה', 'Print / Save PDF': 'הדפסה / שמירה כ-PDF', 'Print': 'הדפסה', 'Install App': 'התקנת האפליקציה',
   'COPIED!': 'הועתק!', 'Click to dismiss': 'הקישו לסגירה',
   'If you like it - tell your friends': 'אהבתם? ספרו לחברים', 'Winitis wine taste app': 'Winitis – אפליקציית טעימות יין',

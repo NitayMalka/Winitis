@@ -4668,3 +4668,24 @@ body { min-height: 100vh; min-height: 100dvh; }
 }
 .color-controls-card .form-select { padding-right: 18px; background-position: right 5px center; background-size: 10px 10px; }
 .form-select option { background: #1a0f1d; color: #f5f0f7; }
+
+/* Share blocked: clear error instead of sending an incomplete summary image */
+.share-error-toast {
+  position: fixed;
+  left: 50%;
+  top: calc(env(safe-area-inset-top, 0px) + 72px);
+  transform: translateX(-50%);
+  z-index: 999999;
+  width: min(92vw, 420px);
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #3a0d16;
+  border: 1px solid #ef4444;
+  color: #fde8e8;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.35;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}

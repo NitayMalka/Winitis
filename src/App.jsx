@@ -22,7 +22,7 @@ import {
   getActiveTheme,
   saveActiveTheme
 } from './utils/storage';
-import { toBlob, toPng } from 'html-to-image';
+import { renderSummaryPng, ShareImageError } from './utils/shareImage';
 import { Wine, Check, Sparkles, Eye, Wind, Award, FileText } from 'lucide-react';
 import { useTexts } from './context/TextContext';
 import EditableText from './components/TextEditor/EditableText';
@@ -150,9 +150,11 @@ export default function App() {
     }, 120);
   };
 
+  const [shareError, setShareError] = useState(null);
   const handleSharePhoto = async () => {
     if (isSharingPhoto) return;
     setIsSharingPhoto(true);
+    setShareError(null);
 
     try {
       // If not currently showing a verdict card, switch to summary step
@@ -166,15 +168,10 @@ export default function App() {
 
       await new Promise((r) => setTimeout(r, 80));
       const cardEl = document.querySelector('.verdict-card');
-      if (!cardEl) throw new Error('Verdict card element not found');
+      if (!cardEl) throw new ShareImageError('render');
 
-      const blob = await toBlob(cardEl, {
-        pixelRatio: 2,
-        cacheBust: true,
-        filter: (node) => !node.classList?.contains('no-print')
-      });
-
-      if (!blob) throw new Error('Failed to generate image');
+      // Verified image: throws instead of returning a summary with a missing photo / bottle
+      const blob = await renderSummaryPng(cardEl, { pixelRatio: 2 });
 
       const targetNote = viewVerdictTarget || wineNote;
       const safeWineName = (targetNote?.wineName || 'wine').replace(/[^\p{L}\p{N}]+/gu, '_').toLowerCase();
@@ -182,41 +179,34 @@ export default function App() {
       const file = new File([blob], fileName, { type: 'image/png' });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: targetNote?.wineName || tr('Wine Tasting Verdict'),
-          text: `${tr('Wine Tasting Summary')}: ${targetNote?.wineName || ''} (${targetNote?.vintage || ''})`
-        });
-        setIsSharePhotoSuccess(true);
-        setTimeout(() => setIsSharePhotoSuccess(false), 2500);
+        try {
+          await navigator.share({
+            files: [file],
+            title: targetNote?.wineName || tr('Wine Tasting Verdict'),
+            text: `${tr('Wine Tasting Summary')}: ${targetNote?.wineName || ''} (${targetNote?.vintage || ''})`
+          });
+        } catch (err) {
+          if (err?.name === 'AbortError') return; // user closed the share sheet
+          throw err;
+        }
       } else {
-        const dataUrl = await toPng(cardEl, { pixelRatio: 2 });
+        const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.download = fileName;
-        link.href = dataUrl;
+        link.href = url;
         link.click();
-        setIsSharePhotoSuccess(true);
-        setTimeout(() => setIsSharePhotoSuccess(false), 2500);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
       }
+      setIsSharePhotoSuccess(true);
+      setTimeout(() => setIsSharePhotoSuccess(false), 2500);
     } catch (err) {
-      console.warn('Share photo failed, attempting fallback download:', err);
-      const cardEl = document.querySelector('.verdict-card');
-      if (cardEl) {
-        try {
-          const dataUrl = await toPng(cardEl, { pixelRatio: 2 });
-          const targetNote = viewVerdictTarget || wineNote;
-          const safeWineName = (targetNote?.wineName || 'wine').replace(/[^\p{L}\p{N}]+/gu, '_').toLowerCase();
-          const fileName = `${safeWineName}_verdict.png`;
-          const link = document.createElement('a');
-          link.download = fileName;
-          link.href = dataUrl;
-          link.click();
-          setIsSharePhotoSuccess(true);
-          setTimeout(() => setIsSharePhotoSuccess(false), 2500);
-        } catch (fallbackErr) {
-          console.error('Fallback photo download failed:', fallbackErr);
-        }
-      }
+      // Never fall back to sending an unverified image: tell the user instead.
+      console.error('Share photo blocked:', err);
+      const code = err?.code;
+      setShareError(code === 'photo-missing' || code === 'photo-decode'
+        ? tr('The wine photo could not be included in the image, so nothing was shared. Please try again, or re-upload the photo.')
+        : tr('The summary image could not be created completely, so nothing was shared. Please try again.'));
+      setTimeout(() => setShareError(null), 7000);
     } finally {
       setIsSharingPhoto(false);
     }
@@ -288,6 +278,11 @@ export default function App() {
 
   return (
     <div className="app-container">
+      {shareError && (
+        <div className="share-error-toast" role="alert" onClick={() => setShareError(null)}>
+          {shareError}
+        </div>
+      )}
       <div className="sticky-nav-wrapper">
         <Header 
           currentView={currentView}
